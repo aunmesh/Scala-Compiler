@@ -55,16 +55,15 @@ keywords = {
 
 tokens = [
     'IDENTIFIER',
-    'NEWLINE CHARACTERS',
-    'LITERALS',
+    'NEWLINE',
     'INTEGER_LITERALS',
-    'FLOARINGG_POINT_LITERALS',
+    'FLOATING_POINT_LITERALS',
     'BOOLEAN_LITERALS',
     'CHARACTER_LITERALS',
     'STRING_LITERALS',
-    'ESCAPE_SEQUENCES',
-    'WHTIESPACE_AND_COMMENTS',
-    'TRAILING_COMMAS']
+    'WHITESPACE_LITERAL'
+    ]
+
 #Hexdigit = [0-9A-Fa-F]
 #Unicode = \\u+ + Hexdigit + Hexdigit + Hexdigit + HexdigitWhitesspace = \\n\r \t
 #Letters = a-zA-Z$_
@@ -72,35 +71,6 @@ tokens = [
 #Parantheses = \(\)\[\]\{\}
 #Delimiters = \’`”.;,
 #OpChar = !#%&\*\+-/<>=:\?\\^\|~
-
-
-'''
-There are three ways to form an identifier. First, an identifier can start with a 
-letter which can be followed by an arbitrary sequence of letters and digits. This 
-may be followed by underscore ‘_‘ characters and another string composed of either 
-letters and digits or of operator characters. 
-
-Second, an identifier can start with an
-operator character followed by an arbitrary sequence of operator characters. The 
-preceding two forms are called plain identifiers.
-
-Finally, an identifier may also be
-formed by an arbitrary string between back-quotes (host systems may impose some 
-restrictions on which strings are legal for identifiers). The identifier then is 
-composed of all characters excluding the backquotes themselves.
-
-
-op       ::=  opchar {opchar}
-varid    ::=  lower idrest
-boundvarid ::=  varid
-             | ‘`’ varid ‘`’
-plainid  ::=  upper idrest
-           |  varid
-           |  op
-id       ::=  plainid
-           |  ‘`’ { charNoBackQuoteOrNewline | UnicodeEscape | charEscapeSeq } ‘`’
-idrest   ::=  {letter | digit} [‘_’ op]
-'''
 
 Hexdigit = "0-9A-Fa-F"
 Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
@@ -113,7 +83,33 @@ OpChar = "!#%&\*\+-/<>=:\?\\^\|~"
 
 Op = OpChar + '+'
 
-t_IDENTIFIER = r'[%s][%s%s]*_*[[%s%s]*[%s]*]' %(Letters,Letters,Digits,Letters,Digits,OpChar)
+Id_part1 = "[%s][%s%s]*_*[[%s%s]\*[%s]\*]" %(Letters,Letters,Digits,Letters,Digits,OpChar)
+Id_part2 = "[%s]+" %OpChar
+#Id_part3 = ""
+
+t_IDENTIFIER = r'%s|%s' %(Id_part1,Id_part2)
+print t_IDENTIFIER
+
+t_NEWLINE = r'[\n;]'
+
+t_INTEGER_LITERALS = r"-[%s]+[lL]|[%s]+[lL]" %(Digits,Digits)
+
+#Exponent_part = '[Ee][+-][0-9]+'
+t_FLOATING_POINT_LITERALS = r'%s*.%s+[\[Ee\]\[+-\]\[0-9\]\+]?[fFdD]?' %(Digits,Digits)
+
+t_BOOLEAN_LITERALS = r'true|false'
+
+t_CHARACTER_LITERALS = r'\'[\w\s]\''
+
+t_STRING_LITERALS = r'\'[\w\s]+\''
+
+t_WHITESPACE_LITERAL = r' \t'
+
+lexer = lex.lex()
+#r"-[%s].[%s]"
+
+
+
 
 '''
 #Regular expression for identifiers
