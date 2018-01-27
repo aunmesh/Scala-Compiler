@@ -3,33 +3,7 @@
 from ply import lex as lex
 import re
 
-'''
- object HelloWorld {
-    def main(args: Array[String]) {
-      println("Hello, world!")
-    }
-  }
-'''
-
 #List of token names. Always required
-
-#Reserved words in Scala (not to be included in identifiers)
-'''
-abstract	case	catch	class
-def	do	else	extends
-false	final	finally	for
-forSome	if	implicit	import
-lazy	match	new	Null
-object	override	package	private
-protected	return	sealed	super
-this	throw	trait	Try
-true	type	val	Var
-while	with	yield	 
--	:	=	=>
-<-	<:	<%	>:
-#	@
-'''
-
 #TOKEN NAMES IN SCALA
 '''
 1 Identifiers
@@ -49,8 +23,61 @@ while	with	yield
 
 
 keywords = {
+    'abstract' : 'KW_abstract',
+    'case' : 'KW_case',	
+     'catch' : 'KW_catch',
+     'class' : 'KW_class',
+     'def' : 'KW_def',
+     'do' : 'KW_do',
+     'else' : 'KW_else',
+     'extends' : 'KW_extends',
+     'false' : 'KW_false',
+     'final' : 'KW_final',
+     'finally' : 'KW_finally',
+     'for' : 'KW_for',
+     'forSome' : 'KW_forSome',
+     'if' : 'KW_if',
+     'implicit' : 'KW_implicit',
+     'import' : 'KW_import',
+     'lazy' : 'KW_lazy',
+     'match' : 'KW_match',
+     'new' : 'KW_new',
+     'NULL' : 'KW_NULL',
+     'object' : 'KW_object',
+     'override' : 'KW_override',
+     'package' : 'KW_package',
+     'private' : 'KW_private',
+     'protected' : 'KW_protected',
+     'return' : 'KW_return',
+     'sealed' : 'KW_sealed',
+     'super' : 'KW_super',
+     'this' : 'KW_this',
+     'throw' : 'KW_throw',
+     'trait' : 'KW_trait',
+     'Try' : 'KW_Try',
+     'true' : 'KW_true',
+     'type' : 'KW_type',
+     'val' : 'KW_val',
+     'Var' : 'KW_Var',
+     'while' : 'KW_while',
+     'with' : 'KW_with',
+     'yield' : 'KW_yield',
+     '-' : 'KW_-',
+     ':' : 'KW_:',
+     '=' : 'KW_=',
+     '=>' : 'KW_=>',
+     '<-' : 'KW_<-',
+     '<:' : 'KW_<:',
+     '<%' : 'KW_<%',
+     '>:' : 'KW_>:',
+     '#' : 'KW_#',
+     '@' : : 'KW_@'
+}
+
+
+keywords = {
     'object': 'KEYWORD_OBJECT',
-    'def' : 'KEYWORD_def',   
+    'def' : 'KEYWORD_def',
 }
 
 tokens = [
@@ -63,14 +90,6 @@ tokens = [
     'STRING_LITERALS',
     'WHITESPACE_LITERAL'
     ]
-
-#Hexdigit = [0-9A-Fa-F]
-#Unicode = \\u+ + Hexdigit + Hexdigit + Hexdigit + HexdigitWhitesspace = \\n\r \t
-#Letters = a-zA-Z$_
-#Digits = 0-9
-#Parantheses = \(\)\[\]\{\}
-#Delimiters = \’`”.;,
-#OpChar = !#%&\*\+-/<>=:\?\\^\|~
 
 Hexdigit = "0-9A-Fa-F"
 Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
@@ -88,7 +107,6 @@ Id_part2 = "[%s]+" %OpChar
 #Id_part3 = ""
 
 t_IDENTIFIER = r'%s|%s' %(Id_part1,Id_part2)
-print t_IDENTIFIER
 
 t_NEWLINE = r'[\n;]'
 
@@ -105,16 +123,10 @@ t_STRING_LITERALS = r'\'[\w\s]+\''
 
 t_WHITESPACE_LITERAL = r' \t'
 
+# Error Handling rule
+def t_error(t):
+    print("Illegal Character '%s'" % t.value[0])
+    t.lexer.skip(1)
+
+
 lexer = lex.lex()
-#r"-[%s].[%s]"
-
-
-
-
-'''
-#Regular expression for identifiers
-def t_IDENTIFIER(t):
-    #r'[a-zA-Z][a-zA-Z0-9]*_*[[a-zA-Z0-9]*[!#%&\*\+-/<>=:\?\\^\|~]]'
-    r'[%s][%s%s]*_*[[%s%s]*[%s]]' %Letters %Letters %Digits %Letters %Digits %OpChar
-'''
-
