@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from ply import lex as lex
 import re
 
@@ -62,19 +64,15 @@ tokens = [
     'STRING_LITERALS',
     'ESCAPE_SEQUENCES',
     'WHTIESPACE_AND_COMMENTS',
-    'TRAILING_COMMAS'  
-]
+    'TRAILING_COMMAS']
+#Hexdigit = [0-9A-Fa-F]
+#Unicode = \\u+ + Hexdigit + Hexdigit + Hexdigit + HexdigitWhitesspace = \\n\r \t
+#Letters = a-zA-Z$_
+#Digits = 0-9
+#Parantheses = \(\)\[\]\{\}
+#Delimiters = \’`”.;,
+#OpChar = !#%&\*\+-/<>=:\?\\^\|~
 
-'''
-Hexdigit = ‘[0-9A-Fa-F]’
-Unicode = ‘\\u+’ + Hexdigit + Hexdigit + Hexdigit + Hexdigit
-Whitesspace = ‘[\\n\r \t]’
-Letters = ‘[a-zA-Z$_]’
-Digits = ‘[0-9]’
-Parantheses = ‘[\(\)\[\]\{\}]’
-Delimiters = ‘[\’`”.;,]’
-OpChar = ‘[!#%&\*\+-/<>=:\?\\^\|~]’
-'''
 
 '''
 There are three ways to form an identifier. First, an identifier can start with a 
@@ -115,8 +113,7 @@ OpChar = "!#%&\*\+-/<>=:\?\\^\|~"
 
 Op = OpChar + '+'
 
-t_IDENTIFIER = r'[%s][%s%s]*_*[[%s%s]*[%s]*]' %Letters %Letters %Digits %Letters %Digits %OpChar
-
+t_IDENTIFIER = r'[%s][%s%s]*_*[[%s%s]*[%s]*]' %(Letters,Letters,Digits,Letters,Digits,OpChar)
 
 '''
 #Regular expression for identifiers
