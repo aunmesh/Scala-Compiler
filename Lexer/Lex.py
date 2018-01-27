@@ -104,19 +104,18 @@ id       ::=  plainid
 idrest   ::=  {letter | digit} [‘_’ op]
 '''
 
-
-Hexdigit = ‘0-9A-Fa-F’
-Unicode = ‘\\u+’ + Hexdigit + Hexdigit + Hexdigit + Hexdigit
-Whitesspace = ‘\\n\r \t’
-Letters = ‘a-zA-Z$_’
-Digits = ‘0-9’
-Parantheses = ‘\(\)\[\]\{\}’
-Delimiters = ‘\’`”.;,’
-OpChar = ‘!#%&\*\+-/<>=:\?\\^\|~’
+Hexdigit = "0-9A-Fa-F"
+Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
+Whitesspace = "\\n\r \t"
+Letters = "a-zA-Z$_"
+Digits = "0-9"
+Parantheses = "\(\)\[\]\{\}"
+Delimiters ="'`\".;,"
+OpChar = "!#%&\*\+-/<>=:\?\\^\|~"
 
 Op = OpChar + '+'
 
-t_IDENTIFIER = r'[%s][%s%s]*_*[[%s%s]*[%s]]' %Letters %Letters %Digits %Letters %Digits %OpChar
+t_IDENTIFIER = r'[%s][%s%s]*_*[[%s%s]*[%s]*]' %Letters %Letters %Digits %Letters %Digits %OpChar
 
 
 '''
