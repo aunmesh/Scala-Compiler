@@ -90,7 +90,7 @@ tokens = [
 #[MC6(Hexdigit = "0-9A-Fa-F"
 #Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
 Whitesspace = "\\n\r \t"
-Letters = "a-zA-Z$_"
+Letters = "a-zA-Z$"
 Digits = "0-9"
 Parantheses = "\(\)\[\]\{\}"
 Delimiters ="'`\".;,"
@@ -98,13 +98,21 @@ OpChar = "!#%&\*\+-/<>=:\?\\^\|~"
 
 Op = OpChar + '+'
 
-Id_part1 = "[%s][%s%s]*_*[[%s%s]\*[%s]\*]" %(Letters,Letters,Digits,Letters,Digits,OpChar)
-Id_part2 = "[%s]+" %OpChar
-#Id_part3 = ""
+#Id_part1 = "[%s][%s%s]*_*[[%s%s]\*[%s]\*]" %(Letters,Letters,Digits,Letters,Digits,OpChar)
+Id_part1 = "[%s][%s%s]*_*[%s%s]*" %(Letters,Letters,Digits,Letters,Digits)
+Id_part2 = "[%s][%s%s]*_*[%s]*" %(Letters,Letters,Digits,OpChar)
+Id_part3 = "[%s]+" %OpChar
+#Id_part4 = ""
 
-t_IDENTIFIER = r'%s|%s' %(Id_part1,Id_part2)
+#t_IDENTIFIER = r'%s|%s|%s' %(Id_part1,Id_part2, Id_part3)
 
-print t_IDENTIFIER
+
+def t_IDENTIFIER(t):
+    r"[a-zA-Z$][a-zA-Z$0-9]*_*[a-zA-Z$0-9]*|[a-zA-Z$][a-zA-Z$0-9]*_*[!#%&\*\+-/<>=:\?\^\|~]*|[!#%&\*\+-/<>=:\?\^\|~]+"
+    t.type = keywords.get(t.value, 'IDENTIFIER')
+    return t
+
+#print t_IDENTIFIER
 t_NEWLINE = r'[\n;]'
 
 t_INTEGER_LITERALS = r"-[%s]+[lL]|[%s]+[lL]" %(Digits,Digits)
@@ -118,7 +126,7 @@ t_CHARACTER_LITERALS = r'\'[\w\s]\''
 
 t_STRING_LITERALS = r'\'[\w\s]+\''
 
-t_WHITESPACE_LITERAL = r' \t'
+t_WHITESPACE_LITERAL = r'[ \t]'
 
 # Error Handling rule
 def t_error(t):
