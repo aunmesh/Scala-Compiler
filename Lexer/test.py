@@ -18,4 +18,26 @@ def test(lexer):
         toklist_value.add(tok.value)
     return (toklist_key,toklist_value)
 
+
+def Print(lexer,fin):
+    data = file(fin,'r').read()
+    lexer.input(data)
+
+    toklist_key = {}
+    #toklist_value =         
+    
+    while True:
+        tok = lexer.token()
+        if not tok:
+            break
+        if tok.type not in toklist_key.keys():
+            toklist_key[tok.type] = [tok.value]
+        else:
+            toklist_key[tok.type].append(tok.value)
+
+    return toklist_key
+            
+                
+
+
     

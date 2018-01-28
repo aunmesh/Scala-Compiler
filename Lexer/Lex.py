@@ -89,14 +89,13 @@ tokens = [
 
 #[MC6(Hexdigit = "0-9A-Fa-F"
 #Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
+
 Whitesspace = "\\n\r \t"
 Letters = "a-zA-Z$"
 Digits = "0-9"
 Parantheses = "\(\)\[\]\{\}"
 Delimiters ="'`\".;,"
 OpChar = "!#%&\*\+-/<>=:\?\\^\|~"
-
-Op = OpChar + '+'
 
 #Id_part1 = "[%s][%s%s]*_*[[%s%s]\*[%s]\*]" %(Letters,Letters,Digits,Letters,Digits,OpChar)
 Id_part1 = "[%s][%s%s]*_*[%s%s]*" %(Letters,Letters,Digits,Letters,Digits)
@@ -136,4 +135,9 @@ def t_error(t):
 
 lexer = lex.lex()
 
-l1,l2 = test(lexer)
+l1 = Print(lexer,'Scala.txt')
+
+
+
+
+
