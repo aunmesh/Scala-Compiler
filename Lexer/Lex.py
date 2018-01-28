@@ -3,6 +3,8 @@
 from ply import lex as lex
 import re
 
+from test import *
+
 #List of token names. Always required
 #TOKEN NAMES IN SCALA
 '''
@@ -130,3 +132,5 @@ def t_error(t):
 
 
 lexer = lex.lex()
+
+l1,l2 = test(lexer)
