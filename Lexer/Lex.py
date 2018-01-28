@@ -70,8 +70,8 @@ keywords = {
      '<:' : 'KW_<:',
      '<%' : 'KW_<%',
      '>:' : 'KW_>:',
-     '#' : 'KW_#',
-     '@' : : 'KW_@'
+     '#' : 'KW_\#',
+     '@' : "KW_@"
 }
 
 
@@ -91,8 +91,8 @@ tokens = [
     'WHITESPACE_LITERAL'
     ]
 
-Hexdigit = "0-9A-Fa-F"
-Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
+#[MC6(Hexdigit = "0-9A-Fa-F"
+#Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
 Whitesspace = "\\n\r \t"
 Letters = "a-zA-Z$_"
 Digits = "0-9"
