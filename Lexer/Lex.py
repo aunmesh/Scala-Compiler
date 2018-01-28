@@ -64,22 +64,16 @@ keywords = {
      'while' : 'KW_while',
      'with' : 'KW_with',
      'yield' : 'KW_yield',
-     '-' : 'KW_-',
-     ':' : 'KW_:',
-     '=' : 'KW_=',
-     '=>' : 'KW_=>',
-     '<-' : 'KW_<-',
-     '<:' : 'KW_<:',
-     '<%' : 'KW_<%',
-     '>:' : 'KW_>:',
-     '#' : 'KW_\#',
-     '@' : "KW_@"
-}
-
-
-keywords = {
-    'object': 'KEYWORD_OBJECT',
-    'def' : 'KEYWORD_def',
+     '-' : 'KW_MINUS',
+     ':' : 'KW_COLON',
+     '=' : 'KW_EQ',
+     '=>' : 'KW_EQ_GT',
+     '<-' : 'KW_LT_MINUS',
+     '<:' : 'KW_LE_COLON',
+     '<%' : 'KW_LT_PERCENT',
+     '>:' : 'KW_GT_COLON',
+     '#' : 'KW_HASH',
+     '@' : "KW_AT"
 }
 
 tokens = [
@@ -91,7 +85,7 @@ tokens = [
     'CHARACTER_LITERALS',
     'STRING_LITERALS',
     'WHITESPACE_LITERAL'
-    ]
+    ] + list(keywords.values())
 
 #[MC6(Hexdigit = "0-9A-Fa-F"
 #Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
@@ -110,6 +104,7 @@ Id_part2 = "[%s]+" %OpChar
 
 t_IDENTIFIER = r'%s|%s' %(Id_part1,Id_part2)
 
+print t_IDENTIFIER
 t_NEWLINE = r'[\n;]'
 
 t_INTEGER_LITERALS = r"-[%s]+[lL]|[%s]+[lL]" %(Digits,Digits)
