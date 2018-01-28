@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ply import lex as lex
-import re
-
+import re,sys
 from test import *
 
 #List of token names. Always required
@@ -214,7 +213,11 @@ lexer.paranthesis = 0
 lexer.paranthesis_square = 0
 lexer.paranthesis_curly = 0
 lexer.lines = 0
-l1 = Print(lexer,'Scala.txt')
+
+filename = sys.argv[1]
+
+# Print function defined in test.py
+l1 = Print(lexer,filename)
 
 
 

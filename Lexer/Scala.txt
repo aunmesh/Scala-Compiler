@@ -1,6 +1,5 @@
 "asdf"
-'true'
-'a'
+'
 //asjbasidfgvbiasdufvb fhasjidfbiasdugbfdfasdf
  object HelloWorld {
     def main(args: Array[String]) {
