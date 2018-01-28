@@ -37,12 +37,32 @@ def Print(lexer,fin):
 
     #f_write = file(fout, 'w')
 
-    print "Token \tOccurences\tLexemes"
+    print "Token  \tOccurences  \tLexemes"
     for key in toklist_key.keys():
-        print("%s \t%s\t%s" %(key, len(toklist_key[key]) , toklist_key[key].pop() ))
+        print("%s  \t%s  \t%s" %(key, len(toklist_key[key]) , toklist_key[key].pop() ))
 
         for value in toklist_key[key]:
-                print("  \t \t%s" %(value ) )    
+            if key == "WSPACE_LIT":
+                continue
+            if key == "NEWLINE":
+                continue
+            if key == "PARALEFT":
+                continue        
+            if key == "PARARIGHT":
+                continue
+            if key == "PARALSQUARE":
+                continue
+            if key == "PARARSQUARE":
+                continue
+            if key == "PARALCURLY":
+                continue
+            if key == "PARARCURLY":
+                continue
+            if key == "SQUOTES":
+                continue
+            if key == "DQUOTES":
+                continue                            
+            print("  \t \t \t  %s" %(value ) )    
 
     return toklist_key
             

@@ -10,14 +10,14 @@ from test import *
 '''
 1 Identifiers
 2 Newline Characters
-3 Literals
-1 Integer Literals
-2 Floating Point Literals
-3 Boolean Literals
-4 Character Literals
-5 String Literals
+3 LITs
+1 Integer LITs
+2 Floating Point LITs
+3 Boolean LITs
+4 Character LITs
+5 String LITs
 6 Escape Sequences
-7 Symbol literals
+7 Symbol LITs
 4 Whitespace and Comments
 5 Trailing Commas in Multi-line Expressions
 6 XML mode
@@ -73,18 +73,27 @@ keywords = {
      '<%' : 'KW_LT_PERCENT',
      '>:' : 'KW_GT_COLON',
      '#' : 'KW_HASH',
-     '@' : "KW_AT"
+     '@' : "KW_AT",
+     ',' : "KW_COMMA"
 }
 
 tokens = [
     'IDENTIFIER',
     'NEWLINE',
-    'INTEGER_LITERALS',
-    'FLOATING_POINT_LITERALS',
-    'BOOLEAN_LITERALS',
-    'CHARACTER_LITERALS',
-    'STRING_LITERALS',
-    'WHITESPACE_LITERAL'
+    'INTEGER_LITS',
+    'F_POINT_LITS',
+    'BOOLEAN_LITS',
+    'CHAR_LITS',
+    'STR_LITS',
+    'WSPACE_LIT',
+    'PARALEFT',
+    'PARARIGHT',
+    'PARALSQUARE',
+    'PARARSQUARE',
+    'PARALCURLY',
+    'PARARCURLY',
+    'SQUOTES',
+    'DQUOTES'
     ] + list(keywords.values())
 
 #[MC6(Hexdigit = "0-9A-Fa-F"
@@ -111,21 +120,74 @@ def t_IDENTIFIER(t):
     t.type = keywords.get(t.value, 'IDENTIFIER')
     return t
 
+
+
+
+
+def t_PARALEFT(t):
+    r"\("
+    lexer.paranthesis+=1
+    return t
+    
+def t_PARARIGHT(t):
+    r"\)"
+    lexer.paranthesis-=1
+    if (lexer.paranthesis <0):
+        print("Unexpected ) at line no. %d" %(t.lineno))
+    else:
+        return t
+
+
+def t_PARALSQUARE(t):
+    r"\["
+    lexer.paranthesis_square+=1
+    return t
+    
+def t_PARARSQUARE(t):
+    r"\]"
+    lexer.paranthesis_square-=1
+    if (lexer.paranthesis_square <0):
+        print("Unexpected ] at line no. %d" %(t.lineno))
+    else:
+        return t
+
+
+
+def t_PARALCURLY(t):
+    r"\{"
+    lexer.paranthesis_curly += 1
+    return t
+    
+def t_PARARCURLY(t):
+    r"\}"
+    lexer.paranthesis_curly -=1
+    if (lexer.paranthesis_curly <0):
+        print("Unexpected } at line no. %d" %(t.lineno))
+    else:
+        return t
+
+
+
 #print t_IDENTIFIER
 t_NEWLINE = r'[\n;]'
 
-t_INTEGER_LITERALS = r"-[%s]+[lL]|[%s]+[lL]" %(Digits,Digits)
+t_INTEGER_LITS = r"-[%s]+[lL]?|[%s]+[lL]?" %(Digits,Digits)
+print t_INTEGER_LITS
 
 #Exponent_part = '[Ee][+-][0-9]+'
-t_FLOATING_POINT_LITERALS = r'%s*.%s+[\[Ee\]\[+-\]\[0-9\]\+]?[fFdD]?' %(Digits,Digits)
+t_F_POINT_LITS = r'%s*.%s+[\[Ee\]\[+-\]\[0-9\]\+]?[fFdD]?' %(Digits,Digits)
 
-t_BOOLEAN_LITERALS = r'true|false'
+t_BOOLEAN_LITS = r'true|false'
 
-t_CHARACTER_LITERALS = r'\'[\w\s]\''
+t_CHAR_LITS = r'\'[\w\s]\''
 
-t_STRING_LITERALS = r'\'[\w\s]+\''
+t_STR_LITS = r'\'[\w\s]+\''
 
-t_WHITESPACE_LITERAL = r'[ \t]'
+t_WSPACE_LIT = r'[ \t]'
+
+t_SQUOTES = r'\''
+
+t_DQUOTES = r'"'
 
 # Error Handling rule
 def t_error(t):
@@ -134,6 +196,9 @@ def t_error(t):
 
 
 lexer = lex.lex()
+lexer.paranthesis = 0
+lexer.paranthesis_square = 0
+lexer.paranthesis_curly = 0
 
 l1 = Print(lexer,'Scala.txt')
 
