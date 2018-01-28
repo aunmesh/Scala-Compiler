@@ -39,9 +39,16 @@ def Print(lexer,fin):
 
     print "Token  \tOccurences  \tLexemes"
     for key in toklist_key.keys():
-        print("%s  \t%s  \t%s" %(key, len(toklist_key[key]) , toklist_key[key].pop() ))
+        if(toklist_key[key][0] == '\n'):
+            print("%s  \t%s  \t%s" %(key, len(toklist_key[key]) , "\\n" ))
+        else:
+            print("%s  \t%s  \t%s" %(key, len(toklist_key[key]) , toklist_key[key].pop() ))
 
         for value in toklist_key[key]:
+            if(key[0:7]=="NEWLINE"):
+                continue
+            if(key[0:3]=="KW_"):
+                continue
             if key == "WSPACE_LIT":
                 continue
             if key == "NEWLINE":

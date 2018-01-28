@@ -79,7 +79,8 @@ keywords = {
 
 tokens = [
     'IDENTIFIER',
-    'NEWLINE',
+    'NEWLINE_NL',
+    'NEWLINE_SC',
     'INTEGER_LITS',
     'F_POINT_LITS',
     'BOOLEAN_LITS',
@@ -93,7 +94,9 @@ tokens = [
     'PARALCURLY',
     'PARARCURLY',
     'SQUOTES',
-    'DQUOTES'
+    'DQUOTES',
+    'COMMENT_LINE',
+    'COMMENT_BLOCK'
     ] + list(keywords.values())
 
 #[MC6(Hexdigit = "0-9A-Fa-F"
@@ -104,7 +107,8 @@ Letters = "a-zA-Z$"
 Digits = "0-9"
 Parantheses = "\(\)\[\]\{\}"
 Delimiters ="'`\".;,"
-OpChar = "!#%&\*\+-/<>=:\?\\^\|~"
+#OpChar = "!#%&\*\+-/<>=:\?\\^\|~"
+OpChar = "!#%&\*\+-<>=:\?\\^\|~"
 
 #Id_part1 = "[%s][%s%s]*_*[[%s%s]\*[%s]\*]" %(Letters,Letters,Digits,Letters,Digits,OpChar)
 Id_part1 = "[%s][%s%s]*_*[%s%s]*" %(Letters,Letters,Digits,Letters,Digits)
@@ -114,14 +118,15 @@ Id_part3 = "[%s]+" %OpChar
 
 #t_IDENTIFIER = r'%s|%s|%s' %(Id_part1,Id_part2, Id_part3)
 
+t_COMMENT_BLOCK = r"\/\*(\*(?!\/)|[^*])*\*\/"
+t_COMMENT_LINE = r"\/\/.*"
+
 
 def t_IDENTIFIER(t):
-    r"[a-zA-Z$][a-zA-Z$0-9]*_*[a-zA-Z$0-9]*|[a-zA-Z$][a-zA-Z$0-9]*_*[!#%&\*\+-/<>=:\?\^\|~]*|[!#%&\*\+-/<>=:\?\^\|~]+"
+    #r"[a-zA-Z$][a-zA-Z$0-9]*_*[a-zA-Z$0-9]*|[a-zA-Z$][a-zA-Z$0-9]*_*[!#%&\*\+-/<>=:\?\^\|~]*|[!#%&\*\+-/<>=:\?\^\|~]+"
+    r"[a-zA-Z$][a-zA-Z$0-9]*_*[a-zA-Z$0-9]*|[a-zA-Z$][a-zA-Z$0-9]*_*[!#%&\*\+\-<>=:\?\^\|~]*|[!#%&\*\+\-<>=:\?\^\|~]+"
     t.type = keywords.get(t.value, 'IDENTIFIER')
     return t
-
-
-
 
 
 def t_PARALEFT(t):
@@ -137,7 +142,6 @@ def t_PARARIGHT(t):
     else:
         return t
 
-
 def t_PARALSQUARE(t):
     r"\["
     lexer.paranthesis_square+=1
@@ -150,8 +154,6 @@ def t_PARARSQUARE(t):
         print("Unexpected ] at line no. %d" %(t.lineno))
     else:
         return t
-
-
 
 def t_PARALCURLY(t):
     r"\{"
@@ -166,10 +168,9 @@ def t_PARARCURLY(t):
     else:
         return t
 
-
-
 #print t_IDENTIFIER
-t_NEWLINE = r'[\n;]'
+t_NEWLINE_NL = r'[\n]'
+t_NEWLINE_SC = r'[;]'
 
 t_INTEGER_LITS = r"-[%s]+[lL]?|[%s]+[lL]?" %(Digits,Digits)
 #print t_INTEGER_LITS
@@ -178,23 +179,33 @@ t_INTEGER_LITS = r"-[%s]+[lL]?|[%s]+[lL]?" %(Digits,Digits)
 #t_F_POINT_LITS = r'[%s]*\.[%s]+[\[Ee\]\[+-\]\[0-9\]\+]?[fFdD]?' %(Digits,Digits)
 t_F_POINT_LITS = r'[0-9]*\.[0-9]+[Ee][+-][0-9]+[fFdD]?|[0-9]*\.[0-9]+'
 
-print t_F_POINT_LITS
+#print t_F_POINT_LITS
 
-t_BOOLEAN_LITS = r'true|false'
+t_BOOLEAN_LITS = r'\'true\'|\'false\''
 
 t_CHAR_LITS = r'\'[\w\s]\''
 
-t_STR_LITS = r'\'[\w\s]+\''
+t_STR_LITS = r'"[^"\n]+"'
 
 t_WSPACE_LIT = r'[ \t]'
+
 
 t_SQUOTES = r'\''
 
 t_DQUOTES = r'"'
 
+#t_COMMENTS=  r"[ ]*\{[^\n]*\}"
+#t_COMMENTS=  r"[ ]*\{[^\n]*\}""
+
+
+def t_newline(t):
+    r"\n"
+    t.lexer.lineno+=1
+
+
 # Error Handling rule
 def t_error(t):
-    print("Illegal Character '%s'" % t.value[0])
+    print("Illegal Character '%s' at Line No. %s" % (t.value[0], t.lineno ) )
     t.lexer.skip(1)
 
 
@@ -202,7 +213,7 @@ lexer = lex.lex()
 lexer.paranthesis = 0
 lexer.paranthesis_square = 0
 lexer.paranthesis_curly = 0
-
+lexer.lines = 0
 l1 = Print(lexer,'Scala.txt')
 
 
