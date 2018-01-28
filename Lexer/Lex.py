@@ -172,10 +172,13 @@ def t_PARARCURLY(t):
 t_NEWLINE = r'[\n;]'
 
 t_INTEGER_LITS = r"-[%s]+[lL]?|[%s]+[lL]?" %(Digits,Digits)
-print t_INTEGER_LITS
+#print t_INTEGER_LITS
 
 #Exponent_part = '[Ee][+-][0-9]+'
-t_F_POINT_LITS = r'%s*.%s+[\[Ee\]\[+-\]\[0-9\]\+]?[fFdD]?' %(Digits,Digits)
+#t_F_POINT_LITS = r'[%s]*\.[%s]+[\[Ee\]\[+-\]\[0-9\]\+]?[fFdD]?' %(Digits,Digits)
+t_F_POINT_LITS = r'[0-9]*\.[0-9]+[Ee][+-][0-9]+[fFdD]?|[0-9]*\.[0-9]+'
+
+print t_F_POINT_LITS
 
 t_BOOLEAN_LITS = r'true|false'
 
