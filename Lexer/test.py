@@ -35,6 +35,15 @@ def Print(lexer,fin):
         else:
             toklist_key[tok.type].append(tok.value)
 
+    #f_write = file(fout, 'w')
+
+    print "Token \tOccurences\tLexemes"
+    for key in toklist_key.keys():
+        print("%s \t%s\t%s" %(key, len(toklist_key[key]) , toklist_key[key].pop() ))
+
+        for value in toklist_key[key]:
+                print("  \t \t%s" %(value ) )    
+
     return toklist_key
             
                 
