@@ -9,8 +9,10 @@ self.data[lineNo][1] contains line number
 class Quadruple(object):
 
 	def __init__(self):
-		self.data = []
-		self.numblocks = 0
+		self.Data = []
+		self.NumBlocks = 0
+		self.Identifiers = {}          #List of all the identifiers(Only integers or functions for our purpose) in the IR CODE,
+		
 
 	'''
 	load3AC - 3AC is loaded into Quadruple object
@@ -24,12 +26,41 @@ class Quadruple(object):
 	def load3AC(self, filename):
 		f = open(filename, 'r')
 		i = 1
-		self.data.append([])       # empty list added at the beginning to keep list index and line numbers consistent
+		self.Data.append([])       # empty list added at the beginning to keep list index and line numbers consistent
 		for line in f:
-			self.data.append([0])
+			self.Data.append([0])          #0 is placeholder for block number, which will be assigned by assignBlocks method
 			currLine = line.split()
-			self.data[i] = self.data[i] + currLine
+			self.Data[i] = self.Data[i] + currLine
+
+            VarList, TypeList = extIds(currLine)
+            temp = 0
+
+            for v in VarList:
+                self.Identifier[v] = TypeList[temp]
+                temp+=1
+            
 			i += 1
+
+
+
+
+    '''
+    extIds:   extracts identifiers from a given line
+
+    Args:
+        line - Input string, sent as list
+
+    Returns/Modifies:
+        VarList : List of variables present in the line
+        TypeList    : List of types of the corresponding variables
+
+    '''
+
+    def extIds(self,line):
+        VarList = []
+        TypeList = []
+        #return VarName, Type        
+        pass
 
 
 	'''
@@ -42,29 +73,38 @@ class Quadruple(object):
 	'''
 
 	def assignBlocks(self):
-		size = len(self.data)
+		size = len(self.Data)
 		block = []   # temporary list to store information about leaders in 3AC
 		for i in range(0,size):
 			block.append(0)       
 		
 		# Assign 1 to all leaders in 3AC 	
 		for i in range(1,size):
-			if(self.data[i][2] == 'label'):
+			if(self.Data[i][2] == 'label'):
 				block[i] = 1
 			else:
-				if (self.data[i][2] == 'call' or self.data[i][2] == 'ret'):
+				if (self.Data[i][2] == 'call' or self.Data[i][2] == 'ret'):
 					if(i+1 <= size-1):
 						block[i+1] = 1
 				else:
-					if (self.data[i][2] == 'goto' or self.data[i][2] == 'ifgoto'):
+					if (self.Data[i][2] == 'goto' or self.Data[i][2] == 'ifgoto'):
 						if(i+1 <= size-1):
 							block[i+1] = 1
-							block[int(self.data[i][3])] = 1
+							block[int(self.Data[i][3])] = 1
 		
 		block[1] = 1  # First instruction is a leader
 
 		for i in range(1,size):
 			if (block[i] == 1):
-				self.numblocks += 1
+				self.NumBlocks += 1
 
-			self.data[i][0] = self.numblocks
+			self.data[i][0] = self.NumBlocks
+
+
+'''
+class SymbolTable(object):
+
+    def __init__(self, Quadruple)
+
+'''
+
