@@ -60,7 +60,7 @@ class IR_Data(object):
     def extIds(self,line):
         VarList_Operands = []
         VarList_Destination = []
-        TypeList = []
+        #TypeList = []               Since all variables have type integer for our purpose No Consideration to be done here
         #return VarName, Type
         
         pass
