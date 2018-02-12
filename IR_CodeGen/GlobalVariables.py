@@ -64,14 +64,60 @@ class IR_Data(object):
         VarList : List of variables present in the line
         TypeList    : List of types of the corresponding variables
     '''
-    def extIds(self,line):
-        self.VarList_Operands = []
-        self.VarList_Destination = []
-        #TypeList = []               Since all variables have type integer for our purpose No Consideration to be done here
-        #return VarName, Type
-        
-        pass
+    def extIds(self, line):
+    	# Line should be in the format stored in self.data
+    	# Define Operands and Destination
 
+        VarList_Operands = []
+        VarList_Destination = []
+        Operators = ['+', '-', '*', '/']
+        Relative_Operators = ['&', '|', '^', '<=', '>=', '<', '>', '==', '!=']
+        #InstrOps = ['=', 'call', 'ret', 'goto', 'ifgoto', 'scan', 'print', 'newline', 'Array', '&', '*', '[', ']' ]
+        if (line[2] == '='):
+        	if (len(line) == 5):
+        		if(line[4].isdigit() == False):
+        			VarList_Operands.append(line[4])
+        		VarList_Destination.append(line[3])
+        	if (len(line) == 6):
+        		temp = []
+        		for x in line:
+        			if (x != '&' and x != '*'):
+        				temp.append(x)
+        		VarList_Operands.append(temp[3])
+        		VarList_Destination.append(temp[2])
+        	# Indexed Assignment is omitted for now	
+        	# if (len(line) == 5):
+
+        if (line[2] in self.Operators):
+        	if (len(line) == 5):
+        		if(line[4].isdigit() == False):
+        			VarList_Operands.append(line[4])
+        		VarList_Destination.append(line[3])
+        	if (len(line) == 6):
+        		if(line[5].isdigit() == False):
+        			VarList_Operands.append(line[5])
+        		if(line[4].isdigit() == False):
+        			VarList_Operands.append(line[4])
+        		VarList_Destination.append(line[3])
+
+        if (line[2] == 'ret'):
+        	if (len(line) == 4):
+        		VarList_Operands.append(line[3])
+
+        if (line[2] == 'ifgoto'):
+        	if (line[5].isdigit() == False):
+        		VarList_Operands.append(line[5])
+        	if (line[6].isdigit() == False):
+        		VarList_Operands.append(line[6])
+
+        if (line[2] == 'scan'):
+        	VarList_Destination.append(line[3])
+
+        if (line[2] == 'print'):
+        	if(line[3] != 'newline'):
+        		VarList_Destination.append(line[3])		
+
+    	return VarList_Operands,VarList_Destination
 
     '''
     assignBlocks - Assigns Block Numbers to every 3AC line
