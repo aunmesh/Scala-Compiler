@@ -1,19 +1,23 @@
 #!/usr/bin/python
+
+
+
 '''
 Class Quadruple contains 3AC in list of list data structure
 self.data[lineNo][0] contains block number
 self.data[lineNo][1] contains line number
+
+Methods for - Liveness information, Basic Block Information, Next Use information
+
 '''
 
-class Quadruple(object):
-
+class IR_Data(object):
 
     def __init__(self):
         self.Data = []
         self.NumBlocks = 0
         self.Identifiers = {}          #List of all the identifiers(Only integers or functions for our purpose) in the IR CODE,
         
-
 
     '''
     load3AC - 3AC is loaded into Quadruple object
@@ -23,6 +27,7 @@ class Quadruple(object):
     Returns/Modifies:
         self.data - this is where the 3AC is stored
     '''
+
     def load3AC(self, filename):
         f = open(filename, 'r')
         i = 1
@@ -39,7 +44,8 @@ class Quadruple(object):
 
             for v in VarList:
                 self.Identifier[v] = TypeList[temp]
-                temp += 1           
+                temp += 1
+
 
     '''
     extIds:   extracts identifiers from a given line
@@ -51,30 +57,31 @@ class Quadruple(object):
         VarList : List of variables present in the line
         TypeList    : List of types of the corresponding variables
     '''
-
     def extIds(self,line):
         VarList = []
         TypeList = []
-        #return VarName, Type        
+        #return VarName, Type
+        
         pass
 
 
     '''
     assignBlocks - Assigns Block Numbers to every 3AC line
+
     Args:
         none
+
     Returns/Modifies:
         self.data[lineNo][0] - this is where block number is assigned
 
     '''
-
     def assignBlocks(self):
         size = len(self.Data)
         block = []   # temporary list to store information about leaders in 3AC
         for i in range(0,size):
             block.append(0)       
         
-        # Assign 1 to all leaders in 3AC    
+        #Assign 1 to all leaders in 3AC    
         for i in range(1,size):
             if(self.Data[i][2] == 'label'):
                 block[i] = 1
@@ -97,10 +104,12 @@ class Quadruple(object):
             self.data[i][0] = self.NumBlocks
 
 
-'''
-class SymbolTable(object):
 
-    def __init__(self, Quadruple)
 
-'''
+    '''
+
+    '''
+
+    def Liveness():
+
 
