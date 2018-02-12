@@ -17,7 +17,14 @@ class IR_Data(object):
         self.Data = []
         self.NumBlocks = 0
         self.Identifiers = {}          #List of all the identifiers(Only integers or functions for our purpose) in the IR CODE,
-        
+
+        self._Assignment = ['=']        
+        self._Operators = ["+" , "-" , "*" , "/"]
+        self._Rel_Ops = [ '&' , '|' , '^', '<=' , '>=' , '<' , '>' , '==', '!=']
+        self._Functions = [ 'call' , 'ret' ]        
+        self._Branches = ['goto' ,  'ifgoto']
+        self._Library_Functions = ['scan' , 'print']
+        self._Array_Declarations = ['Array']
 
     '''
     load3AC - 3AC is loaded into Quadruple object
@@ -58,8 +65,8 @@ class IR_Data(object):
         TypeList    : List of types of the corresponding variables
     '''
     def extIds(self,line):
-        VarList_Operands = []
-        VarList_Destination = []
+        self.VarList_Operands = []
+        self.VarList_Destination = []
         #TypeList = []               Since all variables have type integer for our purpose No Consideration to be done here
         #return VarName, Type
         
@@ -109,8 +116,8 @@ class IR_Data(object):
         #Get Line wise 
         Blocks = [ t[0] for t in self.Data[1:] ]  #Line wise block numbers
 
-        self.Block_Start = []
-        self.Block_End = []
+        self.Block_Start = [-1]          # -1 is inserted so that 0 indexing is tackled and we are able to index using line numbers
+        self.Block_End = [-1]           # -1 is inserted so that 0 indexing is tackled and we are able to index using line numbers
 
         temp = 1
         flag = 0
@@ -135,14 +142,50 @@ class IR_Data(object):
                 flag = 0
                 temp +=1
 
+    '''
+        I_type determines the type of instruction
 
+        self._Operators = ["+" , "-" , "*" , "/"]
+        self._Rel_Ops = [ '&' , '|' , '^', '<=' , '>=' , '<' , '>' , '==', '!=']
+        self._Functions = [ 'call' , 'ret' ]        
+        self._Branches = ['goto' ,  'ifgoto']
+        self._Library_Functions = ['scan' , 'print']
+        self._Array_Declarations = ['Array']
+    '''
+    def I_Type(Instruction):
+        temp = Instruction[0]
+
+        if temp in self._Functions:
+            return 'F'  #Function
+
+        if temp in self._Branches:
+            return 'B'  #Branching
+        
+        if temp in self._Assignment and len(Instruction) == 3:
+            return 'A'  #Assignment
+
+        if temp in self._Operators:
+            return 'O'
+        
 
     '''
     Liveness - Generates Liveness information of variables
-    '''
+    '''    
     def Liveness(self):
-
-
-
-
+        self.Live = []       # List of list containing variables live at a line i
         
+        #Populating the list with empty lists
+        for t in range( len(self.Data) ):
+            self.Live.append([])
+
+        for index in range(self.NumBlocks, 0, -1):
+
+            L_Start = self.Blocks_Start[index]
+            L_End = self.Blocks_End[index]
+
+            for lno in range(L_End, L_Start-1,-1):
+                line = self.Data[lno]
+                instruction = line[2:]   # Actual Instruction
+
+            
+
