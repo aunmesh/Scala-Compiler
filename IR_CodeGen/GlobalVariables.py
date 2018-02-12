@@ -152,7 +152,7 @@ class IR_Data(object):
         self._Library_Functions = ['scan' , 'print']
         self._Array_Declarations = ['Array']
     '''
-    def I_Type(Instruction):
+    def I_Type(self,Instruction):
         temp = Instruction[0]
 
         if temp in self._Functions:
@@ -186,6 +186,11 @@ class IR_Data(object):
             for lno in range(L_End, L_Start-1,-1):
                 line = self.Data[lno]
                 instruction = line[2:]   # Actual Instruction
+                i_type = self.I_type(instruction)
+
+                                
+
+                
 
             
 
