@@ -103,13 +103,41 @@ class IR_Data(object):
 
             self.data[i][0] = self.NumBlocks
 
+        self.Num_Lines = len(self.Data) -1
+
+        #Get Line wise 
+        Blocks = [ t[0] for t in self.Data[1:] ]  #Line wise block numbers
+
+        self.Block_Start = []
+        self.Block_End = []
+
+        temp = 1
+        flag = 0
+
+
+        for index in range(len(Blocks)):
+
+            if( index == len(Blocks) ):
+                self.Block_End.append(temp)
+                del temp
+                del flag
+                break
+
+            if( Blocks[index] == temp and flag == 0):
+                self.Blocks_Start.append(index)
+                flag = 1
+                continue
+
+
+            if( index + 1 == len(Blocks) and Blocks[index+1] != temp and flag == 1):
+                self.Blocks_End.append(index)
+                flag = 0
+                temp +=1
 
 
 
     '''
-
+    Liveness - Generates Liveness information of variables
     '''
-
-    def Liveness():
-
-
+    def Liveness(self):
+        pass
