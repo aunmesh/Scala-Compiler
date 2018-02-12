@@ -58,7 +58,8 @@ class IR_Data(object):
         TypeList    : List of types of the corresponding variables
     '''
     def extIds(self,line):
-        VarList = []
+        VarList_Operands = []
+        VarList_Destination = []
         TypeList = []
         #return VarName, Type
         
@@ -140,4 +141,8 @@ class IR_Data(object):
     Liveness - Generates Liveness information of variables
     '''
     def Liveness(self):
-        pass
+
+
+
+
+        
