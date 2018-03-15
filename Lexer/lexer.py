@@ -4,31 +4,20 @@
 Corrections for parseer:
 String
 Identifier
+'''
 
-
+'''
 Verify if regex is present for all of these
-LEAVES = {	'KEYWORD_OBJECT',
-			'KEYWORD_EXTENDS',				
-			'IDENTIFIER',
-			'BLOCKBEGIN','BLOCKEND',
-			'LBRAC','RBRAC',
-			'OR','AND','OR_BITWISE','AND_BITWISE','XOR','EqualityOp',
+LEAVES = {		'OR','AND','OR_BITWISE','AND_BITWISE','XOR','EqualityOp',
 			'RelationalOp','ShiftOp','AddOp','Multop','Unary10p','UnaryOp'
-			'LPAREN','RPAREN',
+			'LPAREN_Done','RPAREN_Done',
 			'LiteralConst','IntFloatConst',
 			'COMMA','ModifierKeyword',
-			'KEYWORD_VAR/VAL','OVERRIDE'
-			'STATE_END','FUNTYPE','COLON','TYPE',
+			'STATE_END','FUNTYPE',
 			'ARRAY','DOT',
-			'NEW',
-			'INT_CONST','IF','ELSE',
-			'DO','WHILE','FOR',
-			'CHOOSE','UNTIL_TO','BY','RETURN',
-			'CLASS','VOID','DEF','empty',
-			'ASOP','ASSIGN_OP','OFDIM'
+			'INT_CONST'
+			'CHOOSE','UNTIL_TO','BY','VOID','DEF','empty','ASOP','ASSIGN_OP','OFDIM'
 			}
-
-
 '''
 from ply import lex as lex
 import re,sys
