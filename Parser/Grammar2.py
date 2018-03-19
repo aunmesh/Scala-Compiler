@@ -88,7 +88,7 @@ def p_modifiers_opt(p):
 	'''modifiers_opt : modifiers | empty '''
 
 def p_modifiers(p):
-	''' modifiers : modifier | modifiers modifier | empty '''
+	''' modifiers : modifier | modifiers modifier '''
 
 
 '''
@@ -1197,5 +1197,241 @@ simpleExpr1
    | simpleExpr1 argumentExprs
    ;
 '''
+def p_simpleExpr1(p):
+	'''	simpleExpr1   : literal   
+		| stableId   
+		| TOK_this 
+		| Id TOK_DOT TOK_this
+		| TOK_UNDERSCORE   
+		| TOK_LPAREN TOK_RPAREN  
+		| TOK_LPAREN exprs TOK_RPAREN
+		| temp9 TOK_DOT Id   
+		| temp9 typeArgs
+		| simpleExpr1 argumentExprs
+	'''
+
+'''
+('new' (classTemplate | templateBody) | blockExpr)
+'''
+def p_temp9(p):
+	''' temp9 : TOK_new classTemplate | TOK_new templateBody | blockExpr '''
+
+
+
+
+
+
+'''
+exprs
+   : expr (',' expr)*
+   ;
+'''
+def p_exprs(p):
+	'''exprs : expr TOK_COMMA_exprs_opt '''
+
+def p_TOK_COMMA_exprs_opt(p):
+	''' TOK_COMMA_exprs_opt : TOK_COMMA_exprs | empty '''
+
+def p_TOK_COMMA_exprs(p):
+	''' TOK_COMMA_exprs : TOK_COMMA_expr | TOK_COMMA_exprs TOK_COMMA_expr '''
+
+def p_TOK_COMMA_expr(p):
+	'''TOK_COMMA_expr : TOK_COMMA expr'''
+
+
+'''
+argumentExprs
+   : '(' exprs? ')'
+   | '(' (exprs ',')? postfixExpr ':' '_' '*' ')'
+   | blockExpr
+   ;
+'''
+def p_argumentExprs(p):
+	'''argumentExprs : TOK_LPAREN TOK_RPAREN | TOK_LPAREN exprs TOK_RPAREN  
+		| TOK_LPAREN postfixExpr TOK_COLON TOK_UNDERSCORE TOK_STAR TOK_RPAREN 
+		| TOK_LPAREN exprs TOK_COMMA postfixExpr TOK_COLON TOK_UNDERSCORE TOK_STAR TOK_RPAREN 
+		| blockExpr'''
+
+'''
+blockExpr
+   : '{' caseClauses '}'
+   | '{' block '}'
+   ;
+'''
+def p_blockExpr(p):
+	'''blockExpr   : TOK_LCUR caseClauses TOK_RCUR   | TOK_LCUR block TOK_RCUR	'''
+
+'''
+block
+   : blockStat (Semi blockStat)* resultExpr?
+   ;
+'''
+def p_block(p):
+	'''block   : blockStat Semi_blockStats_opt | blockStat Semi_blockStats_opt resultExpr	'''
+
+'''
+blockStat
+   : import_
+   | annotation* ('implicit' | 'lazy')? def
+   | annotation* localModifier* tmplDef
+   | expr1
+   |
+   ;
+'''
+def p_blockStat(p):
+	'''blockStat   : import_  | annotations_opt def | annotations_opt TOK_implicit def   | annotations_opt TOK_lazy def
+	| annotations_opt localModifiers_opt tmplDef   
+	| expr1   | empty '''
+
+
+def p_localModifiers_opt(p):
+	'''localModifiers_opt : localModifiers | empty '''
+
+def p_localModifiers(p):
+	''' localModifiers : localModifier | localModifiers localModifier '''
+
+
+
+'''
+resultExpr
+   : expr1
+   | (bindings | ('implicit'? Id | '_') ':' compoundType) '=>' block
+   ;
+'''
+def p_resultExpr(p):
+	'''	resultExpr   : expr1   | bindings TOK_EQ_GT block |  temp91 TOK_COLON compoundType TOK_EQ_GT block '''
+
+
+'''
+(TOK_implicit? Id | TOK_UNDERSCORE)
+'''
+def p_temp91(p):
+	'''temp91 :	Id | TOK_implicit Id | TOK_UNDERSCORE '''
+
+
+
+
+
+
+'''
+enumerators
+   : generator (Semi generator)*
+   ;
+'''
+def p_enumerators(p):
+	'''enumerators : generator Semi_generators_opt '''
+
+
+def p_Semi_generators_opt(p):
+	''' Semi_generators_opt : Semi_generators | empty'''
+
+def p_Semi_generators(p):
+	''' Semi_generators : Semi_generator | Semi_generators Semi_generator '''
+
+def p_Semi_generator(p):
+	'''Semi_generator : TOK_SEMICOLON generator'''
+
+
+
+'''
+generator
+   : pattern1 '<-' expr (Semi? guard | Semi pattern1 '=' expr)*
+   ;
+'''
+def p_generator(p):
+	'''generator   : pattern1 TOK_LT_MINUS expr temp95s_opt   	'''
+
+
+def p_temp95(p):
+	'''temp95 : guard | TOK_SEMI guard | Semi pattern1 TOK_ASSIGN expr '''
+
+def p_temp95s_opt(p):
+	''' temp95s_opt : temp95s | empty'''
+
+def p_temp95s(p):
+	''' temp95s : temp95 | temp95s temp95 '''
+
+'''
+caseClauses
+   : caseClause +
+   ;
+'''
+def p_caseClauses(p):
+	'''caseClauses : caseClause_s'''
+
+def p_caseClause_s_opt(p):
+	''' caseClause_s_opt : caseClause_s | empty	'''
+
+def p_caseClause_s(p):
+	''' caseClause_s : caseClause | caseClause_s caseClause '''
+
+'''
+caseClause
+   : 'case' pattern guard? '=>' block
+   ;
+'''
+def p_caseClause(p):
+	''' caseClause   : TOK_case TOK_EQ_GT block | TOK_case pattern guard TOK_EQ_GT block  '''
+
+'''
+guard
+   : 'if' postfixExpr
+   ;
+'''
+def p_guard(p):
+	''' guard : TOK_if postfixExpr '''
+
+
+'''
+pattern
+   : pattern1 ('|' pattern1)*
+   ;
+'''
+def p_pattern(p):
+	'''pattern   : pattern1 TOK_VERT_pattern1s_opt  '''
+
+def p_TOK_VERT_pattern1s_opt(p):
+	''' TOK_VERT_pattern1s_opt : TOK_VERT_pattern1s | empty'''
+
+def p_TOK_VERT_pattern1s(p):
+	''' TOK_VERT_pattern1s : TOK_VERT_pattern1 | TOK_VERT_pattern1s TOK_VERT_pattern1 '''
+
+def p_TOK_VERT_pattern1(p):
+	'''TOK_VERT_pattern1 : TOK_VERT pattern1'''
+
+
+
+pattern1
+   : Varid ':' typePat
+   | '_' ':' typePat
+   | pattern2
+   ;
+
+pattern2
+   : Varid ('@' pattern3)?
+   | pattern3
+   ;
+
+pattern3
+   : simplePattern
+   | simplePattern (Id simplePattern)*
+   ;
+
+simplePattern
+   : '_'
+   | Varid
+   | literal
+   | stableId ('(' patterns? ')')?
+   | stableId '(' (patterns? ',')? (Varid '@')? '_' '*' ')'
+   | '(' patterns? ')'
+   ;
+
+patterns
+   : pattern (',' pattern)*
+   | '_'+
+   ;
+
+
+
 
 
