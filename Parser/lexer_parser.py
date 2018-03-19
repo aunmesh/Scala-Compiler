@@ -106,7 +106,7 @@ keywords = {
 tokens = [
     'IDENTIFIER',
     'NEWLINE_NL',
-    'TOK_SEMICOLON',
+    'TOK_SEMI',
     'INTEGER_LITS',
     'F_POINT_LITS',
     'BOOLEAN_LITS',
@@ -187,9 +187,9 @@ def t_TOK_RCUR(t):
         return t
 
 
-t_PLUS = r'\+'
-t_MINUS = r'-'
-t_TIMES = r'\*'
+t_TOK_PLUS = r'\+'
+t_TOK_MINUS = r'-'
+t_TOK_STAR = r'\*'
 t_DIVIDE = r'/'
 t_REMAINDER = r'%'
 
@@ -199,16 +199,16 @@ t_MINUS_ASSIGN = r'-='
 
 
 t_TOK_COLON = r':'
-t_LT_MINUS = r'<-'
-t_TOK_LE_COLON = r'<:'
-t_LT_PERCENT = r'<%'
+t_TOK_LT_MINUS = r'<-'
+t_TOK_LT_COLON= r'<:'
+t_TOK_LT_PERCENT = r'<%'
 t_TOK_GT_COLON = r'>:'
-t_HASH = r'#'
+t_TOK_HASH = r'#'
 t_TOK_AT = r'@'
 t_TOK_COMMA = r','
 t_TOK_UNDERSCORE = r'_'
 t_TOK_DOT = r'.'
-
+t_TOK_EXCLAIM = r'!'
 
 
 t_OR = r'\|\|'
@@ -225,11 +225,11 @@ t_AND_BITWISE = r'&'
 t_OR_BITWISE = r'\|'
 t_LSHIFT = r'<<'
 t_RSHIFT = r'>>'
-t_TILDA = r'\~'
+t_TOK_TILDA = r'\~'
 
 
 t_NEWLINE_NL = r'[\n]'
-t_TOK_SEMICOLON = r'[;]'
+t_TOK_SEMI = r'[;]'
 
 t_INTEGER_LITS = r"-[%s]+[lL]?|[%s]+[lL]?" %(Digits,Digits)
 t_F_POINT_LITS = r'[0-9]*\.[0-9]+[Ee][+-][0-9]+[fFdD]?|[0-9]*\.[0-9]+'
