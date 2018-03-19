@@ -12,11 +12,11 @@ LEAVES = {		'OR','AND','OR_BITWISE','AND_BITWISE','XOR','EqualityOp',
 			'RelationalOp','ShiftOp','AddOp','Multop','Unary10p','UnaryOp'
 			'LPAREN_Done','RPAREN_Done',
 			'LiteralConst','IntFloatConst',
-			'COMMA','ModifierKeyword',
+			'TOK_COMMA','ModifierKeyword',
 			'STATE_END','FUNTYPE',
 			'ARRAY','DOT',
 			'INT_CONST'
-			'CHOOSE','UNTIL_TO','BY','VOID','DEF','empty','ASOP','ASSIGN_OP','OFDIM'
+			'CHOOSE','UNTIL_TO','BY','VOID','DEF','empty','TOK_ASSIGN','ASSIGN_OP','OFDIM'
 			}
 '''
 
@@ -43,82 +43,82 @@ from test import *
 '''
 keywords = {
 
-     'abstract' : 'KW_abstract',
-     'case' : 'KW_case',	
-     'catch' : 'KW_catch',
-     'class' : 'KW_class',
-     'def' : 'KW_def',
-     'do' : 'KW_do',
-     'else' : 'KW_else',
-     'extends' : 'KW_extends',
-     'false' : 'KW_false',
-     'final' : 'KW_final',
-     'finally' : 'KW_finally',
-     'for' : 'KW_for',
-     'forSome' : 'KW_forSome',
-     'if' : 'KW_if',
-     'implicit' : 'KW_implicit',
-     'import' : 'KW_import',
-     'lazy' : 'KW_lazy',
-     'match' : 'KW_match',
-     'new' : 'KW_new',
-     'NULL' : 'KW_NULL',
-     'object' : 'KW_object',
-     'override' : 'KW_override',
-     'package' : 'KW_package',
-     'private' : 'KW_private',
-     'protected' : 'KW_protected',
-     'return' : 'KW_return',
-     'sealed' : 'KW_sealed',
-     'super' : 'KW_super',
-     'this' : 'KW_this',
-     'throw' : 'KW_throw',
-     'trait' : 'KW_trait',
-     'Try' : 'KW_Try',
-     'true' : 'KW_true',
-     'type' : 'KW_type',
-     'until' : 'KW_until',
-     'to' : 'KW_TO',
-     'ofDim'  :  'KW_OFDIM',
-     'val' : 'KW_val',
-     'Var' : 'KW_Var',
-     'while' : 'KW_while',
-     'with' : 'KW_with',
-     'yield' : 'KW_yield',
+     'abstract' : 'TOK_abstract',
+     'case' : 'TOK_case',	
+     'catch' : 'TOK_catch',
+     'class' : 'TOK_class',
+     'def' : 'TOK_def',
+     'do' : 'TOK_do',
+     'else' : 'TOK_else',
+     'extends' : 'TOK_extends',
+     'false' : 'TOK_false',
+     'final' : 'TOK_final',
+     'finally' : 'TOK_finally',
+     'for' : 'TOK_for',
+     'forSome' : 'TOK_forSome',
+     'if' : 'TOK_if',
+     'implicit' : 'TOK_implicit',
+     'import' : 'TOK_import',
+     'lazy' : 'TOK_lazy',
+     'match' : 'TOK_match',
+     'new' : 'TOK_new',
+     'null' : 'TOK_null',
+     'object' : 'TOK_object',
+     'override' : 'TOK_override',
+     'package' : 'TOK_package',
+     'private' : 'TOK_private',
+     'protected' : 'TOK_protected',
+     'return' : 'TOK_return',
+     'sealed' : 'TOK_sealed',
+     'super' : 'TOK_super',
+     'this' : 'TOK_this',
+     'throw' : 'TOK_throw',
+     'trait' : 'TOK_trait',
+     'Try' : 'TOK_Try',
+     'true' : 'TOK_true',
+     'type' : 'TOK_type',
+     'until' : 'TOK_until',
+     'to' : 'TOK_TO',
+     'ofDim'  :  'TOK_OFDIM',
+     'val' : 'TOK_val',
+     'Var' : 'TOK_var',
+     'while' : 'TOK_while',
+     'with' : 'TOK_with',
+     'yield' : 'TOK_yield',
 }
 
 
 #THESE ARE NOT KEYWORDS BUT OPERATORS, INCLUDED IN REGULAR EXPRESSIONS BELOW
 '''
-     '-' : 'KW_MINUS',
-     ':' : 'KW_COLON',
-     '=' : 'KW_EQ',
-     '=>' : 'KW_EQ_GT',
-     '<-' : 'KW_LT_MINUS',
-     '<:' : 'KW_LE_COLON',
-     '<%' : 'KW_LT_PERCENT',
-     '>:' : 'KW_GT_COLON',
-     '#' : 'KW_HASH',
-     '@' : "KW_AT",
-     ',' : "KW_COMMA",
+     '-' : 'TOK_MINUS',
+     ':' : 'TOK_COLON',
+     '=' : 'TOK_EQ',
+     '=>' : 'TOK_EQ_GT',
+     '<-' : 'TOK_LT_MINUS',
+     '<:' : 'TOK_LE_COLON',
+     '<%' : 'TOK_LT_PERCENT',
+     '>:' : 'TOK_GT_COLON',
+     '#' : 'TOK_HASH',
+     '@' : "TOK_AT",
+     ',' : "TOK_COMMA",
 '''
 
 tokens = [
     'IDENTIFIER',
     'NEWLINE_NL',
-    'NEWLINE_SC',
+    'TOK_SEMICOLON',
     'INTEGER_LITS',
     'F_POINT_LITS',
     'BOOLEAN_LITS',
     'CHAR_LITS',
     'STR_LITS',
     'WSPACE_LIT',
-    'PARALEFT',
-    'PARARIGHT',
-    'PARALSQUARE',
-    'PARARSQUARE',
-    'PARALCURLY',
-    'PARARCURLY',
+    'TOK_LPAREN',
+    'TOK_RPAREN',
+    'TOK_LSQB',
+    'TOK_RSQB',
+    'TOK_LCUR',
+    'TOK_RCUR',
     'SQUOTES',
     'DQUOTES',
     'COMMENT_LINE',
@@ -147,12 +147,12 @@ def t_IDENTIFIER(t):
     return t
 
 
-def t_PARALEFT(t):
+def t_TOK_LPAREN(t):
     r"\("
     lexer.paranthesis+=1
     return t
     
-def t_PARARIGHT(t):
+def t_TOK_RPAREN(t):
     r"\)"
     lexer.paranthesis-=1
     if (lexer.paranthesis <0):
@@ -160,12 +160,12 @@ def t_PARARIGHT(t):
     else:
         return t
 
-def t_PARALSQUARE(t):
+def t_TOK_LSQB(t):
     r"\["
     lexer.paranthesis_square+=1
     return t
     
-def t_PARARSQUARE(t):
+def t_TOK_RSQB(t):
     r"\]"
     lexer.paranthesis_square-=1
     if (lexer.paranthesis_square <0):
@@ -173,12 +173,12 @@ def t_PARARSQUARE(t):
     else:
         return t
 
-def t_PARALCURLY(t):
+def t_TOK_LCUR(t):
     r"\{"
     lexer.paranthesis_curly += 1
     return t
     
-def t_PARARCURLY(t):
+def t_TOK_RCUR(t):
     r"\}"
     lexer.paranthesis_curly -=1
     if (lexer.paranthesis_curly <0):
@@ -193,19 +193,22 @@ t_TIMES = r'\*'
 t_DIVIDE = r'/'
 t_REMAINDER = r'%'
 
-t_ASOP = r'='
+t_TOK_ASSIGN = r'='
 t_PLUS_ASSIGN = r'\+='
 t_MINUS_ASSIGN = r'-='
 
 
-t_COLON = r':'
+t_TOK_COLON = r':'
 t_LT_MINUS = r'<-'
-t_LE_COLON = r'<:'
+t_TOK_LE_COLON = r'<:'
 t_LT_PERCENT = r'<%'
-t_GT_COLON = r'>:'
+t_TOK_GT_COLON = r'>:'
 t_HASH = r'#'
-t_AT = r'@'
-t_COMMA = r','  
+t_TOK_AT = r'@'
+t_TOK_COMMA = r','
+t_TOK_UNDERSCORE = r'_'
+t_TOK_DOT = r'.'
+
 
 
 t_OR = r'\|\|'
@@ -214,7 +217,7 @@ t_XOR = r'\^'
 t_EQUAL = r'=='
 t_NEQUAL = r'!='
 t_GREATER = r'>'
-t_GEQ = r'>='
+t_TOK_EQ_GT = r'>='
 t_LESS = r'<'
 t_LEQ = r'<='
 
@@ -226,7 +229,7 @@ t_TILDA = r'\~'
 
 
 t_NEWLINE_NL = r'[\n]'
-t_NEWLINE_SC = r'[;]'
+t_TOK_SEMICOLON = r'[;]'
 
 t_INTEGER_LITS = r"-[%s]+[lL]?|[%s]+[lL]?" %(Digits,Digits)
 t_F_POINT_LITS = r'[0-9]*\.[0-9]+[Ee][+-][0-9]+[fFdD]?|[0-9]*\.[0-9]+'
