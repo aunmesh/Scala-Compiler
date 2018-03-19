@@ -19,6 +19,7 @@ LEAVES = {		'OR','AND','OR_BITWISE','AND_BITWISE','XOR','EqualityOp',
 			'CHOOSE','UNTIL_TO','BY','VOID','DEF','empty','ASOP','ASSIGN_OP','OFDIM'
 			}
 '''
+
 from ply import lex as lex
 import re,sys
 from test import *
@@ -40,11 +41,10 @@ from test import *
 5 Trailing Commas in Multi-line Expressions
 6 XML mode
 '''
-
-
 keywords = {
-    'abstract' : 'KW_abstract',
-    'case' : 'KW_case',	
+
+     'abstract' : 'KW_abstract',
+     'case' : 'KW_case',	
      'catch' : 'KW_catch',
      'class' : 'KW_class',
      'def' : 'KW_def',
@@ -77,11 +77,19 @@ keywords = {
      'Try' : 'KW_Try',
      'true' : 'KW_true',
      'type' : 'KW_type',
+     'until' : 'KW_until',
+     'to' : 'KW_TO',
+     'ofDim'  :  'KW_OFDIM',
      'val' : 'KW_val',
      'Var' : 'KW_Var',
      'while' : 'KW_while',
      'with' : 'KW_with',
      'yield' : 'KW_yield',
+}
+
+
+#THESE ARE NOT KEYWORDS BUT OPERATORS, INCLUDED IN REGULAR EXPRESSIONS BELOW
+'''
      '-' : 'KW_MINUS',
      ':' : 'KW_COLON',
      '=' : 'KW_EQ',
@@ -92,8 +100,8 @@ keywords = {
      '>:' : 'KW_GT_COLON',
      '#' : 'KW_HASH',
      '@' : "KW_AT",
-     ',' : "KW_COMMA"
-}
+     ',' : "KW_COMMA",
+'''
 
 tokens = [
     'IDENTIFIER',
@@ -117,24 +125,16 @@ tokens = [
     'COMMENT_BLOCK'
     ] + list(keywords.values())
 
-#[MC6(Hexdigit = "0-9A-Fa-F"
-#Unicode = "\\u+" + Hexdigit + Hexdigit + Hexdigit + Hexdigit
-
 Whitesspace = "\\n\r \t"
 Letters = "a-zA-Z$"
 Digits = "0-9"
 Parantheses = "\(\)\[\]\{\}"
 Delimiters ="'`\".;,"
-#OpChar = "!#%&\*\+-/<>=:\?\\^\|~"
 OpChar = "!#%&\*\+-<>=:\?\\^\|~"
 
-#Id_part1 = "[%s][%s%s]*_*[[%s%s]\*[%s]\*]" %(Letters,Letters,Digits,Letters,Digits,OpChar)
 Id_part1 = "[%s][%s%s]*_*[%s%s]*" %(Letters,Letters,Digits,Letters,Digits)
 Id_part2 = "[%s][%s%s]*_*[%s]*" %(Letters,Letters,Digits,OpChar)
 Id_part3 = "[%s]+" %OpChar
-#Id_part4 = ""
-
-#t_IDENTIFIER = r'%s|%s|%s' %(Id_part1,Id_part2, Id_part3)
 
 t_COMMENT_BLOCK = r"\/\*(\*(?!\/)|[^*])*\*\/"
 t_COMMENT_LINE = r"\/\/.*"
@@ -186,18 +186,50 @@ def t_PARARCURLY(t):
     else:
         return t
 
-#print t_IDENTIFIER
+
+t_PLUS = r'\+'
+t_MINUS = r'-'
+t_TIMES = r'\*'
+t_DIVIDE = r'/'
+t_REMAINDER = r'%'
+
+t_ASOP = r'='
+t_PLUS_ASSIGN = r'\+='
+t_MINUS_ASSIGN = r'-='
+
+
+t_COLON = r':'
+t_LT_MINUS = r'<-'
+t_LE_COLON = r'<:'
+t_LT_PERCENT = r'<%'
+t_GT_COLON = r'>:'
+t_HASH = r'#'
+t_AT = r'@'
+t_COMMA = r','  
+
+
+t_OR = r'\|\|'
+t_AND = r'&&'
+t_XOR = r'\^'
+t_EQUAL = r'=='
+t_NEQUAL = r'!='
+t_GREATER = r'>'
+t_GEQ = r'>='
+t_LESS = r'<'
+t_LEQ = r'<='
+
+t_AND_BITWISE = r'&'
+t_OR_BITWISE = r'\|'
+t_LSHIFT = r'<<'
+t_RSHIFT = r'>>'
+t_TILDA = r'\~'
+
+
 t_NEWLINE_NL = r'[\n]'
 t_NEWLINE_SC = r'[;]'
 
 t_INTEGER_LITS = r"-[%s]+[lL]?|[%s]+[lL]?" %(Digits,Digits)
-#print t_INTEGER_LITS
-
-#Exponent_part = '[Ee][+-][0-9]+'
-#t_F_POINT_LITS = r'[%s]*\.[%s]+[\[Ee\]\[+-\]\[0-9\]\+]?[fFdD]?' %(Digits,Digits)
 t_F_POINT_LITS = r'[0-9]*\.[0-9]+[Ee][+-][0-9]+[fFdD]?|[0-9]*\.[0-9]+'
-
-#print t_F_POINT_LITS
 
 t_BOOLEAN_LITS = r'\'true\'|\'false\''
 
@@ -237,8 +269,3 @@ filename = sys.argv[1]
 
 # Print function defined in test.py
 l1 = Print(lexer,filename)
-
-
-
-
-
