@@ -460,7 +460,7 @@ importSelectors
 '''
 
 def p_importSelectors(p):
-	''' importSelectors : TOK_LPAREN importSelector_TOK_COMMAs_opt importSelector TOK_RPAREN | TOK_LPAREN importSelector_TOK_COMMAs_opt  '_' TOK_RPAREN'''
+	''' importSelectors : TOK_LPAREN importSelector_TOK_COMMAs_opt importSelector TOK_RPAREN | TOK_LPAREN importSelector_TOK_COMMAs_opt  TOK_UNDERSCORE TOK_RPAREN'''
 
 def p_importSelector_TOK_COMMAs_opt(p):
 	'''importSelector_TOK_COMMAs_opt : importSelector_TOK_COMMAs | empty '''
@@ -618,30 +618,395 @@ bindings
 def p_bindings(p):
 	'''bindings   : TOK_LPAREN binding (',' binding)* TOK_RPAREN '''
 
-def p_TOK
+def p_TOK_COMMA_bindings_opt(p):
+	''' TOK_COMMA_bindings_opt : TOK_COMMA_bindings | empty '''
+
+def p_TOK_COMMA_bindings(p):
+	''' TOK_COMMA_bindings : TOK_COMMA_binding | TOK_COMMA_bindings TOK_COMMA_binding '''
+
+def p_TOK_COMMA_binding(p):
+	''' TOK_COMMA_binding : TOK_COMMA bindings '''
+
+'''
+classParam
+   : annotation* modifier* ('val' | 'var')? Id ':' paramType ('=' expr)?
+   ;
+'''
+
+def p_classParam(p):
+	'''classParam   : TOK_annotations_opt TOK_modifiers_opt Id TOK_COLON paramType 
+			| TOK_annotations_opt TOK_modifiers_opt Id TOK_COLON paramType TOK_ASSIGN expr 
+			| TOK_annotations_opt TOK_modifiers_opt TOK_val Id TOK_COLON paramType 
+			| TOK_annotations_opt TOK_modifiers_opt TOK_var Id TOK_COLON paramType 
+			| TOK_annotations_opt TOK_modifiers_opt TOK_val Id TOK_COLON paramType TOK_ASSIGN expr 
+			| TOK_annotations_opt TOK_modifiers_opt TOK_var Id TOK_COLON paramType TOK_ASSIGN expr '''
 
 
+'''
+classParams
+   : classParam (',' classParam)*
+   ;
+'''
+def p_classParams(p):
+	'''classParams   : classParam (',' classParam)* '''
+
+def p_TOK_COMMA_classParams_opt(p):
+	'''TOK_COMMA_classParams_opt : TOK_COMMA_classParams | empty'''
+
+def p_TOK_COMMA_classParams(p):
+	''' TOK_COMMA_classParams : TOK_COMMA_classParam | TOK_COMMA_classParams TOK_COMMA_classParam '''
+
+def p_TOK_COMMA_classParam(p):
+	''' TOK_COMMA_classParams : TOK_COMMA classParams'''
+	 
+
+'''
+classParamClause
+   : '(' classParams? ')'
+   ;
+'''
+
+def p_classParamClause(p):
+	'''classParamClause   : TOK_LPAREN TOK_RPAREN | TOK_LPAREN classParams TOK_RPAREN  '''
+
+'''
+classParamClauses
+   : classParamClause* ('(' 'implicit' classParams ')')?
+   ;
+'''
+
+def p_classParamClauses(p):
+	'''
+	classParamClauses  : classParamClauses_opt | classParamClauses_opt TOK_LPAREN TOK_implicit classParams TOK_RPAREN '''
+
+def p_classParamClauses_opt(p):
+	''' classParamClauses_opt : classParamClauses | empty '''
+
+def p_classParamClauses(p):
+	''' classParamClauses : classParamClause | classParamClause classParamClauses '''
+
+'''
 paramType
    : type
    | '=>' type
    | type '*'
    ;
+'''
+def p_paramType(p):
+	''' paramType : type | TOK_EQ_GT type	 | type TOK_STAR'''
 
-classParamClauses
-   : classParamClause* ('(' 'implicit' classParams ')')?
-   ;
 
-classParamClause
-   : '(' classParams? ')'
-   ;
 
-classParams
-   : classParam (',' classParam)*
+'''
+param
+   : annotation* Id (':' paramType)? ('=' expr)?
    ;
+'''
+def p_param(p):
+	'''param   : annotations_opt Id | annotations_opt Id TOK_ASSIGN expr | annotations_opt Id TOK_COLON paramType  | annotations_opt Id TOK_COLON paramType TOK_ASSIGN expr '''
+	
+def p_TOK_COLON_paramTypes_opt(p):
+	''' TOK_COLON_paramTypes_opt : TOK_COLON_paramTypes | empty '''
 
-classParam
-   : annotation* modifier* ('val' | 'var')? Id ':' paramType ('=' expr)?
+def p_TOK_COLON_paramTypes(p):
+	''' TOK_COLON_paramTypes : TOK_COLON_paramType | TOK_COLON_paramTypes TOK_COLON_paramType '''
+
+def p_TOK_COLON_paramType(p):
+	''' TOK_COLON_paramType : TOK_COLON paramTypes '''
+
+
+'''
+params
+   : param (',' param)*
    ;
+'''
+
+def p_params(p):
+	'''params   : param TOK_COMMA_params_opt  '''
 	
 
+def p_TOK_COMMA_params_opt(p):
+	''' TOK_COMMA_params_opt : TOK_COMMA_params | empty '''
+
+def p_TOK_COMMA_params(p):
+	''' TOK_COMMA_params : TOK_COMMA_param | TOK_COMMA_param TOK_COMMA_params '''
+
+def p_TOK_COMMA_param(p):
+	''' TOK_COMMA_param : TOK_COLON param '''
+
+
+'''
+paramClause
+   : '(' params? ')'
+   ;
+'''
+def p_paramClause(p):
+	'''paramClause   : TOK_LPAREN TOK_RPAREN | TOK_LPAREN params TOK_RPAREN'''
+	
+'''
+paramClauses
+   : paramClause* ('(' 'implicit' params ')')?
+   ;
+'''
+def p_paramClauses(p):
+	''' paramClauses   : paramClauses_opt | paramClauses_opt TOK_LPAREN TOK_implicit params TOK_RPAREN  '''
+
+
+
+
+
+
+
+
+'''
+literal
+   : '-'? IntegerLiteral
+   | '-'? FloatingPointLiteral
+   | BooleanLiteral
+   | CharacterLiteral
+   | StringLiteral
+   | SymbolLiteral
+   | 'null'
+   ;
+'''
+def p_literal(p):
+	'''literal : TOK_MINUS IntegerLiteral | IntegerLiteral | FloatingPointLiteral | TOK_MINUS FloatingPointLiteral   | BooleanLiteral 
+	| CharacterLiteral | StringLiteral | SymbolLiteral | TOK_null'''
+
+'''
+qualId
+   : Id ('.' Id)*
+   ;
+'''
+def p_qualId(p):
+	'''qualId   : Id TOK_DOT_Ids_opt '''
+
+def p_TOK_DOT_Ids_opt(p):
+	'''  TOK_DOT_Ids_opt : TOK_DOT_Ids | empty '''
+
+def p_TOK_DOT_Ids(p):
+	''' TOK_DOT_Ids : TOK_DOT_Id | TOK_DOT_Ids TOK_DOT_Id '''
+
+def TOK_DOT_Id(p)
+	''' TOK_DOT_Id : TOK_DOT Id '''
+
+
+'''
+ids
+   : Id (',' Id)*
+   ;
+'''
+def p_ids(p):
+	'''ids : Id TOK_COMMA_Ids_opt '''
+
+def p_TOK_COMMA_Ids_opt(p):
+	'''  TOK_COMMA_Ids_opt : TOK_COMMA_Ids | empty '''
+
+def p_TOK_COMMA_Ids(p):
+	''' TOK_COMMA_Ids : TOK_COMMA_Id | TOK_COMMA_Ids TOK_COMMA_Id '''
+
+def TOK_COMMA_Id(p)
+	''' TOK_COMMA_Id : TOK_COMMA Id '''
+
+	
+'''
+stableId
+   : (Id | (Id '.')? 'this') '.' Id
+   | (Id '.')? 'super' classQualifier? '.' Id
+   ;
+'''
+def p_stableId(p):
+	'''stableId  : Id TOK_DOT Id   | TOK_this TOK_DOT Id | Id TOK_DOT TOK_this TOK_DOT Id
+		| TOK_super TOK_DOT Id | TOK_super classQualifier TOK_DOT Id
+		| Id TOK_DOT TOK_super TOK_DOT Id | Id TOK_DOT TOK_super classQualifier TOK_DOT Id '''
+	
+'''
+classQualifier
+   : '[' Id ']'
+   ;
+'''
+def p_classQualifier(p):
+	'''classQualifier  : TOK_LSQB Id TOK_RSQB '''
+
+'''
+type
+   : functionArgTypes '=>' type
+   | infixType existentialClause?
+   ;
+'''
+def p_type(p):
+	'''type  : functionArgTypes TOK_EQ_GT type  | infixType | infixType existentialClause  '''
+
+'''
+functionArgTypes
+   : infixType
+   | '(' (paramType (',' paramType)*)? ')'
+   ;
+'''
+def p_functionArgTypes(p):
+	'''functionArgTypes   : infixType   | TOK_LPAREN TOK_RPAREN | TOK_LPAREN paramType TOK_COMMA_paramTypes_opt TOK_RPAREN '''
+
+
+def p_TOK_COMMA_paramTypes_opt(p):
+	''' TOK_COMMA_paramTypes_opt : TOK_COMMA_paramTypes | empty '''
+
+def p_TOK_COMMA_paramTypes(p):
+	''' TOK_COMMA_paramTypes : TOK_COMMA_paramType | TOK_COMMA_paramTypes TOK_COMMA_paramType '''
+
+def p_TOK_COMMA_paramType(p):
+	''' TOK_COMMA_paramType : TOK_COMMA paramType '''
+
+'''
+existentialClause
+   : 'forSome' '{' existentialDcl (Semi existentialDcl)* '}'
+   ;
+'''
+def p_existentialClause(p):
+	'''existentialClause  : TOK_forSome TOK_LCUR existentialDcl (Semi existentialDcl)* TOK_RCUR  '''
+
+def p_TOK_SEMICOLON_existentialDcls_opt(p):
+	''' TOK_SEMICOLON_existentialDcls_opt : TOK_SEMICOLON_existentialDcls | empty '''
+
+def p_TOK_SEMICOLON_existentialDcls(p):
+	''' TOK_SEMICOLON_existentialDcls : TOK_SEMICOLON_existentialDcl | TOK_SEMICOLON_existentialDcls TOK_SEMICOLON_existentialDcl '''
+
+def p_TOK_SEMICOLON_existentialDcl(p):
+	''' TOK_SEMICOLON_existentialDcl : TOK_SEMICOLON existentialDcl '''
+	
+
+'''
+existentialDcl
+   : 'type' typeDcl
+   | 'val' valDcl
+   ;
+'''
+def p_existentialDcl(p):
+	'''existentialDcl  : TOK_type typeDcl  | TOK_val valDcl '''
+
+'''
+infixType
+   : compoundType (Id compoundType)*
+   ;
+'''
+def p_infixType(p):
+	'''infixType   : compoundType (Id compoundType)* '''
+
+def p_id_compoundTypes_opt(p):
+	''' id_compoundTypes_opt : id_compoundTypes | empty '''
+
+def p_id_compoundTypes(p):
+	''' id_compoundTypes : id_compoundType | id_compoundTypes id_compoundTypes '''
+
+def p_id_compoundType(p):
+	''' id_compoundType : id compoundType '''
+
+'''
+compoundType
+   : annotType ('with' annotType)* refinement?
+   | refinement
+   ;
+'''
+
+def p_compoundType(p):
+	'''compoundType   : annotType TOK_with_annotTypes_opt | annotType TOK_with_annotTypes_opt refinement  | refinement '''
+
+def p_TOK_with_annotTypes_opt(p):
+	''' TOK_with_annotTypess_opt : TOK_with_annotTypes | empty '''
+
+def p_TOK_with_annotTypes(p):
+	''' TOK_with_annotTypes : TOK_with_annotType | TOK_with_annotTypes TOK_with_annotType '''
+
+def p_TOK_with_annotType(p):
+	''' TOK_with_annotType : TOK_with annotType '''
+
+
+'''
+annotType
+   : simpleType annotation*
+   ;
+'''
+#annotations_opt defined beforehand
+def p_annotType(p):
+	'''annotType : simpleType annotations_opt '''
+
+
+'''
+simpleType
+   : simpleType typeArgs
+   | simpleType '#' Id
+   | stableId
+   | (stableId | (Id '.')? 'this') '.' 'type'
+   | '(' types ')'
+   ;
+'''
+def p_simpleType(p):
+	'''simpleType   : simpleType typeArgs   | simpleType '#' Id   | stableId   | (stableId | (Id '.')? 'this') TOK_DOT 'type'	   | TOK_LPAREN types TOK_RPAREN '''
+
+'''
+typeArgs
+   : '[' types ']'
+   ;
+'''
+def p_typeArgs(p):
+	'''typeArgs  : TOK_LSQB types TOK_RSQB '''
+
+'''
+types
+   : type (',' type)*
+   ;
+'''
+def p_types(p):
+	'''types  : type TOK_COMMA_types_opt '''
+
+
+def p_TOK_COMMA_types_opt(p):
+	''' TOK_COMMA_types_opt : TOK_COMMA_types | empty '''
+
+def p_TOK_COMMA_types(p):
+	''' TOK_COMMA_types : TOK_COMMA_type | TOK_COMMA_types TOK_COMMA_type '''
+
+def p_TOK_COMMA_type(p):
+	''' TOK_COMMA_type : TOK_COMMA type '''
+
+
+'''
+refinement
+   : '{' refineStat (Semi refineStat)* '}'
+   ;
+'''
+
+def p_refinement(p):
+	''' refinement   : TOK_LCUR refineStat TOK_SEMICOLON_refineStats_opt TOK_RCUR '''
+
+def p_TOK_SEMICOLON_refineStats_opt(p):
+	''' TOK_SEMICOLON_refineStats_opt : TOK_SEMICOLON_refineStats | empty '''
+
+def p_TOK_SEMICOLON_refineStats(p):
+	''' TOK_SEMICOLON_refineStats : TOK_SEMICOLON_refineStat | TOK_SEMICOLON_refineStats TOK_SEMICOLON_refineStat '''
+
+def p_TOK_SEMICOLON_refineStat(p):
+	''' TOK_SEMICOLON_refineStat : TOK_SEMICOLON refineStat '''
+
+'''
+refineStat
+   : dcl
+   | 'type' typeDef
+   |
+   ;
+'''
+
+typePat
+   : type
+   ;
+
+ascription
+   : ':' infixType
+   | ':' annotation +
+   | ':' '_' '*'
+   ;
+
+expr
+   : (bindings | 'implicit'? Id | '_') '=>' expr
+   | expr1
+   ;
 

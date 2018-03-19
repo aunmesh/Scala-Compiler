@@ -1,83 +1,6 @@
 grammar Scala;
 
-literal
-   : '-'? IntegerLiteral
-   | '-'? FloatingPointLiteral
-   | BooleanLiteral
-   | CharacterLiteral
-   | StringLiteral
-   | SymbolLiteral
-   | 'null'
-   ;
 
-qualId
-   : Id ('.' Id)*
-   ;
-
-ids
-   : Id (',' Id)*
-   ;
-
-stableId
-   : (Id | (Id '.')? 'this') '.' Id
-   | (Id '.')? 'super' classQualifier? '.' Id
-   ;
-
-classQualifier
-   : '[' Id ']'
-   ;
-
-type
-   : functionArgTypes '=>' type
-   | infixType existentialClause?
-   ;
-
-functionArgTypes
-   : infixType
-   | '(' (paramType (',' paramType)*)? ')'
-   ;
-
-existentialClause
-   : 'forSome' '{' existentialDcl (Semi existentialDcl)* '}'
-   ;
-
-existentialDcl
-   : 'type' typeDcl
-   | 'val' valDcl
-   ;
-
-infixType
-   : compoundType (Id compoundType)*
-   ;
-
-compoundType
-   : annotType ('with' annotType)* refinement?
-   | refinement
-   ;
-
-annotType
-   : simpleType annotation*
-   ;
-
-simpleType
-   : simpleType typeArgs
-   | simpleType '#' Id
-   | stableId
-   | (stableId | (Id '.')? 'this') '.' 'type'
-   | '(' types ')'
-   ;
-
-typeArgs
-   : '[' types ']'
-   ;
-
-types
-   : type (',' type)*
-   ;
-
-refinement
-   : '{' refineStat (Semi refineStat)* '}'
-   ;
 
 refineStat
    : dcl
@@ -240,23 +163,6 @@ variantTypeParam
 typeParam
    : (Id | '_') typeParamClause? ('>:' type)? ('<:' type)? ('<%' type)* (':' type)*
    ;
-
-paramClauses
-   : paramClause* ('(' 'implicit' params ')')?
-   ;
-
-paramClause
-   : '(' params? ')'
-   ;
-
-params
-   : param (',' param)*
-   ;
-
-param
-   : annotation* Id (':' paramType)? ('=' expr)?
-   ;
-
 
 
 
