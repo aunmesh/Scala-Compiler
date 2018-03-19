@@ -323,7 +323,8 @@ def p_with_annotTypes(p):
 def p_with_annotType(p):
 	'''with_annotType : TOK_with annotType'''
 
-   p[0] = Node("with_annotType", [p[1]])
+   leaf1 = create_children("TOK_with",p[1])
+   p[0] = Node("with_annotType", [leaf1,p[2]])
 
 '''
 classParents
@@ -376,7 +377,8 @@ traitTemplateOpt
 def p_traitTemplateOpt(p):
 	'''traitTemplateOpt : TOK_extends traitTemplate | TOK_extends templateBody | templateBody | empty'''
    if(len(p) == 3):
-      p[0] = Node("traitTemplateOpt", [p[1], p[2]])
+   	  leaf1 = create_children("TOK_extends",p[1])
+   	  p[0] = Node("traitTemplateOpt", [leaf1, p[2]])
    else:
       p[0] = Node("traitTemplateOpt", [p[1]])
 
@@ -390,7 +392,8 @@ def p_classTemplateOpt(p):
 	''' classTemplateOpt : TOK_extends classTemplate | TOK_extends templateBody | templateBody | empty'''
 
    if(len(p) == 3):
-      p[0] = Node("classTemplateOpt", [p[1], p[2]])
+ 	  leaf1 = create_children("TOK_extends",p[1])
+      p[0] = Node("classTemplateOpt", [leaf1, p[2]])
    else:
       p[0] = Node("classTemplateOpt", [p[1]])
 
@@ -462,6 +465,7 @@ def p_tmplDef(p):
       p[0] = Node("tmplDef", [p[1], p[2]])
    else:
       p[0] = Node("tmplDef", [p[1], p[2], p[3]])
+
 
 '''
 typeDef
@@ -1385,17 +1389,25 @@ compoundType
 
 def p_compoundType(p):
    '''compoundType   : annotType TOK_with_annotTypes_opt | annotType TOK_with_annotTypes_opt refinement  | refinement '''
-
+   if(len(p) == 3):
+      p[0] = Node("compoundType", [p[1],p[2]])
+   else if(len(p) == 4):
+      p[0] = Node("compoundType", [p[1], p[2],p[3]])
+   else : 
+      p[0] = Node("compoundType", [p[1]])   	
 def p_TOK_with_annotTypes_opt(p):
    ''' TOK_with_annotTypess_opt : TOK_with_annotTypes | empty '''
-
+   p[0] = Node("TOK_with_annotTypess_opt", [p[1]])
 def p_TOK_with_annotTypes(p):
    ''' TOK_with_annotTypes : TOK_with_annotType | TOK_with_annotTypes TOK_with_annotType '''
+   if(len(p) == 2):
+      p[0] = Node("TOK_with_annotTypes", [p[1]])
+    else:
+      p[0] = Node("TOK_with_annotTypes", [p[1], p[2]])
 
 def p_TOK_with_annotType(p):
    ''' TOK_with_annotType : TOK_with annotType '''
-
-
+   p[0] = Node("TOK_with_annotType", [p[1]])
 '''
 annotType
    : simpleType annotation*
@@ -1404,7 +1416,7 @@ annotType
 #annotations_opt defined beforehand
 def p_annotType(p):
    '''annotType : simpleType annotations_opt '''
-
+   p[0] = Node("annotType", [p[1],p[2]])
 
 '''
 simpleType
@@ -1415,6 +1427,7 @@ simpleType
    | '(' types ')'
    ;
 '''
+#to do error
 def p_simpleType(p):
    '''simpleType   : simpleType typeArgs   | simpleType '#' Id   | stableId   | (stableId | (Id '.')? 'this') TOK_DOT 'type'     | TOK_LPAREN types TOK_RPAREN '''
 
@@ -1425,6 +1438,7 @@ typeArgs
 '''
 def p_typeArgs(p):
    '''typeArgs  : TOK_LSQB types TOK_RSQB '''
+   p[0] = Node("typeArgs", [p[1],p[2],p[3]])
 
 '''
 types
@@ -1433,16 +1447,23 @@ types
 '''
 def p_types(p):
    '''types  : type TOK_COMMA_types_opt '''
+   p[0] = Node("typeArgs", [p[1],p[2]])
+
 
 
 def p_TOK_COMMA_types_opt(p):
    ''' TOK_COMMA_types_opt : TOK_COMMA_types | empty '''
+   p[0] = Node("TOK_COMMA_types_opt", [p[1]])
 
 def p_TOK_COMMA_types(p):
    ''' TOK_COMMA_types : TOK_COMMA_type | TOK_COMMA_types TOK_COMMA_type '''
-
+   if(len(p) == 2):
+      p[0] = Node("TOK_COMMA_types", [p[1]])
+    else:
+      p[0] = Node("TOK_COMMA_types", [p[1], p[2]])
 def p_TOK_COMMA_type(p):
    ''' TOK_COMMA_type : TOK_COMMA type '''
+   p[0] = Node("TOK_COMMA_type", [p[1]])
 
 
 '''
@@ -1453,15 +1474,22 @@ refinement
 
 def p_refinement(p):
    ''' refinement   : TOK_LCUR refineStat TOK_SEMICOLON_refineStats_opt TOK_RCUR '''
+   p[0] = Node("refinement", [p[1],p[2],p[3],p[4]])
 
 def p_TOK_SEMICOLON_refineStats_opt(p):
    ''' TOK_SEMICOLON_refineStats_opt : TOK_SEMICOLON_refineStats | empty '''
+   p[0] = Node("TOK_SEMICOLON_refineStats_opt", [p[1]])
 
 def p_TOK_SEMICOLON_refineStats(p):
    ''' TOK_SEMICOLON_refineStats : TOK_SEMICOLON_refineStat | TOK_SEMICOLON_refineStats TOK_SEMICOLON_refineStat '''
+   if(len(p) == 2):
+      p[0] = Node("TOK_SEMICOLON_refineStats", [p[1]])
+    else:
+      p[0] = Node("TOK_SEMICOLON_refineStats", [p[1], p[2]])
 
 def p_TOK_SEMICOLON_refineStat(p):
    ''' TOK_SEMICOLON_refineStat : TOK_SEMICOLON refineStat '''
+   p[0] = Node("TOK_SEMICOLON_refineStat", [p[1], p[2]])
 
 '''
 refineStat
@@ -1472,7 +1500,10 @@ refineStat
 '''
 def p_refineStat(p):
    '''refineStat   : dcl   | TOK_type typeDef   |  empty    '''
-
+   if(len(p) == 2):
+      p[0] = Node("refineStat", [p[1]])
+    else:
+      p[0] = Node("refineStat", [p[1], p[2]])
 
 '''
 typePat
@@ -1481,6 +1512,7 @@ typePat
 '''
 def p_typePat(p):
    ''' typePat : type  '''
+   p[0] = Node("typePat", [p[1]])
    
 
 '''
@@ -1492,6 +1524,10 @@ ascription
 '''
 def p_ascription(p):
    '''ascription  : TOK_COLON infixType   | TOK_COLON annotations   | TOK_COLON TOK_UNDERSCORE TOK_STAR  '''
+   if(len(p) == 4):
+      p[0] = Node("ascription", [p[1],p[2],p[3]])
+    else:
+      p[0] = Node("ascription", [p[1], p[2]])
 
 '''
 expr
@@ -1501,6 +1537,14 @@ expr
 '''
 def p_expr(p):
    '''expr  : temp TOK_EQ_GT expr   | expr1 '''
+   if(len(p) == 4):
+      p[0] = Node("expr", [p[1],p[2],p[3]])
+    else:
+      p[0] = Node("expr", [p[1]])
 
 def p_temp(p):
    ''' temp : bindings | TOK_implicit Id | Id | TOK_UNDERSCORE'''
+   if(len(p) == 3):
+      p[0] = Node("expr", [p[1],p[2]])
+    else:
+      p[0] = Node("expr", [p[1]])
