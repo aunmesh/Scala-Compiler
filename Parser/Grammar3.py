@@ -1,17 +1,17 @@
 class Node(object): 
-	count = 1
+   count = 1
 
-	def __init__(self,name,children):
-		self.name = name #name of the node, non terminal
-		self.children = children
-		self.id=Node.count
-		Node.count+=1
+   def __init__(self,name,children):
+      self.name = name #name of the node, non terminal
+      self.children = children
+      self.id=Node.count
+      Node.count+=1
 
 
 def create_children(token_name , terminal_name):
-	leaf_t = Node(terminal_name,[])
-	leaf_token = Node(token_name,[leaf_t])
-	return leaf_token
+   leaf_t = Node(terminal_name,[])
+   leaf_token = Node(token_name,[leaf_t])
+   return leaf_token
 
 
 
@@ -33,17 +33,17 @@ compilationUnit
 
 '''
 def p_compile_unit(p):
-	'''compilationUnit  : package_units_opt topStatSeq '''
+   '''compilationUnit  : package_units_opt topStatSeq '''
 
    p[0]  = Node("compilationUnit", [p[1], p[2]])
 
 def p_package_units_opt(p):
-	'''package_units_opt : package_units | empty '''
+   '''package_units_opt : package_units | empty '''
 
    p[0] = Node("package_units_opt", [p[1]])
 
 def p_package_units(p):
-	'''package_units :  package_unit | package_units package_unit '''
+   '''package_units :  package_unit | package_units package_unit '''
 
    if(len(p) == 2):
       p[0] = Node("package_units", [p[1]])
@@ -52,7 +52,7 @@ def p_package_units(p):
       p[0] = Node("package_units", [p[1], p[2]])
 
 def p_package_unit(p):
-	'''package_unit : TOK_package qualid TOK_SEMICOLON'''
+   '''package_unit : TOK_package qualid TOK_SEMICOLON'''
 
    leaf1 = create_children("TOK_package", p[1])
    leaf3 = create_children("TOK_SEMICOLON", p[3])
@@ -65,7 +65,7 @@ packageObject
 '''
 
 def p_package_object(p):
-	'''packageObject : TOK_package TOK_object objectdef'''
+   '''packageObject : TOK_package TOK_object objectdef'''
 
    leaf1 = create_children("TOK_package",p[1])
    leaf2 = create_children("TOK_object",p[2])
@@ -79,7 +79,7 @@ packaging
 '''
 
 def p_packaging(p):
-	'''packaging : TOK_package qualid TOK_LCUR topStatSeq TOK_RCUR '''
+   '''packaging : TOK_package qualid TOK_LCUR topStatSeq TOK_RCUR '''
 
    leaf1 = create_children("TOK_package",p[1])
    leaf3 = create_children("TOK_LCUR",p[3])
@@ -97,7 +97,7 @@ topStat
 '''
 
 def p_topStat(p):
-	'''topStat : annotations_opt modifiers_opt tmplDef | import_ | packaging | packageObject '''
+   '''topStat : annotations_opt modifiers_opt tmplDef | import_ | packaging | packageObject '''
 
    if (len(p) == 4):
       p[0] = Node("topStat", [p[1], p[2], p[3]])
@@ -105,12 +105,12 @@ def p_topStat(p):
       p[0] = Node("topStat", p[1])
 
 def p_annotations_opt(p):
-	'''annotations_opt :  annotations | empty '''	
+   '''annotations_opt :  annotations | empty '''   
 
    p[0] = Node("annotations_opt", [p[1]])
 
 def p_annotations(p):
-	'''annotations : annotation | annotations annotation '''
+   '''annotations : annotation | annotations annotation '''
 
    if(len(p) == 2):
       p[0] = Node("annotations", [p[1]])
@@ -118,12 +118,12 @@ def p_annotations(p):
       p[0] = Node("annotations", [p[1], p[2]])
 
 def p_modifiers_opt(p):
-	'''modifiers_opt : modifiers | empty '''
+   '''modifiers_opt : modifiers | empty '''
 
    p[0] = Node("modifiers_opt", [p[1]])
 
 def p_modifiers(p):
-	'''modifiers : modifier | modifiers modifier | empty '''
+   '''modifiers : modifier | modifiers modifier | empty '''
 
    if(len(p) == 2):
       p[0] = Node("modifiers", [p[1]])
@@ -137,17 +137,17 @@ topStatSeq
    ;
 '''
 def p_topStatSeq(p):
-	'''topstatSeq : topStat Semi_topStats_opt '''
+   '''topstatSeq : topStat Semi_topStats_opt '''
 
    p[0] = Node("topstatSeq", [p[1], p[2]])
 
 def p_Semi_topStats(p):
-	'''SemitopStats_opt : SemitopStats | empty'''
+   '''SemitopStats_opt : SemitopStats | empty'''
 
    p[0] = Node("SemitopStats_opt", [p[1]])
 
 def p_Semi_topStats(p):
-	'''Semi_topStats : Semi_topStat | Semi_topStats Semi_topStat'''
+   '''Semi_topStats : Semi_topStat | Semi_topStats Semi_topStat'''
 
    if(len(p) == 2):
       p[0] = Node("Semi_topStats", [p[1]])
@@ -156,7 +156,7 @@ def p_Semi_topStats(p):
 
 
 def p_Semi_topStat(p):
-	'''Semi_topStat : TOK_SEMICOLON topStat '''
+   '''Semi_topStat : TOK_SEMICOLON topStat '''
 
    leaf1 = create_children("TOK_SEMICOLON",p[1])
    p[0] = Node("Semi_topStat", [leaf1, p[2]])
@@ -169,19 +169,19 @@ selfInvocation
 '''
 
 def p_selfInvocation(p):
-	'''selfInvocation : TOK_this argumentExprss'''
+   '''selfInvocation : TOK_this argumentExprss'''
 
    leaf1 = create_children("TOK_this",p[1])
    p[0] = Node("selfInvocation", [leaf1, p[2]])
 
 #defined here but not used in this rule
 def p_argumentExprss_opt(p):
-	'''argumentExprss_opt : argumentExprss | empty '''
+   '''argumentExprss_opt : argumentExprss | empty '''
 
    p[0] = Node("argumentExprss_opt", [p[1]])
 
 def p_argumentExprss(p):
-	'''argumentExprss : argumentExprs | argumentExprss argumentExprs'''
+   '''argumentExprss : argumentExprs | argumentExprss argumentExprs'''
   
    if(len(p) == 2):
       p[0] = Node("argumentExprss", [p[1]])
@@ -197,26 +197,26 @@ constrBlock
 '''
 
 def p_constrBlock(p):
-	'''constrBlock : TOK_LCUR selfInvocation Semi_blockStats_opt TOK_RCUR '''
+   '''constrBlock : TOK_LCUR selfInvocation Semi_blockStats_opt TOK_RCUR '''
 
    leaf1 = create_children("TOK_LCUR",p[1])
    leaf4 = create_children("TOK_RCUR",p[4])
    p[0] = Node("constrBlock", [leaf1, p[2], p[3], leaf4])
 
 def p_Semi_blockStats_opt(p):
-	'''Semi_blockStats_opt : Semi_blockStats | empty'''
+   '''Semi_blockStats_opt : Semi_blockStats | empty'''
 
    p[0] = Node("Semi_blockStats_opt", [p[1]])
 
 def p_Semi_blockStats(p):
-	'''Semi_blockStats : Semi_blockStat | Semi_blockStats Semi_blockStat '''
+   '''Semi_blockStats : Semi_blockStat | Semi_blockStats Semi_blockStat '''
    if(len(p) == 2):
       p[0] = Node("Semi_blockStats", [p[1]])
    else:
       p[0] = Node("Semi_blockStats", [p[1], p[2]])
 
 def p_Semi_blockStat(p):
-	'''Semi_blockStat : TOK_SEMICOLON blockStat'''
+   '''Semi_blockStat : TOK_SEMICOLON blockStat'''
 
    leaf1 = create_children("TOK_SEMICOLON",p[1])
    p[0] = Node("Semi_blockStat", [leaf1, p[2]])
@@ -229,7 +229,7 @@ constrExpr
    ;
 '''
 def p_constrExpr(p):
-	'''constrExpr : selfInvocation | constrBlock'''
+   '''constrExpr : selfInvocation | constrBlock'''
 
    p[0] = Node("constrExpr", [p[1]])
 
@@ -241,7 +241,7 @@ earlyDef
 '''
 #annotations and modifiers defined beforehand
 def p_earlyDef(p):
-	'''earlyDef : annotations_opt modifiers_opt patVarDef '''
+   '''earlyDef : annotations_opt modifiers_opt patVarDef '''
 
    p[0] = Node("earlyDef", [p[1], p[2], p[3]])
 
@@ -253,7 +253,7 @@ earlyDefs
 '''
 
 def p_earlyDefs(p):
-	'''earlyDefs : TOK_LCUR empty TOK_RCUR TOK_with | TOK_LCUR earlyDef Semi_earlyDefs_opt TOK_RCUR TOK_with '''
+   '''earlyDefs : TOK_LCUR empty TOK_RCUR TOK_with | TOK_LCUR earlyDef Semi_earlyDefs_opt TOK_RCUR TOK_with '''
 
    if(len(p) == 5):
       leaf1 = create_children("TOK_LCUR",p[1])
@@ -267,12 +267,12 @@ def p_earlyDefs(p):
       p[0] = Node("earlyDefs", [leaf1, p[2], p[3], leaf4, leaf5])
 
 def p_Semi_earlyDefs_opt(p):
-	'''Semi_earlyDefs_opt : Semi_earlyDefs | empty '''
+   '''Semi_earlyDefs_opt : Semi_earlyDefs | empty '''
 
    p[0] = Node("Semi_earlyDefs_opt", [p[1]])
 
 def p_Semi_earlyDefs(p):
-	'''Semi_earlyDefs : Semi_earlyDef | Semi_earlyDefs Semi_earlyDef '''
+   '''Semi_earlyDefs : Semi_earlyDef | Semi_earlyDefs Semi_earlyDef '''
 
    if(len(p) == 2):
       p[0] = Node("Semi_earlyDefs", [p[1]])
@@ -280,7 +280,7 @@ def p_Semi_earlyDefs(p):
       p[0] = Node("Semi_earlyDefs", [p[1], p[2]])
 
 def p_Semi_earlyDef(p):
-	'''Semi_earlyDef : TOK _SEMICOLON earlyDef '''
+   '''Semi_earlyDef : TOK _SEMICOLON earlyDef '''
 
    leaf1 = create_children("TOK _SEMICOLON",p[1])
    p[0] = Node("Semi_earlyDef", [leaf1, p[2]])
@@ -293,7 +293,7 @@ constr
 '''
 
 def p_constr(p):
-	'''constr : annotType arguementsExprss_opt'''
+   '''constr : annotType arguementsExprss_opt'''
 
    p[0] = Node("constr", [p[1], p[2]])
 
@@ -303,17 +303,17 @@ traitParents
    ;
 '''
 def p_traitParents(p):
-	'''traitParents : annotType with_annotTypes_opt '''
+   '''traitParents : annotType with_annotTypes_opt '''
 
    p[0] = Node("traitParents", [p[1], p[2]])
 
 def p_with_annotTypes_opt(p):
-	'''with_annotTypes_opt : with_annotTypes | empty '''
+   '''with_annotTypes_opt : with_annotTypes | empty '''
 
    p[0] = Node("with_annotTypes_opt", [p[1]])
 
 def p_with_annotTypes(p):
-	'''with_annotTypes : with_annotType | with_annotTypes with_annotType '''
+   '''with_annotTypes : with_annotType | with_annotTypes with_annotType '''
 
    if(len(p) == 2):
       p[0] = Node("with_annotTypes", [p[1]])
@@ -321,10 +321,10 @@ def p_with_annotTypes(p):
       p[0] = Node("with_annotTypes", [p[1], p[2]])
 
 def p_with_annotType(p):
-	'''with_annotType : TOK_with annotType'''
+   '''with_annotType : TOK_with annotType'''
 
    leaf1 = create_children("TOK_with",p[1])
-   p[0] = Node("with_annotType", [leaf1,p[2]])
+   p[0] = Node("with_annotType", [leaf1, p[2]])
 
 '''
 classParents
@@ -333,7 +333,7 @@ classParents
 
 '''
 def p_classParents(p):
-	'''classParents : constr with_annotTypes_opt'''
+   '''classParents : constr with_annotTypes_opt'''
 
    p[0] = Node("classParents", [p[1], p[2]])
 
@@ -344,7 +344,7 @@ traitTemplate
    ;
 '''
 def p_traitTemplate(p):
-	'''traitTemplate : traitParents | traitParents templateBody |  earlyDefs traitParents | earlyDefs traitParents templateBody'''
+   '''traitTemplate : traitParents | traitParents templateBody |  earlyDefs traitParents | earlyDefs traitParents templateBody'''
 
    if(len(p) == 2):
       p[0] = Node("traitTemplate", [p[1]])
@@ -359,7 +359,7 @@ classTemplate
    ;
 '''
 def p_classTemplate(p):
-	'''classTemplate : classParents | classParents templateBody |  earlyDefs classParents | earlyDefs classParents templateBody'''
+   '''classTemplate : classParents | classParents templateBody |  earlyDefs classParents | earlyDefs classParents templateBody'''
 
    if(len(p) == 2):
       p[0] = Node("classTemplate", [p[1]])
@@ -375,10 +375,10 @@ traitTemplateOpt
    ;
 '''
 def p_traitTemplateOpt(p):
-	'''traitTemplateOpt : TOK_extends traitTemplate | TOK_extends templateBody | templateBody | empty'''
+   '''traitTemplateOpt : TOK_extends traitTemplate | TOK_extends templateBody | templateBody | empty'''
    if(len(p) == 3):
-   	  leaf1 = create_children("TOK_extends",p[1])
-   	  p[0] = Node("traitTemplateOpt", [leaf1, p[2]])
+      leaf1 = create_children("TOK_extends",p[1])
+      p[0] = Node("traitTemplateOpt", [leaf1, p[2]])
    else:
       p[0] = Node("traitTemplateOpt", [p[1]])
 
@@ -389,10 +389,10 @@ classTemplateOpt
    ;
 '''
 def p_classTemplateOpt(p):
-	''' classTemplateOpt : TOK_extends classTemplate | TOK_extends templateBody | templateBody | empty'''
+   ''' classTemplateOpt : TOK_extends classTemplate | TOK_extends templateBody | templateBody | empty'''
 
    if(len(p) == 3):
- 	  leaf1 = create_children("TOK_extends",p[1])
+      leaf1 = create_children("TOK_extends",p[1])
       p[0] = Node("classTemplateOpt", [leaf1, p[2]])
    else:
       p[0] = Node("classTemplateOpt", [p[1]])
@@ -404,9 +404,9 @@ objectDef
 '''
 
 def p_objectDef(p):
-	'''objectDef : Id classTemplateOpt'''
+   '''objectDef : Id classTemplateOpt'''
 
-   p[0] = Node("objectDef", [p[1]])
+   p[0] = Node("objectDef", [p[1], p[2]])
 
 '''
 traitDef
@@ -414,7 +414,7 @@ traitDef
    ;
 '''
 def p_traitDef(p):
-	'''traitDef : Id traitTemplateOpt | Id typeParamClause traitTemplateOpt'''
+   '''traitDef : Id traitTemplateOpt | Id typeParamClause traitTemplateOpt'''
 
    if(len(p) == 3):
       p[0] = Node("traitDef", [p[1], p[2]])
@@ -428,7 +428,7 @@ classDef
 '''
 
 def p_classDef(p):
-	'''classDef : Id constrAnnotations_opt classParamClauses classTemplateOpt
+   '''classDef : Id constrAnnotations_opt classParamClauses classTemplateOpt
                | Id constrAnnotations_opt accessModifier classParamClauses classTemplateOpt 
                | Id typeParamClause constrAnnotations_opt  classParamClauses classTemplateOpt 
                | Id typeParamClause constrAnnotations_opt accessModifier classParamClauses classTemplateOpt '''
@@ -442,11 +442,11 @@ def p_classDef(p):
 
 
 def p_constrAnnotations_opt(p):
-	'''constrAnnotations_opt : constrAnnotations | empty '''
+   '''constrAnnotations_opt : constrAnnotations | empty '''
    p[0] = Node("constrAnnotations_opt", [p[1]])
 
 def p_constrAnnotations(p):
-	'''constrAnnotations : constrAnnotation | constrAnnotations constrAnnotation '''
+   '''constrAnnotations : constrAnnotation | constrAnnotations constrAnnotation '''
    if(len(p) == 2):
       p[0] = Node("constrAnnotations", [p[1]])
    else:
@@ -459,11 +459,23 @@ tmplDef
    | 'trait' traitDef
    ;
 '''
+#defined in new way. Please check
+
 def p_tmplDef(p):
-	'''tmplDef    : TOK_class classDef | TOK_case TOK_class classDef  | TOK_case TOK_object objectDef | TOK_trait traitDef '''
-   if(len(p) == 3):
-      p[0] = Node("tmplDef", [p[1], p[2]])
+   '''tmplDef    : TOK_class classDef | TOK_case TOK_class classDef  | TOK_case TOK_object objectDef | TOK_trait traitDef '''
+   if(p[1] == 'class'):
+      leaf1 = create_children("TOK_class",p[1])
+      p[0] = Node("tmplDef", [leaf1, p[2]])
+   else if(p[1] == 'trait'):
+      leaf1 = create_children("TOK_trait",p[1])
+      p[0] = Node("tmplDef", [leaf1, p[2]])
+   else if(p[2] == 'class'):
+      leaf1 = create_children("TOK_case",p[1])
+      leaf2 = create_children("TOK_class",p[2])
+      p[0] = Node("tmplDef", [leaf1, leaf2, p[3]])
    else:
+      leaf1 = create_children("TOK_case",p[1])
+      leaf2 = create_children("TOK_object",p[2])
       p[0] = Node("tmplDef", [p[1], p[2], p[3]])
 
 
@@ -473,12 +485,14 @@ typeDef
    ;
 '''
 def p_typeDef(p):
-	'''typeDef :  Id TOK_ASSIGN type | Id typeParamClause TOK_ASSIGN type '''
+   '''typeDef :  Id TOK_ASSIGN type | Id typeParamClause TOK_ASSIGN type '''
 
    if(len(p) == 4):
-      p[0] = Node("typeDef", [p[1], p[2], p[3]])
+      leaf2 = create_children("TOK_ASSIGN",p[2])
+      p[0] = Node("typeDef", [p[1], leaf2, p[3]])
     else:
-      p[0] = Node("typeDef", [p[1], p[2], p[3], p[4]])
+      leaf3 = create_children("TOK_ASSIGN",p[3])
+      p[0] = Node("typeDef", [p[1], p[2], leaf3, p[4]])
 
 '''
 funDef
@@ -489,18 +503,33 @@ funDef
 '''
 
 def p_funDef(p):
-	'''funDef : funSig TOK_ASSIGN expr 
+   '''funDef : funSig TOK_ASSIGN expr
+              | funSig TOK_LCUR block TOK_RCUR 
+              | TOK_this paramClause paramClauses constrBlock
               | funSig TOK_COLON type TOK_ASSIGN expr   
-              | funSig TOK_LPAREN block TOK_RPAREN 
-              | TOK_this paramClause paramClauses TOK_ASSIGN constrExpr 
-              | TOK_this paramClause paramClauses constrBlock'''
+              | TOK_this paramClause paramClauses TOK_ASSIGN constrExpr '''
 
    if(len(p) == 4):
-      p[0] = Node("funDef", [p[1], p[2], p[3]])
+      leaf2 = create_children("TOK_ASSIGN",p[2])
+      p[0] = Node("funDef", [p[1], leaf2, p[3]])
    else if(len(p) == 5):
-      p[0] = Node("funDef", [p[1], p[2], p[3], p[4]])
+      if(p[2] == '{'):
+         leaf2 = create_children("TOK_LCUR",p[2])
+         leaf4 = create_children("TOK_RCUR",p[4])
+         p[0] = Node("funDef", [p[1], leaf2, p[3], leaf4])
+      else:
+         leaf1 = create_children("TOK_this",p[1])
+         p[0] = Node("funDef", [leaf1, p[2], p[3], p[4]])
+
    else:
-      p[0] = Node("funDef", [p[1], p[2], p[3], p[4], p[5]])
+      if(p[2] == ':'):
+         leaf2 = create_children("TOK_COLON",p[2])
+         leaf4 = create_children("TOK_ASSIGN",p[4])
+         p[0] = Node("funDef", [p[1], leaf2, p[3], leaf4, p[5]])
+      else:
+         leaf1 = create_children("TOK_this",p[1])
+         leaf4 = create_children("TOK_ASSIGN",p[4])
+         p[0] = Node("funDef", [leaf1, p[2], p[3], leaf4, p[5]])
 
 '''
 varDef
@@ -510,12 +539,15 @@ varDef
 '''
 
 def p_varDef(p):
-	'''varDef   : patDef | ids TOK_COLON type TOK_ASSIGN TOK_UNDERSCORE '''	
+   '''varDef   : patDef | ids TOK_COLON type TOK_ASSIGN TOK_UNDERSCORE ''' 
 
    if(len(p) == 2):
       p[0] = Node("varDef", [p[1]])
    else:
-      p[0] = Node("varDef", [p[1], p[2], p[3], p[4], p[5]])
+      leaf2 = create_children("TOK_COLON",p[2])
+      leaf4 = create_children("TOK_ASSIGN",p[4])
+      leaf5 = create_children("TOK_UNDERSCORE",p[5])
+      p[0] = Node("varDef", [p[1], leaf2, p[3], leaf4, leaf5])
 
 '''
 patDef
@@ -523,17 +555,18 @@ patDef
    ;
 '''
 def p_patDef(p):
-	'''patDef : pattern2 TOK_COMMA_pattern2s_opt TOK_COLON_types_opt TOK_ASSIGN expr '''
+   '''patDef : pattern2 TOK_COMMA_pattern2s_opt TOK_COLON_types_opt TOK_ASSIGN expr '''
 
-   p[0] = Node("patDef", [p[1], p[2], p[3], p[4]])
+   leaf4 = create_children("TOK_ASSIGN",p[4])
+   p[0] = Node("patDef", [p[1], p[2], p[3], leaf4])
 
 def p_TOK_COMMA_pattern2s_opt(p):
-	'''TOK_COMMA_pattern2s_opt : TOK_COMMA_pattern2s | empty '''
+   '''TOK_COMMA_pattern2s_opt : TOK_COMMA_pattern2s | empty '''
 
    p[0] = Node("TOK_COMMA_pattern2s_opt", [p[1]])
 
 def p_TOK_COMMA_pattern2s(p):
-	'''TOK_COMMA_pattern2s : TOK_COMMA_pattern2 | TOK_COMMA_pattern2s TOK_COMMA_pattern2 '''
+   '''TOK_COMMA_pattern2s : TOK_COMMA_pattern2 | TOK_COMMA_pattern2s TOK_COMMA_pattern2 '''
 
    if(len(p) == 2):
       p[0] = Node("TOK_COMMA_pattern2s", [p[1]])
@@ -541,17 +574,18 @@ def p_TOK_COMMA_pattern2s(p):
       p[0] = Node("TOK_COMMA_pattern2s", [p[1], p[2]])
 
 def TOK_COMMA_pattern2(p):
-	'''TOK_COMMA_pattern2 : TOK_COMMA pattern2 '''
+   '''TOK_COMMA_pattern2 : TOK_COMMA pattern2 '''
 
-   p[0] = Node("TOK_COMMA_pattern2", [p[1], p[2]])
+   leaf1 = create_children("TOK_COMMA",p[1])
+   p[0] = Node("TOK_COMMA_pattern2", [leaf1, p[2]])
 
 def p_TOK_COLON_types_opt(p):
-	'''TOK_COLON_types_opt : TOK_COLON_types | empty '''
+   '''TOK_COLON_types_opt : TOK_COLON_types | empty '''
 
    p[0] = Node("TOK_COLON_types_opt", [p[1]])
 
 def p_TOK_COLON_types(p):
-	'''TOK_COLON_types : TOK_COLON_type | TOK_COLON_types TOK_COLON_type '''
+   '''TOK_COLON_types : TOK_COLON_type | TOK_COLON_types TOK_COLON_type '''
 
    if(len(p) == 2):
       p[0] = Node("TOK_COLON_types", [p[1]])
@@ -559,8 +593,9 @@ def p_TOK_COLON_types(p):
       p[0] = Node("TOK_COLON_types", [p[1], p[2]])
 
 def p_TOK_COLON_type(p):
-	'''TOK_COLON_type : TOK_COLON type '''
+   '''TOK_COLON_type : TOK_COLON type '''
 
+   leaf1 = create_children("TOK_COLON",p[1])
    p[0] = Node("TOK_COLON_type", [p[1], p[2]])
 
 
@@ -575,12 +610,17 @@ Def
 '''
 
 def p_Def(p):
-	'''Def: patVarDef | TOK_def funDef   | TOK_type typeDef   | tmplDef '''
+   '''Def: patVarDef | TOK_def funDef   | TOK_type typeDef   | tmplDef '''
 
    if(len(p) == 2):
       p[0] = Node("Def", [p[1]])
     else:
-      p[0] = Node("Def", [p[1], p[2]])
+      if(p[1] == 'def'):
+         leaf1 = create_children("TOK_def",p[1])
+         p[0] = Node("Def", [leaf1, p[2]])
+      else:
+         leaf1 = create_children("TOK_type",p[1])
+         p[0] = Node("Def", [leaf1, p[2]])
 
 
 '''
@@ -590,9 +630,13 @@ patVarDef
    ;
 '''
 def p_patVarDef(p):
-	'''patVarDef : TOK_VAL patDef | TOK_VAR varDef '''
-
-   p[0] = Node("patVarDef", [p[1], p[2]])
+   '''patVarDef : TOK_val patDef | TOK_var varDef '''
+   if(p[1] == 'val'):
+      leaf1 = create_children("TOK_val",p[1])
+      p[0] = Node("patVarDef", [leaf1, p[2]])
+   else:
+      leaf1 = create_children("TOK_var",p[1])
+      p[0] = Node("patVarDef", [leaf1, p[2]])
 
 '''
 typeDcl
@@ -600,26 +644,45 @@ typeDcl
    ;
 '''
 def p_typeDcl(p):
-	'''typeDcl : Id | Id TOK_LT_COLON type 
-                    | Id TOK_GT_COLON type 
-                    | Id TOK_GT_COLON type TOK_LT_COLON type 
-                    | Id typeParamClause 
+   '''typeDcl : Id 
+                    | Id typeParamClause   
+                    | Id TOK_LT_COLON type 
+                    | Id TOK_GT_COLON type  
                     | Id typeParamClause TOK_LT_COLON type 
                     | Id typeParamClause TOK_GT_COLON type 
+                    | Id TOK_GT_COLON type TOK_LT_COLON type 
                     | Id typeParamClause TOK_GT_COLON type TOK_LT_COLON type '''
 
    if(len(p) == 2):
       p[0] = Node("typeDcl", [p[1]])
+
    else if(len(p) == 3):
       p[0] = Node("typeDcl", [p[1], p[2]])
+
    else if(len(p) == 4):
-      p[0] = Node("typeDcl", [p[1], p[2], p[3]])
+         if(p[2] == '>:'):
+            leaf2 = create_children("TOK_LT_COLON",p[2])
+            p[0] = Node("typeDcl", [p[1], leaf2, p[3]])
+         else:
+            leaf2 = create_children("TOK_GT_COLON",p[2])
+            p[0] = Node("typeDcl", [p[1], leaf2, p[3]])
+
    else if(len(p) == 5):
-      p[0] = Node("typeDcl", [p[1], p[2], p[3], p[4]])
+      if(p[3] == '>:'):
+         leaf3 = create_children("TOK_LT_COLON",p[3])
+         p[0] = Node("typeDcl", [p[1], p[2], leaf3, p[4]])
+      else:
+         leaf3 = create_children("TOK_LT_COLON",p[3])
+         p[0] = Node("typeDcl", [p[1], p[2], leaf3, p[4]])
+
    else if (len(p) == 6):
-      p[0] = Node("typeDcl", [p[1], p[2], p[3], p[4], p[5]])
+      leaf2 = create_children("TOK_GT_COLON",p[2])
+      leaf4 = create_children("TOK_LT_COLON",p[4])
+      p[0] = Node("typeDcl", [p[1], leaf2, p[3], leaf4, p[5]])
    else if (len(p) == 7):
-      p[0] = Node("typeDcl", [p[1], p[2], p[3], p[4], p[5], p[6]])
+      leaf3 = create_children("TOK_GT_COLON",p[3])
+      leaf5 = create_children("TOK_LT_COLON",p[5])
+      p[0] = Node("typeDcl", [p[1], p[2], leaf3, p[4], leaf5, p[6]])
 
 '''
 funSig
@@ -627,7 +690,7 @@ funSig
 '''
 
 def p_funSig(p):
-	'''funSig : Id paramClauses | Id funTypeParamClause paramClauses '''
+   '''funSig : Id paramClauses | Id funTypeParamClause paramClauses '''
 
    if(len(p) == 3):
       p[0] = Node("funSig", [p[1], p[2]])
@@ -641,11 +704,12 @@ funDcl
 '''
 
 def p_funDcl(p):
-	'''funDcl  : funSig | funSig TOK_COLON_type '''
+   '''funDcl  : funSig | funSig TOK_COLON_type '''
    if(len(p) == 2):
       p[0] = Node("funDcl", [p[1]])
     else:
-      p[0] = Node("funDcl", [p[1], p[2]])
+      leaf2 = create_children("TOK_COLON",p[2])
+      p[0] = Node("funDcl", [p[1], leaf2])
 
 
 '''
@@ -655,9 +719,9 @@ varDcl
 '''
 
 def p_varDcl(p):
-	'''varDcl : ids TOK_COLON type '''
-
-   p[0] = Node("varDcl", [p[1], p[2], p[3]])
+   '''varDcl : ids TOK_COLON type '''
+   leaf2 = create_children("TOK_COLON",p[2])
+   p[0] = Node("varDcl", [p[1], leaf2, p[3]])
 
 
 '''
@@ -667,9 +731,9 @@ valDcl
 '''
 
 def p_valDcl(p):
-	'''valDcl : ids TOK_COLON type'''
-
-   p[0] = Node("valDcl", [p[1], p[2], p[3]])
+   '''valDcl : ids TOK_COLON type'''
+   leaf2 = create_children("TOK_COLON",p[2])
+   p[0] = Node("valDcl", [p[1], leaf2, p[3]])
 
 '''
 dcl
@@ -680,9 +744,19 @@ dcl
    ;
 '''
 def p_dcl(p):
-	'''dcl  : TOK_val valDcl  | TOK_var varDcl   | TOK_def funDcl  | TOK_type typeDcl '''
-
-   p[0] = Node("dcl", [p[1], p[2]])
+   '''dcl  : TOK_val valDcl  | TOK_var varDcl   | TOK_def funDcl  | TOK_type typeDcl '''
+   if(p[1] == 'val'):
+      leaf1 = create_children("TOK_val",p[1])
+      p[0] = Node("dcl", [leaf1, p[2]])
+   else if(p[1] == 'var'):
+      leaf1 = create_children("TOK_var",p[1])
+      p[0] = Node("dcl", [leaf1, p[2]])
+   else if(p[2] == 'def'):
+      leaf1 = create_children("TOK_def",p[1])
+      p[0] = Node("dcl", [leaf1, p[2]])
+   else:
+      leaf1 = create_children("TOK_type",p[1])
+      p[0] = Node("TOK_type", [p[1]])
 
 
 '''
@@ -693,7 +767,13 @@ importSelector
 def p_importSelector(p):
 	'''importSelector  : Id TOK_EQ_GT TOK_UNDERSCORE | Id TOK_EQ_GT Id '''
 
-   p[0] = Node("importSelector", [p[1], p[2], p[3]])
+   if(p[3] == '_'):
+      leaf2 = create_children("TOK_EQ_GT",p[2])
+      leaf3 = create_children("TOK_UNDERSCORE",p[3])
+      p[0] = Node("importSelector", [p[1], p[2], p[3]])
+   else:
+      leaf2 = create_children("TOK_EQ_GT",p[2])
+      p[0] = Node("importSelector", [p[1], leaf2, p[3]])
 
 
 '''
@@ -703,10 +783,18 @@ importSelectors
 '''
 
 def p_importSelectors(p):
-	'''importSelectors : TOK_LPAREN importSelector_TOK_COMMAs_opt importSelector TOK_RPAREN 
-                       | TOK_LPAREN importSelector_TOK_COMMAs_opt TOK_UNDERSCORE TOK_RPAREN'''
+	'''importSelectors : TOK_LCUR importSelector_TOK_COMMAs_opt importSelector TOK_RCUR 
+                       | TOK_LCUR importSelector_TOK_COMMAs_opt TOK_UNDERSCORE TOK_RCUR'''
+   if(p[3] == '_'):
+      leaf1 = create_children("TOK_LCUR",p[1])
+      leaf3 = create_children("TOK_UNDERSCORE",p[3])
+      leaf4 = create_children("TOK_RCUR",p[4])
+      p[0] = Node("importSelectors", [leaf1, p[2], leaf3, leaf4])
+   else:
+      leaf1 = create_children("TOK_LCUR",p[1])
+      leaf4 = create_children("TOK_RCUR",p[4])
+      p[0] = Node("importSelectors", [leaf1, p[2], p[3], leaf4])
 
-   p[0] = Node("importSelectors", [p[1], p[2], p[3], p[4]])
 
 def p_importSelector_TOK_COMMAs_opt(p):
 	'''importSelector_TOK_COMMAs_opt : importSelector_TOK_COMMAs | empty '''
@@ -725,7 +813,8 @@ def importSelector_TOK_COMMAs(p);
 def importSelector_TOK_COMMA(p):
 	'''importSelector_TOK_COMMA : importSelector TOK_COMMA'''
 
-   p[0] = Node("importSelector_TOK_COMMA", [p[1], p[2]])
+   leaf2 = create_children("TOK_COMMA",p[2])
+   p[0] = Node("importSelector_TOK_COMMA", [p[1], leaf2])
 
 '''
 importExpr
@@ -736,7 +825,12 @@ importExpr
 def p_importExpr(p):
 	'''importExpr  : stableId TOK_DOT Id | stableId TOK_DOT TOK_UNDERSCORE  | stableId TOK_DOT importSelectors '''
 
-   p[0] = Node("importExpr", [p[1], p[2], p[3]])
+   leaf2 = create_children("TOK_DOT",p[2])
+   if(p[3] == '_'):
+      leaf3 = create_children("TOK_UNDERSCORE",p[3])
+      p[0] = Node("importExpr", [p[1], leaf2, leaf3])
+   else:
+      p[0] = Node("importExpr", [p[1], leaf2, p[3]])
 
 '''
 import_
@@ -746,7 +840,8 @@ import_
 
 def p_import_(p);
 	'''import_ : TOK_import importExpr TOK_COMMA_importExprs_opt '''
-   p[0] = Node("import_", [p[1], p[2], p[3]])
+   leaf1 = create_children("TOK_import",p[1])
+   p[0] = Node("import_", [leaf1, p[2], p[3]])
 
 def p_TOK_COMMA_importExprs_opt(p):
 	'''TOK_COMMA_importExprs_opt : TOK_COMMA_importExprs | empty '''
@@ -763,7 +858,8 @@ def p_TOK_COMMA_importExprs(p):
 def p_TOK_COMMA_importExpr(p):
 	'''TOK_COMMA_importExpr : TOK_COMMA importExpr'''
 
-   p[0] = Node("TOK_COMMA_importExpr", [p[1], p[2]])
+   leaf1 = create_children("TOK_COMMA",p[1])
+   p[0] = Node("TOK_COMMA_importExpr", [leaf1, p[2]])
 
 
 '''
@@ -777,9 +873,18 @@ def p_selfType(p):
 	'''selfType : Id TOK_EQ_GT | Id  TOK_COLON type TOK_EQ_GT | TOK_this TOK_COLON type TOK_EQ_GT'''
 
    if(len(p) == 3):
+      leaf2 = create_children("TOK_EQ_GT",p[2])
       p[0] = Node("selfType", [p[1], p[2]])
    else:
-      p[0] = Node("selfType", [p[1], p[2], p[3], p[4]])
+      if(p[1] == 'this'):
+         leaf1 = create_children("TOK_this",p[1])
+         leaf2 = create_children("TOK_COLON",p[2])
+         leaf4 = create_children("TOK_EQ_GT",p[4])
+         p[0] = Node("selfType", [leaf1, leaf2, p[3], leaf4])
+      else:
+         leaf2 = create_children("TOK_COLON",p[2])
+         leaf4 = create_children("TOK_EQ_GT",p[4])
+         p[0] = Node("selfType", [p[1], leaf2, p[3], leaf4])
 
 
 
@@ -806,13 +911,17 @@ templateBody
    ;
 '''
 def p_templateBody(p):
-   '''templateBody : TOK_LPAREN templateStat TOK_SEMICOLON_templateStats_opt TOK_RPAREN 
-                   | TOK_LPAREN selfType templateStat TOK_SEMICOLON_templateStats_opt TOK_RPAREN '''
+   '''templateBody : TOK_LCUR templateStat TOK_SEMICOLON_templateStats_opt TOK_RCUR 
+                   | TOK_LCUR selfType templateStat TOK_SEMICOLON_templateStats_opt TOK_RCUR '''
 
    if(len(p) == 5):
-      p[0] = Node("templateBody", [p[1], p[2], p[3], p[4]])
+      leaf1 = create_children("TOK_LCUR",p[1])
+      leaf4 = create_children("TOK_RCUR",p[4])
+      p[0] = Node("templateBody", [leaf1, p[2], p[3], leaf4])
     else:
-      p[0] = Node("templateBody", [p[1], p[2], p[3], p[4], p[5]])
+      leaf1 = create_children("TOK_LCUR",p[1])
+      leaf5 = create_children("TOK_RCUR",p[5])
+      p[0] = Node("templateBody", [leaf1, p[2], p[3], p[4], leaf5])
 
 def p_TOK_SEMICOLON_templateStats_opt(p):
    '''TOK_SEMICOLON_templateStats_opt : TOK_SEMICOLON_templateStats | empty '''
@@ -830,7 +939,8 @@ def p_TOK_SEMICOLON_templateStats(p):
 def p_TOK_SEMICOLON_templateStat(p):
    '''TOK_SEMICOLON_templateStat : TOK_SEMICOLON templateStat '''
 
-   p[0] = Node("TOK_SEMICOLON_templateStat", [p[1], p[2]])
+   leaf1 = create_children("TOK_SEMICOLON",p[1])
+   p[0] = Node("TOK_SEMICOLON_templateStat", [leaf1, p[2]])
 
 
 '''
@@ -841,8 +951,8 @@ constrAnnotation
 
 def p_constrAnnotation(p):
 	'''constrAnnotation : TOK_AT simpleType argumentExprs '''
-	
-   p[0] = Node("constrAnnotation", [p[1], p[2], p[3]])
+	leaf1 = create_children("TOK_AT",p[1])
+   p[0] = Node("constrAnnotation", [leaf1, p[2], p[3]])
 
 '''
 annotation
@@ -853,7 +963,8 @@ annotation
 def p_annotation(p):
 	'''annotation : TOK_AT simpleType argumentExprss_opt :'''
 
-   p[0] = Node("annotation", [p[1], p[2], p[3]])
+   leaf1 = create_children("TOK_AT",p[1])
+   p[0] = Node("annotation", [leaf1, p[2], p[3]])
 
 '''
 accessQualifier
@@ -864,7 +975,14 @@ accessQualifier
 def p_accessQualifier(p):
 	'''accessQualifier  : TOK_LSQB Id TOK_RSQB | TOK_LSQB  TOK_this TOK_RSQB '''
 
-   p[0] = Node("accessQualifier", [p[1], p[2], p[3]])
+   leaf1 = create_children("TOK_LSQB",p[1])
+   leaf3 = create_children("TOK_RSQB",p[3])
+
+   if(p[2] == 'this'):
+      leaf2 = create_children("TOK_this",p[2])
+      p[0] = Node("accessQualifier", [leaf1, leaf2, leaf3])
+   else:
+      p[0] = Node("accessQualifier", [leaf1, p[2], leaf3])
 
 '''
 accessModifier
@@ -876,9 +994,19 @@ def p_accessModifier(p);
 	'''accessModifier : TOK_private | TOK_private accessQualifier | TOK_protected | TOK_protected accessQualifier '''
 
    if(len(p) == 2):
-      p[0] = Node("accessModifier", [p[1]])
+      if(p[1] == 'private'):
+         leaf1 = create_children("TOK_private",p[1])
+         p[0] = Node("accessModifier", [leaf1])
+      else:
+         leaf1 = create_children("TOK_protected",p[1])
+         p[0] = Node("accessModifier", [leaf1])
     else:
-      p[0] = Node("accessModifier", [p[1], p[2]])
+      if(p[1] == 'private'):
+         leaf1 = create_children("TOK_private",p[1])
+         p[0] = Node("accessModifier", [leaf1, p[2]])
+      else:
+         leaf1 = create_children("TOK_protected",p[1])
+         p[0] = Node("accessModifier", [leaf1, p[2]])
 
 '''
 localModifier
@@ -892,8 +1020,21 @@ localModifier
 
 def p_localModifier(p):
 	'''localModifier : TOK_abstract   | TOK_final   | TOK_sealed   | TOK_implicit  | TOK_lazy	'''
-
-   p[0] = Node("localModifier", [p[1]])
+   if(p[1] == 'abstract'):
+      leaf1 = create_children("TOK_abstract",p[1])
+      p[0] = Node("localModifier", [leaf1])
+   else if(p[1] == 'final'):
+      leaf1 = create_children("TOK_final",p[1])
+      p[0] = Node("localModifier", [leaf1])
+   else if(p[1] == 'sealed'):
+      leaf1 = create_children("TOK_sealed",p[1])
+      p[0] = Node("localModifier", [leaf1])
+   else if(p[1] == 'implicit'):
+      leaf1 = create_children("TOK_implicit",p[1])
+      p[0] = Node("localModifier", [leaf1])
+   else:
+      leaf1 = create_children("TOK_lazy",p[1])
+      p[0] = Node("localModifier", [leaf1])
 
 '''
 modifier
@@ -905,8 +1046,11 @@ modifier
 
 def p_modifier(p):
    '''modifier : localModifier | accessModifier | TOK_override '''
-
-   p[0] = Node("modifier", [p[1]])
+   if(p[1] == 'override'):
+      leaf1 = create_children("TOK_override",p[1])
+      p[0] = Node("modifier", [leaf1])
+   else:
+      p[0] = Node("modifier", [p[1]])
 
 '''
 binding
@@ -917,7 +1061,10 @@ def p_binding(p):
    '''binding   : TOK_UNDERSCORE | Id | Id TOK_COLON_type | TOK_UNDERSCORE TOK_COLON_type  '''
 
    if(len(p) == 2):
-      p[0] = Node("binding", [p[1]])
+      if(p[1] == '_'):
+         p[0] = Node("binding", [p[1]])
+      else:        
+         p[0] = Node("binding", [p[1]])
     else:
       p[0] = Node("binding", [p[1], p[2]])
 
