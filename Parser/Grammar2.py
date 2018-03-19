@@ -529,7 +529,7 @@ templateBody
    ;
 '''
 def p_templateBody(p):
-	''' templateBody : TOK_LPAREN selfType templateStat TOK_SEMICOLON_templateStats_opt TOK_RPAREN 
+	''' templateBody : TOK_LPAREN templateStat TOK_SEMICOLON_templateStats_opt TOK_RPAREN 
 	| TOK_LPAREN selfType templateStat TOK_SEMICOLON_templateStats_opt TOK_RPAREN '''
 
 def p_TOK_SEMICOLON_templateStats_opt(p):
@@ -1029,4 +1029,24 @@ def p_expr(p):
 
 def p_temp(p):
 	''' temp : bindings | TOK_implicit Id | Id | TOK_UNDERSCORE'''
+
+'''
+expr1
+   : 'if' '(' expr ')' expr (Semi? 'else' expr)?
+   | 'while' '(' expr ')' expr
+   | 'try' ('{' block '}' | expr) ('catch' '{' caseClauses '}')? ('finally' expr)?
+   | 'do' expr Semi? 'while' '(' expr ')'
+   | 'for' ('(' enumerators ')' | '{' enumerators '}') 'yield'? expr
+   | 'throw' expr
+   | 'return' expr?
+   | (('new' (classTemplate | templateBody) | blockExpr | simpleExpr1 '_'?) '.') Id '=' expr
+   | simpleExpr1 argumentExprs '=' expr
+   | postfixExpr
+   | postfixExpr ascription
+   | postfixExpr 'match' '{' caseClauses '}'
+   ;
+'''
+
+def p_expr1(p):
+
 
