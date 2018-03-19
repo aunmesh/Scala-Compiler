@@ -449,7 +449,159 @@ importSelector
    : Id ('=>' Id | '=>' '_')
    ;
 '''
-
 def p_importSelector(p):
 	''' importSelector  : Id TOK_EQ_GT TOK_UNDERSCORE | Id TOK_EQ_GT Id '''
+
+
+'''
+importSelectors
+   : '{' (importSelector ',')* (importSelector | '_') '}'
+   ;
+'''
+
+def p_importSelectors(p):
+	''' importSelectors : TOK_LPAREN importSelector_TOK_COMMAs_opt importSelector TOK_RPAREN | TOK_LPAREN importSelector_TOK_COMMAs_opt  '_' TOK_RPAREN'''
+
+def p_importSelector_TOK_COMMAs_opt(p):
+	'''importSelector_TOK_COMMAs_opt : importSelector_TOK_COMMAs | empty '''
+
+def importSelector_TOK_COMMAs(p);
+	'''importSelector_TOK_COMMAs : importSelector_TOK_COMMA | importSelector_TOK_COMMAs importSelector_TOK_COMMA '''
+
+def importSelector_TOK_COMMA(p):
+	''' importSelector_TOK_COMMA : importSelector TOK_COMMA'''
+
+'''
+importExpr
+   : stableId '.' (Id | '_' | importSelectors)
+   ;
+'''
+
+def p_importExpr(p):
+	''' importExpr  : stableId TOK_DOT Id | stableId TOK_DOT TOK_UNDERSCORE  | stableId TOK_DOT importSelectors '''
+
+
+'''
+import_
+   : 'import' importExpr (',' importExpr)*
+   ;
+'''
+
+def p_import_(p);
+	''' import_ : TOK_import importExpr TOK_COMMA_importExprs_opt '''
+
+def p_TOK_COMMA_importExprs_opt(p):
+	''' TOK_COMMA_importExprs_opt : TOK_COMMA_importExprs | empty '''
+
+def p_TOK_COMMA_importExprs(p):
+	''' TOK_COMMA_importExprs : TOK_COMMA_importExpr | TOK_COMMA_importExprs TOK_COMMA_importExpr '''
+
+def p_TOK_COMMA_importExpr(p):
+	'''TOK_COMMA_importExpr : TOK_COMMA importExpr'''
+
+
+'''
+selfType
+   : Id (':' type)? '=>'
+   | 'this' ':' type '=>'
+   ;
+'''
+
+def p_selfType(p):
+	''' selfType : Id TOK_EQ_GT | Id  TOK_COLON type TOK_EQ_GT | TOK_this TOK_COLON type TOK_EQ_GT'''
+
+
+'''
+templateStat
+   : import_
+   | (annotation)* modifier* def
+   | (annotation)* modifier* dcl
+   | expr
+   |
+   ;
+'''
+def p_templateStat(p):
+	''' templateStat : import_  | annotations_opt modifiers_opt def  | annotations_opt modifiers_opt dcl | expr | empty '''
+
+'''
+templateBody
+   : '{' selfType? templateStat (Semi templateStat)* '}'
+   ;
+'''
+def p_templateBoday(p):
+	''' templateBody : TOK_LPAREN selfType? templateStat (Semi templateStat)* TOK_RPAREN '''
+
+def p_TOK_SEMICOLON_templateStats_opt(p):
+	''' TOK_SEMICOLON_templateStats_opt : TOK_SEMICOLON_templateStats | empty '''
+
+def p_TOK_SEMICOLON_templateStats(p):
+	''' TOK_SEMICOLON_templateStats : TOK_SEMICOLON_templateStats | TOK_SEMICOLON_templateStat TOK_SEMICOLON_templateStats '''
+
+def p_TOK_SEMICOLON_templateStat(p):
+	''' TOK_SEMICOLON_templateStat : TOK_SEMICOLON templateStat '''
+
+
+'''
+constrAnnotation
+   : '@' simpleType argumentExprs
+   ;
+'''
+
+def p_constrAnnotation(p):
+	'''constrAnnotation : TOK_AT simpleType argumentExprs '''
 	
+
+'''
+annotation
+   : '@' simpleType argumentExprs*
+   ;
+'''
+
+def p_annotation(p):
+	'''annotation   : TOK_AT simpleType argumentExprss_opt :'''
+
+'''
+accessQualifier
+   : '[' (Id | 'this') ']'
+   ;
+'''
+
+def p_accessQualifier(p):
+	''' accessQualifier  : TOK_LSQB Id TOK_RSQB | TOK_LSQB  TOK_this TOK_RSQB '''
+
+bindings
+   : '(' binding (',' binding)* ')'
+   ;
+
+binding
+   : (Id | '_') (':' type)?
+   ;
+
+modifier
+   : localModifier
+   | accessModifier
+   | 'override'
+   ;
+
+
+'''
+accessModifier
+   : ('private' | 'protected') accessQualifier?
+   ;
+'''
+
+def p_accessModifier(p);
+	'''accessModifier : TOK_private | TOK_private accessQualifier | TOK_protected | TOK_protected accessQualifier '''
+
+'''
+localModifier
+   : 'abstract'
+   | 'final'
+   | 'sealed'
+   | 'implicit'
+   | 'lazy'
+   ;
+'''
+
+def p_localModifier(p):
+
