@@ -257,27 +257,6 @@ param
    : annotation* Id (':' paramType)? ('=' expr)?
    ;
 
-paramType
-   : type
-   | '=>' type
-   | type '*'
-   ;
-
-classParamClauses
-   : classParamClause* ('(' 'implicit' classParams ')')?
-   ;
-
-classParamClause
-   : '(' classParams? ')'
-   ;
-
-classParams
-   : classParam (',' classParam)*
-   ;
-
-classParam
-   : annotation* modifier* ('val' | 'var')? Id ':' paramType ('=' expr)?
-   ;
 
 
 

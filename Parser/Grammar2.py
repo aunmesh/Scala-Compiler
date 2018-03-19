@@ -4,7 +4,7 @@ class Node(object):
 	def __init__(self,name,children):
 		self.name = name #name of the node, non terminal
 		self.children = children
-		self.id=Node.gid
+		self.id=Node.count
 		Node.count+=1
 
 
@@ -616,7 +616,32 @@ bindings
    ;
 '''	
 def p_bindings(p):
-	'''bindings   : TOK_LPAREN binding (',' binding)* TOK_RPAREN '''	
+	'''bindings   : TOK_LPAREN binding (',' binding)* TOK_RPAREN '''
+
+def p_TOK
+
+
+paramType
+   : type
+   | '=>' type
+   | type '*'
+   ;
+
+classParamClauses
+   : classParamClause* ('(' 'implicit' classParams ')')?
+   ;
+
+classParamClause
+   : '(' classParams? ')'
+   ;
+
+classParams
+   : classParam (',' classParam)*
+   ;
+
+classParam
+   : annotation* modifier* ('val' | 'var')? Id ':' paramType ('=' expr)?
+   ;
 	
 
 
