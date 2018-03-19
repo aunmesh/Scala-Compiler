@@ -528,8 +528,9 @@ templateBody
    : '{' selfType? templateStat (Semi templateStat)* '}'
    ;
 '''
-def p_templateBoday(p):
-	''' templateBody : TOK_LPAREN selfType? templateStat (Semi templateStat)* TOK_RPAREN '''
+def p_templateBody(p):
+	''' templateBody : TOK_LPAREN selfType templateStat TOK_SEMICOLON_templateStats_opt TOK_RPAREN 
+	| TOK_LPAREN selfType templateStat TOK_SEMICOLON_templateStats_opt TOK_RPAREN '''
 
 def p_TOK_SEMICOLON_templateStats_opt(p):
 	''' TOK_SEMICOLON_templateStats_opt : TOK_SEMICOLON_templateStats | empty '''
@@ -994,19 +995,38 @@ refineStat
    |
    ;
 '''
+def p_refineStat(p):
+	'''refineStat   : dcl   | TOK_type typeDef   |  empty 	'''
 
+
+'''
 typePat
    : type
    ;
+'''
+def p_typePat(p):
+	''' typePat : type  '''
+	
 
+'''
 ascription
    : ':' infixType
    | ':' annotation +
    | ':' '_' '*'
    ;
+'''
+def p_ascription(p):
+	'''ascription  : TOK_COLON infixType   | TOK_COLON annotations   | TOK_COLON TOK_UNDERSCORE TOK_STAR  '''
 
+'''
 expr
    : (bindings | 'implicit'? Id | '_') '=>' expr
    | expr1
    ;
+'''
+def p_expr(p):
+	'''expr  : temp TOK_EQ_GT expr   | expr1 '''
+
+def p_temp(p):
+	''' temp : bindings | TOK_implicit Id | Id | TOK_UNDERSCORE'''
 
