@@ -1429,7 +1429,9 @@ simpleType
 '''
 #to do error
 def p_simpleType(p):
-   '''simpleType   : simpleType typeArgs   | simpleType '#' Id   | stableId   | (stableId | (Id '.')? 'this') TOK_DOT 'type'     | TOK_LPAREN types TOK_RPAREN '''
+	'''simpleType   : simpleType typeArgs   | simpleType TOK_HASH Id   | stableId | 
+	TOK_this TOK_DOT TOK_type | Id TOK_DOT TOK_this TOK_DOT TOK_type  | stableId TOK_DOT TOK_type  | 
+	TOK_LPAREN types TOK_RPAREN '''
 
 '''
 typeArgs

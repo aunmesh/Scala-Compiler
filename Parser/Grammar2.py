@@ -936,7 +936,9 @@ simpleType
    ;
 '''
 def p_simpleType(p):
-	'''simpleType   : simpleType typeArgs   | simpleType '#' Id   | stableId   | (stableId | (Id '.')? 'this') TOK_DOT 'type'	   | TOK_LPAREN types TOK_RPAREN '''
+	'''simpleType   : simpleType typeArgs   | simpleType TOK_HASH Id   | stableId | 
+	TOK_this TOK_DOT TOK_type | Id TOK_DOT TOK_this TOK_DOT TOK_type  | stableId TOK_DOT TOK_type  | 
+	TOK_LPAREN types TOK_RPAREN '''
 
 '''
 typeArgs
@@ -1029,30 +1031,6 @@ def p_temp(p):
 '''
 expr1
    : 'if' '(' expr ')' expr (Semi? 'else' expr)?
-   | 'while' '(' expr ')' expr
-   | 'try' ('{' block '}' | expr) ('catch' '{' caseClauses '}')? ('finally' expr)?
-   | 'do' expr Semi? 'while' '(' expr ')'
-   | 'for' ('(' enumerators ')' | '{' enumerators '}') 'yield'? expr
-   | 'throw' expr
-   | 'return' expr?
-   | (('new' (classTemplate | templateBody) | blockExpr | simpleExpr1 '_'?) '.') Id '=' expr
-   | simpleExpr1 argumentExprs '=' expr
-   | postfixExpr
-   | postfixExpr ascription
-   | postfixExpr 'match' '{' caseClauses '}'
-   ;
-'''
-
-
-
-
-
-
-
-
-'''
-expr1
-   : 'if' '(' expr ')' expr (Semi? 'else' expr)?
 
    | 'while' '(' expr ')' expr
 
@@ -1075,8 +1053,8 @@ expr1
    | postfixExpr 'match' '{' caseClauses '}'
    ;
 '''
-
-
+def p_expr1(p):
+	''' expr1 : if_expr | while_expr | try_expr | do_expr | for_expr | throw_expr | return_expr | new_expr | special_expr | postfix_expr1'''
 
 
 
@@ -1144,36 +1122,25 @@ def p_return_expr(p):
 new_expr :   (('new' (classTemplate | templateBody) | blockExpr | simpleExpr1 '_'?) '.') Id '=' expr
 '''
 def p_new_expr(p):
-	'''new_expr :  temp6 TOK_DOT Id TOK_ASSIGN expr '''
+	'''new_expr :  temp59 TOK_DOT Id TOK_ASSIGN expr '''
 
 def p_temp55(p):
 	'''temp55 : classTemplate | templateBody '''
-def p_temp6(p):
+def p_temp59(p):
 	'''temp6 : TOK_new temp55 | blockExpr | simpleExpr1 | simpleExpr1 TOK_UNDERSCORE '''
 
 '''
 special_expr :   simpleExpr1 argumentExprs '=' expr
 '''
+def p_special_expr(p):
+	'''special_expr :  simpleExpr1 argumentExprs TOK_ASSIGN expr '''
+
 
 '''
 postfix_expr :   postfixExpr  | postfixExpr ascription  | postfixExpr 'match' '{' caseClauses '}'
 '''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def p_postfix_expr1(p):
+	'''	postfix_expr1 :   postfixExpr  | postfixExpr ascription  | postfixExpr TOK_match TOK_LCUR caseClauses TOK_RCUR	'''
 
 
 
