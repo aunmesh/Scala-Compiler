@@ -1400,23 +1400,45 @@ def p_TOK_VERT_pattern1(p):
 	'''TOK_VERT_pattern1 : TOK_VERT pattern1'''
 
 
-
+'''
 pattern1
    : Varid ':' typePat
    | '_' ':' typePat
    | pattern2
    ;
+'''
+def p_pattern1(p):
+	'''pattern1   : Varid TOK_COLON typePat   | TOK_UNDERSCORE TOK_COLON typePat   | pattern2  '''
 
+'''
 pattern2
    : Varid ('@' pattern3)?
    | pattern3
    ;
+'''
+def p_pattern2(p):
+	'''pattern2   : Varid  | Varid TOK_AT pattern3 | pattern3 '''
 
+'''
 pattern3
    : simplePattern
    | simplePattern (Id simplePattern)*
    ;
+'''
+def p_pattern3(p):
+	'''pattern3   : simplePattern   | simplePattern Id_simplePatterns_opt	'''
 
+def p_Id_simplePatterns_opt(p):
+	''' TOK_Id_simplePatterns_opt : Id_simplePatterns | empty'''
+
+def p_TOK_VERT_pattern1s(p):
+	''' Id_simplePatterns : Id_simplePattern | Id_simplePatterns Id_simplePattern '''
+
+def p_Id_simplePattern(p):
+	'''Id_simplePattern : Id simplePattern'''
+
+
+'''
 simplePattern
    : '_'
    | Varid
@@ -1425,13 +1447,119 @@ simplePattern
    | stableId '(' (patterns? ',')? (Varid '@')? '_' '*' ')'
    | '(' patterns? ')'
    ;
+'''
+def p_simplePattern(p):
+	'''simplePattern   : TOK_UNDERSCORE  | Varid   | literal   | stableId | stableId TOK_LPAREN TOK_RPAREN | stableId TOK_LPAREN patterns TOK_RPAREN
+	   | stableId TOK_LPAREN TOK_UNDERSCORE TOK_STAR TOK_RPAREN 
+	   | stableId TOK_LPAREN temp105 TOK_UNDERSCORE TOK_STAR TOK_RPAREN 
+	   | stableId TOK_LPAREN temp100 TOK_UNDERSCORE TOK_STAR TOK_RPAREN 
+	   | stableId TOK_LPAREN temp100 temp105 TOK_UNDERSCORE TOK_STAR TOK_RPAREN 
+	   | TOK_LPAREN TOK_RPAREN | TOK_LPAREN patterns TOK_RPAREN
+	'''
 
+def p_temp100(p):
+	''' temp100 : TOK_COMMA | patterns TOK_COMMA '''
+
+def p_temp105(p):
+	''' temp105 : Varid TOK_AT '''
+
+
+'''
 patterns
    : pattern (',' pattern)*
    | '_'+
    ;
+'''
+def p_patterns(p):
+	'''patterns   : pattern TOK_COMMA_patterns_opt   | TOK_UNDERSCORES  '''
+	
+def p_TOK_UNDERSCORES(s):
+	''' TOK_UNDERSCORES : TOK_UNDERSCORE | TOK_UNDERSCORES TOK_UNDERSCORE '''
 
 
+def p_TOK_COMMA_patterns_opt(p):
+	''' TOK_COMMA_patterns_opt : TOK_COMMA_patterns | empty '''
+
+def p_TOK_COMMA_patterns(p):
+	''' TOK_COMMA_patterns : TOK_COMMA_pattern | TOK_COMMA_patterns TOK_COMMA_pattern '''
+
+def TOK_COMMA_pattern(p):
+	''' TOK_COMMA_pattern : TOK_COMMA pattern '''
 
 
+'''
+typeParamClause
+   : '[' variantTypeParam (',' variantTypeParam)* ']'
+   ;
+'''
+
+def p_typeParamClause(p):
+	'''typeParamClause  : TOK_LSQB variantTypeParam TOK_COMMA_variantTypeParams_opt TOK_RSQB   '''
+
+def p_TOK_COMMA_variantTypeParams_opt(p):
+	''' TOK_COMMA_variantTypeParams_opt : TOK_COMMA_variantTypeParams | empty '''
+
+def p_TOK_COMMA_variantTypeParams(p):
+	''' TOK_COMMA_variantTypeParams : TOK_COMMA_variantTypeParam | TOK_COMMA_variantTypeParams TOK_COMMA_variantTypeParam '''
+
+def TOK_COMMA_variantTypeParam(p):
+	''' TOK_COMMA_variantTypeParam : TOK_COMMA variantTypeParam '''
+
+'''
+funTypeParamClause
+   : '[' typeParam (',' typeParam)* ']'
+   ;
+'''
+def p_funTypeParamClause(p);
+	'''funTypeParamClause   : TOK_LSQB typeParam TOK_COMMA_typeParams_opt TOK_RSQB   '''
+
+def p_TOK_COMMA_typeParams_opt(p):
+	''' TOK_COMMA_typeParams_opt : TOK_COMMA_typeParams | empty '''
+
+def p_TOK_COMMA_typeParams(p):
+	''' TOK_COMMA_typeParams : TOK_COMMA_typeParam | TOK_COMMA_typeParams TOK_COMMA_typeParam '''
+
+def TOK_COMMA_typeParam(p):
+	''' TOK_COMMA_typeParam : TOK_COMMA typeParam '''
+
+
+'''
+variantTypeParam
+   : annotation? ('+' | '-')? typeParam
+   ;
+'''
+def p_variantTypeParam(p):
+	'''	variantTypeParam :  typeParam |
+				  | temp120 typeParam
+				  | annotation typeParam
+				  | annotation temp120 typeParam 	   '''
+
+def p_temp120(p):
+	''' temp120 : TOK_PLUS | TOK_MINUS '''
+
+'''
+typeParam
+   : (Id | '_') typeParamClause? ('>:' type)? ('<:' type)? ('<%' type)* (':' type)*
+   ;
+'''
+def p_typeParam(p):
+	'''typeParam   : temp130 temp135 temp140 TOK_LT_PERCENT_types_opt TOK_COLON_types_opt  | temp130 typeParamClause temp135 temp140 TOK_LT_PERCENT_types_opt TOK_COLON_types_opt'''
+
+def p_temp130(p):
+	'''temp130 : Id | TOK_UNDERSCORE'''
+
+def p_temp135(p):
+	'''temp130 : TOK_GT_COLON type | empty'''
+
+def p_temp140(p):
+	'''temp140 : TOK_LT_COLON type | empty'''
+
+def p_TOK_LT_PERCENT_types_opt(p):
+	''' TOK_LT_PERCENT_types_opt : TOK_LT_PERCENT_types | empty '''
+
+def p_TOK_LT_PERCENT_types(p):
+	''' TOK_LT_PERCENT_types : TOK_LT_PERCENT_type | TOK_LT_PERCENT_types TOK_LT_PERCENT_type '''
+
+def p_TOK_LT_PERCENT_type(p):
+	''' TOK_LT_PERCENT_type : TOK_LT_PERCENT type'''
 
