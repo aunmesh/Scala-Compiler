@@ -383,7 +383,7 @@ patVarDef
    ;
 '''
 def p_patVarDef(p):
-	''' patVarDef : TOK_VAL patDef | TOK_VAR varDef '''
+	''' patVarDef : TOK_val patDef | TOK_var varDef '''
 
 
 '''
@@ -1063,14 +1063,14 @@ def p_expr1(p):
 if_expr :  'if' '(' expr ')' expr (Semi? 'else' expr)?
 '''
 def p_if_expr(p):
-	'''if_expr :  TOK_if TOK_LAPREN expr TOK_RPAREN expr | TOK_if TOK_LAPREN expr TOK_RPAREN expr TOK_else expr | TOK_if TOK_LAPREN expr TOK_RPAREN expr 		TOK_SEMICOLON TOK_else expr '''
+	'''if_expr :  TOK_if TOK_LPAREN expr TOK_RPAREN expr | TOK_if TOK_LPAREN expr TOK_RPAREN expr TOK_else expr | TOK_if TOK_LPAREN expr TOK_RPAREN expr 		TOK_SEMICOLON TOK_else expr '''
 
 
 '''
 while_expr:   'while' '(' expr ')' expr
 '''
 def p_while_expr(p):
-	''' while_expr:   TOK_while TOK_LAPREN expr TOK_RPAREN expr	'''
+	''' while_expr:   TOK_while TOK_LPAREN expr TOK_RPAREN expr	'''
 
 '''
 try_expr:   'try' ('{' block '}' | expr) ('catch' '{' caseClauses '}')? ('finally' expr)?
