@@ -5,7 +5,7 @@ class Node(object):
 		self.name = name #name of the node, non terminal
 		self.children = children
 		self.id=Node.gid
-		Node.gid+=1
+		Node.count+=1
 
 
 def create_children(token_name , terminal_name):
@@ -42,7 +42,7 @@ def p_package_units(p):
 	''' package_units :  package_unit | package_units package_unit '''
 
 def p_package_unit(p)
-	''' package_unit : TOK_package qualid TOK_SEMICOLON | empty '''
+	''' package_unit : TOK_package qualid TOK_SEMICOLON '''
 
 '''
 packageObject
@@ -535,7 +535,7 @@ def p_TOK_SEMICOLON_templateStats_opt(p):
 	''' TOK_SEMICOLON_templateStats_opt : TOK_SEMICOLON_templateStats | empty '''
 
 def p_TOK_SEMICOLON_templateStats(p):
-	''' TOK_SEMICOLON_templateStats : TOK_SEMICOLON_templateStats | TOK_SEMICOLON_templateStat TOK_SEMICOLON_templateStats '''
+	''' TOK_SEMICOLON_templateStats : TOK_SEMICOLON_templateStat | TOK_SEMICOLON_templateStats TOK_SEMICOLON_templateStat '''
 
 def p_TOK_SEMICOLON_templateStat(p):
 	''' TOK_SEMICOLON_templateStat : TOK_SEMICOLON templateStat '''
@@ -569,21 +569,6 @@ accessQualifier
 def p_accessQualifier(p):
 	''' accessQualifier  : TOK_LSQB Id TOK_RSQB | TOK_LSQB  TOK_this TOK_RSQB '''
 
-bindings
-   : '(' binding (',' binding)* ')'
-   ;
-
-binding
-   : (Id | '_') (':' type)?
-   ;
-
-modifier
-   : localModifier
-   | accessModifier
-   | 'override'
-   ;
-
-
 '''
 accessModifier
    : ('private' | 'protected') accessQualifier?
@@ -604,4 +589,34 @@ localModifier
 '''
 
 def p_localModifier(p):
+	''' localModifier   : TOK_abstract   | TOK_final   | TOK_sealed   | TOK_implicit  | TOK_lazy	'''
+
+'''
+modifier
+   : localModifier
+   | accessModifier
+   | 'override'
+   ;
+'''
+
+def p_modifier(p):
+	'''modifier : localModifier | accessModifier | TOK_override '''
+
+'''
+binding
+   : (Id | '_') (':' type)?
+   ;
+'''
+def p_binding(p):
+	'''binding   : '_' | Id | Id TOK_COLON_type | TOK_UNDERSCORE TOK_COLON_type  '''
+
+'''
+bindings
+   : '(' binding (',' binding)* ')'
+   ;
+'''	
+def p_bindings(p):
+	'''bindings   : TOK_LPAREN binding (',' binding)* TOK_RPAREN '''	
+	
+
 
