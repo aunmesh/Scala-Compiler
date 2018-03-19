@@ -1062,12 +1062,17 @@ def p_binding(p):
 
    if(len(p) == 2):
       if(p[1] == '_'):
-         p[0] = Node("binding", [p[1]])
+         leaf1 = create_children("TOK_UNDERSCORE",p[1])
+         p[0] = Node("binding", [leaf1])
       else:        
          p[0] = Node("binding", [p[1]])
-    else:
-      p[0] = Node("binding", [p[1], p[2]])
 
+    else:
+      if(p[1] == '_'):
+         leaf1 = create_children("TOK_UNDERSCORE",p[1])
+         p[0] = Node("binding", [leaf1, p[2]])
+      else:
+         p[0] = Node("binding", [p[1], p[2]])
 
 '''
 bindings
