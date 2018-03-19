@@ -617,7 +617,7 @@ bindings
    ;
 '''	
 def p_bindings(p):
-	'''bindings   : TOK_LPAREN binding (',' binding)* TOK_RPAREN '''
+	'''bindings   : TOK_LPAREN binding TOK_COMMA_bindings_opt TOK_RPAREN '''
 
 def p_TOK_COMMA_bindings_opt(p):
 	''' TOK_COMMA_bindings_opt : TOK_COMMA_bindings | empty '''
@@ -751,11 +751,6 @@ paramClauses
 '''
 def p_paramClauses(p):
 	''' paramClauses   : paramClauses_opt | paramClauses_opt TOK_LPAREN TOK_implicit params TOK_RPAREN  '''
-
-
-
-
-
 
 
 
@@ -1030,6 +1025,7 @@ def p_expr(p):
 def p_temp(p):
 	''' temp : bindings | TOK_implicit Id | Id | TOK_UNDERSCORE'''
 
+
 '''
 expr1
    : 'if' '(' expr ')' expr (Semi? 'else' expr)?
@@ -1047,6 +1043,192 @@ expr1
    ;
 '''
 
-def p_expr1(p):
+
+
+
+
+
+
+
+'''
+expr1
+   : 'if' '(' expr ')' expr (Semi? 'else' expr)?
+
+   | 'while' '(' expr ')' expr
+
+   | 'try' ('{' block '}' | expr) ('catch' '{' caseClauses '}')? ('finally' expr)?
+
+   | 'do' expr Semi? 'while' '(' expr ')'
+
+   | 'for' ('(' enumerators ')' | '{' enumerators '}') 'yield'? expr
+
+   | 'throw' expr
+
+   | 'return' expr?
+
+   | (('new' (classTemplate | templateBody) | blockExpr | simpleExpr1 '_'?) '.') Id '=' expr
+
+   | simpleExpr1 argumentExprs '=' expr
+
+   | postfixExpr
+   | postfixExpr ascription
+   | postfixExpr 'match' '{' caseClauses '}'
+   ;
+'''
+
+
+
+
+
+
+'''
+if_expr :  'if' '(' expr ')' expr (Semi? 'else' expr)?
+'''
+def p_if_expr(p):
+	'''if_expr :  TOK_if TOK_LAPREN expr TOK_RPAREN expr | TOK_if TOK_LAPREN expr TOK_RPAREN expr TOK_else expr | TOK_if TOK_LAPREN expr TOK_RPAREN expr 		TOK_SEMICOLON TOK_else expr '''
+
+
+'''
+while_expr:   'while' '(' expr ')' expr
+'''
+def p_while_expr(p):
+	''' while_expr:   TOK_while TOK_LAPREN expr TOK_RPAREN expr	'''
+
+'''
+try_expr:   'try' ('{' block '}' | expr) ('catch' '{' caseClauses '}')? ('finally' expr)?
+'''
+def p_try_expr(p):
+	'''	try_expr:   TOK_try temp2 |  TOK_try temp2 temp3 | TOK_try temp2 temp4 | TOK_try temp2 temp3 temp4'''
+	
+
+def p_temp2(p):
+	''' temp2 : TOK_LCUR block TOK_RCUR | expr '''
+
+def p_temp3(p):
+	'''temp3 : TOK_catch TOK_LCUR caseClauses TOK_RCUR'''
+
+def p_temp4(p):
+	''' temp4 : TOK_finally expr '''
+
+'''
+do_expr:   'do' expr Semi? 'while' '(' expr ')'
+'''
+def p_do_expr(p);
+	'''	do_expr:   TOK_do expr TOK_SEMICOLON TOK_while TOK_LPAREN expr TOK_RPAREN	'''
+
+
+'''
+for_expr:   'for' ('(' enumerators ')' | '{' enumerators '}') 'yield'? expr
+'''
+def p_for_expr(p):
+	'''	for_expr:   TOK_for temp5 expr | TOK_for temp5 TOK_yield expr 	'''
+
+def p_temp5(p):
+	''' temp5: TOK_LPAREN enumerators TOK_RPAREN | TOK_LCUR enumerators TOK_RCUR '''
+
+
+'''
+throw_expr:   'throw' expr
+'''
+def p_throw_expr(p):
+	''' throw_expr:   TOK_throw expr '''
+
+'''
+return_expr :   'return' expr?
+'''
+def p_return_expr(p):
+	'''	return_expr :   TOK_return | TOK_return expr 	'''
+	
+
+'''
+new_expr :   (('new' (classTemplate | templateBody) | blockExpr | simpleExpr1 '_'?) '.') Id '=' expr
+'''
+def p_new_expr(p):
+	'''new_expr :  temp6 TOK_DOT Id TOK_ASSIGN expr '''
+
+def p_temp55(p):
+	'''temp55 : classTemplate | templateBody '''
+def p_temp6(p):
+	'''temp6 : TOK_new temp55 | blockExpr | simpleExpr1 | simpleExpr1 TOK_UNDERSCORE '''
+
+'''
+special_expr :   simpleExpr1 argumentExprs '=' expr
+'''
+
+'''
+postfix_expr :   postfixExpr  | postfixExpr ascription  | postfixExpr 'match' '{' caseClauses '}'
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+postfixExpr
+   : infixExpr (Id)?
+   ;
+'''
+def p_postfixExpr(p):
+	'''postfixExpr  : infixExpr | infixExpr Id'''
+
+'''
+infixExpr
+   : prefixExpr
+   | infixExpr Id infixExpr
+   ;
+'''
+def p_infixExpr
+	''' infixExpr  : prefixExpr  | infixExpr Id infixExpr '''
+
+
+'''
+prefixExpr
+   : ('-' | '+' | '~' | '!')? ('new' (classTemplate | templateBody) | blockExpr | simpleExpr1 '_'?)
+   ;
+'''
+def p_prefixExpr(p):
+	'''prefixExpr  : temp6 | temp7 | temp8 temp6 | temp8 temp7 '''
+
+
+def p_temp6(p):
+	'''temp6 : TOK_new classTemplate | blockExpr | simpleExpr1 | simpleExpr1 TOK_UNDERSCORE '''
+
+
+def p_temp7(p):
+	'''temp6 : TOK_new templateBody | blockExpr | simpleExpr1 | simpleExpr1 TOK_UNDERSCORE '''
+
+
+def p_temp8(p):
+	''' temp8 : TOK_MINUS | TOK_PLUS | TOK_TILDA | TOK_EXCLAIM '''
+
+
+'''
+simpleExpr1
+   : literal
+   | stableId
+   | (Id '.')? 'this'
+   | '_'
+   | '(' exprs? ')'
+   | ('new' (classTemplate | templateBody) | blockExpr) '.' Id
+   | ('new' (classTemplate | templateBody) | blockExpr) typeArgs
+   | simpleExpr1 argumentExprs
+   ;
+'''
 
 

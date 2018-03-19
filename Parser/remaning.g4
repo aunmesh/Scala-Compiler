@@ -2,66 +2,6 @@ grammar Scala;
 
 
 
-refineStat
-   : dcl
-   | 'type' typeDef
-   |
-   ;
-
-typePat
-   : type
-   ;
-
-ascription
-   : ':' infixType
-   | ':' annotation +
-   | ':' '_' '*'
-   ;
-
-expr
-   : (bindings | 'implicit'? Id | '_') '=>' expr
-   | expr1
-   ;
-
-expr1
-   : 'if' '(' expr ')' expr (Semi? 'else' expr)?
-   | 'while' '(' expr ')' expr
-   | 'try' ('{' block '}' | expr) ('catch' '{' caseClauses '}')? ('finally' expr)?
-   | 'do' expr Semi? 'while' '(' expr ')'
-   | 'for' ('(' enumerators ')' | '{' enumerators '}') 'yield'? expr
-   | 'throw' expr
-   | 'return' expr?
-   | (('new' (classTemplate | templateBody) | blockExpr | simpleExpr1 '_'?) '.') Id '=' expr
-   | simpleExpr1 argumentExprs '=' expr
-   | postfixExpr
-   | postfixExpr ascription
-   | postfixExpr 'match' '{' caseClauses '}'
-   ;
-
-postfixExpr
-   : infixExpr (Id)?
-   ;
-
-infixExpr
-   : prefixExpr
-   | infixExpr Id infixExpr
-   ;
-
-prefixExpr
-   : ('-' | '+' | '~' | '!')? ('new' (classTemplate | templateBody) | blockExpr | simpleExpr1 '_'?)
-   ;
-
-simpleExpr1
-   : literal
-   | stableId
-   | (Id '.')? 'this'
-   | '_'
-   | '(' exprs? ')'
-   | ('new' (classTemplate | templateBody) | blockExpr) '.' Id
-   | ('new' (classTemplate | templateBody) | blockExpr) typeArgs
-   | simpleExpr1 argumentExprs
-   ;
-
 exprs
    : expr (',' expr)*
    ;
