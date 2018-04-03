@@ -80,7 +80,7 @@ def p_block_stat(p):
 				| statement 
 				| class_and_obj_declaration 
 				| method_declaration'''
-    p[0] = Node("block_stat", [p[1]])
+   p[0] = Node("block_stat", [p[1]])
 
 '''EXPRESSION'''
 
@@ -88,13 +88,13 @@ def p_expression_question(p):
    '''expression_question : expression | empty '''
 
 
-    p[0] = Node("expression_question", [p[1]])
+   p[0] = Node("expression_question", [p[1]])
 
 def p_expression(p):
    '''expression : assignment_expression '''
 
 
-    p[0] = Node("expression", [p[1]])
+   p[0] = Node("expression", [p[1]])
 
 def p_assignment_expression(p):
    '''assignment_expression : assignment 
@@ -102,36 +102,42 @@ def p_assignment_expression(p):
 			   | if_else_expression '''
 
 
-    p[0] = Node("assignment_expression", [p[1]])
+   p[0] = Node("assignment_expression", [p[1]])
 
 def p_if_else_expression(p):
    ''' if_else_expression : KW_if LPAREN expression RPAREN expression KW_else expression '''
 
 
-    p[0] = Node("if_else_expression", [p[1],p[2],p[3],p[4],p[5],p[6],p[7]])
+   p[0] = Node("if_else_expression", [p[1],p[2],p[3],p[4],p[5],p[6],p[7]])
 
 
 def p_assignment(p):
    ''' assignment : left_hand_side assignment_operator assignment_expression '''
 
-    p[0] = Node("assignment", [p[1],p[2],p[3]])
+   p[0] = Node("assignment", [p[1],p[2],p[3]])
 
 def p_left_hand_side(p):
    ''' left_hand_side : id | array_access '''
 
 
-    p[0] = Node("left_hand_side", [p[1]])
+   p[0] = Node("left_hand_side", [p[1]])
 
 def p_id(p):
    ''' id : IDENTIFIER | qualified_id '''
 
 
-    p[0] = Node("id", [p[1]])
+   p[0] = Node("id", [p[1]])
 
 def p_qualified_id(p):
    ''' qualified_id : IDENTIFIER KW_DOT IDENTIFIER '''
 
-    p[0] = Node("qualified_id", [p[1],p[2],p[3]])
+   p[0] = Node("qualified_id", [p[1],p[2],p[3]])
+
+def p_name(p):
+   ''' name : IDENTIFIER '''
+
+
+   p[0] = Node("name", [p[1]])
 
 
 def p_array_access(p):
@@ -144,10 +150,92 @@ def p_dimension(p):
 
 
    if(len(p) == 4):
-      p[0] = Node("class_and_obj_declarations", [p[1],p[2],p[3]])
+      p[0] = Node("dimension", [p[1],p[2],p[3]])
 
    else:
-      p[0] = Node("class_and_obj_declarations", [p[1], p[2],p[3],p[4]])
+      p[0] = Node("dimension", [p[1], p[2],p[3],p[4]])
+
+def p_assignment_operator(p):
+   ''' assignment_operator : = | *= | /= | %= | += | -= | <<= | >>= | >>>= | &= | ^= | |= '''
+
+
+   p[0] = Node("assignment_operator", [p[1]])
+
+ def p_conditional_or_expression(p):
+   ''' conditional_or_expression : conditional_and_expression | conditional_or_expression KW_OR conditional_and_expression '''
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("conditional_or_expression", [p[1]])
+
+   else:
+      p[0] = Node("conditional_or_expression", [p[1], p[2],p[3]])
+
+ def p_inclusive_or_expression(p):
+   '''inclusive_or_expression : exclusive_or_expression  | inclusive_or_expression KW_OR_BITWISE exclusive_or_expression'''
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("inclusive_or_expression", [p[1]])
+
+   else:
+      p[0] = Node("inclusive_or_expression", [p[1], p[2],p[3]])
+
+ def p_exclusive_or_expression(p):
+   ''' exclusive_or_expression : and_expression | exclusive_or_expression KW_XOR and_expression '''
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("exclusive_or_expression", [p[1]])
+
+   else:
+      p[0] = Node("exclusive_or_expression", [p[1], p[2],p[3]])
+
+ def p_and_expression(p):
+   ''' and_expression : equality_expression | and_expression KW_AND_BITWISE equality_expression '''
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("and_expression", [p[1]])
+
+   else:
+      p[0] = Node("and_expression", [p[1], p[2],p[3]])
+
+
+def p_equality_expression(p):
+   '''equality_expression : relational_expression
+								| equality_expression KW_EQUAL relational_expression
+								| equality_expression KW_NEQUAL relational_expression'''
+
+
+   if(len(p) == 2):
+      p[0] = Node("equality_expression", [p[1]])
+
+   else:
+      p[0] = Node("equality_expression", [p[1], p[2],p[3]])
+
+def p_relational_expression(p):
+   '''relational_expression : shift_expression
+								 | relational_expression KW_GREATER shift_expression
+								 | relational_expression KW_LESS shift_expression
+								 | relational_expression KW_GEQ shift_expression
+								 | relational_expression KW_LEQ shift_expression'''
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("equality_expression", [p[1]])
+
+   else:
+      p[0] = Node("equality_expression", [p[1], p[2],p[3]])
+      
+
+
+
 
 
 
