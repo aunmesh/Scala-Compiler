@@ -1,0 +1,51 @@
+Our Grammar
+
+PROGRAM
+
+'''compilation unit : class_and_obj_declarations'''
+
+DECLARATIONS
+
+'''class_and_obj_declarations : class_and_obj_declaration | class_and_obj_declarations class_and_obj_declaration'''
+
+'''class_and_obj_declaration : singleton_Object | class_declaration '''
+
+'''singleton_Object : object_declaration block'''
+
+'''object_declaration : KW_OBJ IDENTIFIER'''
+
+'''class_declaration : KW_class IDENTIFIER class_body'''
+
+BLOCK DEFINITION
+
+'''block : LCURLY block_stats_star RCURLY'''
+
+'''block_stats_star : block_stats | empty '''
+
+'''block_stats : block_stat | block_stats block_stat'''
+
+'''block_stat : local_variable_declaration_statement 
+				| statement 
+				| class_and_obj_declaration 
+				| method_declaration'''
+
+
+
+EXPRESSION
+
+'''expression_question : expression | empty '''
+
+'''expression : assignment_expression '''
+
+'''assignment_expression : assignment 
+			   | conditional_or_expression
+			   | if_else_expression '''
+
+''' if_else_expression : KW_if LPAREN expression RPAREN expression KW_else expression '''
+
+''' assignment : valid_variable assignment_operator assignment_expression '''
+
+''' valid_variable : name
+
+
+
