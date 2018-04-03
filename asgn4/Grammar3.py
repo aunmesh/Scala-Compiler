@@ -232,7 +232,147 @@ def p_relational_expression(p):
 
    else:
       p[0] = Node("equality_expression", [p[1], p[2],p[3]])
-      
+
+def p_shift_expression(p):
+   '''shift_expression : additive_expression
+									| shift_expression KW_LSHIFT additive_expression
+									| shift_expression KW_RSHIFT additive_expression'''
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("shift_expression", [p[1]])
+
+   else:
+      p[0] = Node("shift_expression", [p[1], p[2],p[3]])
+
+
+
+def p_additive_expression(p):
+   '''additive_expression : multiplicative_expression
+								 | additive_expression KW_PLUS multiplicative_expression
+								 | additive_expression KW_MINUS multiplicative_expression'''
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("additive_expression", [p[1]])
+
+   else:
+      p[0] = Node("additive_expression", [p[1], p[2],p[3]])
+
+def p_multiplicative_expression(p):
+   '''multiplicative_expression : unary_expression
+
+									 | multiplicative_expression KW_TIMES unary_expression
+									 | multiplicative_expression KW_DIVIDE unary_expression
+									 | multiplicative_expression KW_REMAINDER unary_expression'''
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("multiplicative_expression", [p[1]])
+
+   else:
+      p[0] = Node("multiplicative_expression", [p[1], p[2],p[3]])
+
+def p_unary_expression(p):
+   '''unary_expression : PLUS unary_expression
+							| KW_MINUS unary_expression
+							| unary_expression_not_plus_minus'''
+
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("unary_expression", [p[1]])
+
+   else:
+      p[0] = Node("unary_expression", [p[1], p[2]])
+
+
+def p_unary_expression_not_plus_minus(p):
+   '''unary_expression_not_plus_minus : base_variable_set
+											 | KW_TILDA unary_expression
+											 | KW_NOT unary_expression
+											 | cast_expression'''
+
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("unary_expression_not_plus_minus", [p[1]])
+
+   else:
+      p[0] = Node("unary_expression_not_plus_minus", [p[1], p[2]])
+
+
+def p_base_variable_set(p):
+   '''base_variable_set : variable_literal
+						 | KW_LPAREN expression KW_RPAREN'''
+
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("base_variable_set", [p[1]])
+
+   else:
+      p[0] = Node("base_variable_set", [p[1], p[2],p[3]])
+
+
+def p_variable_literal(p):
+   '''variable_literal : valid_variable | primary'''
+
+
+   p[0] = Node("variable_literal", [p[1]])
+
+
+def p_cast_expression(p):
+   '''cast_expression : LPAREN primitive_type RPAREN unary_expression'''
+
+
+
+   p[0] = Node("cast_expression", [p[1],p[2],p[3],p[4]])
+
+def p_primary(p):
+   '''primary : literal | method_invocation'''
+
+
+   p[0] = Node("primary", [p[1]])
+
+
+def p_literal(p):
+   '''literal : int_float	| c_literal ''' 
+
+
+
+   p[0] = Node("literal", [p[1]])
+
+
+def p_c_literal(p):
+   '''c_literal : KW_CHAR
+					| KW_STRING
+					| KW_true
+					| KW_false
+					| KW_null '''
+
+
+
+   p[0] = Node("c_literal", [p[1]])
+
+def p_int_float(p):
+   '''int_float : KW_DOUBLE | KW_INT '''
+
+
+
+   p[0] = Node("int_float", [p[1]])
+
+
+
+
+
+
 
 
 
