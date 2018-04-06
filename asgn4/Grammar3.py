@@ -369,6 +369,127 @@ def p_int_float(p):
    p[0] = Node("int_float", [p[1]])
 
 
+def p_method_invocation(p):
+   '''method_invocation : id LPAREN argument_list RPAREN '''
+
+
+
+   p[0] = Node("method_invocation", [p[1],p[2],p[3],p[4]])
+
+
+def p_argument_list(p):
+   '''argument_list : expression
+						| argument_list KW_COMMA expression'''
+
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("argument_list", [p[1]])
+
+   else:
+      p[0] = Node("argument_list", [p[1], p[2],p[3]])
+
+'''LOCAL VARIABLE DECLARATION'''
+
+def p_modifier(p):
+   ''' modifier : KW_protected | KW_private '''
+
+
+
+   p[0] = Node("modifier", [p[1]])
+
+def p_modifier_question(p):
+   ''' modifier_question : modifier | empty '''
+
+
+
+   p[0] = Node("modifier_question", [p[1]])
+
+def p_declaration_keyword(p):
+   '''declaration_keyword : KW_var | KW_val '''
+
+
+
+   p[0] = Node("declaration_keyword", [p[1]])
+
+def p_local_variable_declaration_statement(p):
+   '''local_variable_declaration_statement : local_variable_declaration terminator '''
+
+
+
+   p[0] = Node("local_variable_declaration_statement", [p[1],p[2]])
+
+def p_terminator(p):
+   '''terminator : KW_semi | KW_nl '''
+
+
+
+   p[0] = Node("terminator", [p[1]])
+
+def p_local_variable_declaration(p):
+   '''local_variable_declaration : modifier_question declaration_keyword variable_declaration_body'''
+
+
+
+   p[0] = Node("local_variable_declaration", [p[1],p[2],p[3]])
+def p_variable_declaration_initializer(p):
+   '''variable_declaration_initializer : expression
+										| array_initializer
+			                            | class_initializer'''
+
+
+
+   p[0] = Node("variable_declaration_initializer", [p[1]])
+
+
+def p_variable_argument_list(p):
+   ''' variable_argument_list : variable_declaration_initializer
+										| variable_argument_list COMMA variable_declaration_initializer'''
+
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("variable_argument_list", [p[1]])
+
+   else:
+      p[0] = Node("variable_argument_list", [p[1], p[2],p[3]])
+
+def p_variable_argument_list(p):
+   '''variable_declaration_body : identifiers type_opt KW_assignment  variable_declaration_initializer | KW_LPAREN variable_list KW_RPAREN KW_assignment KW_LPAREN variable_argument_list KW_RPAREN'''
+
+
+
+
+   if(len(p) == 5):
+      p[0] = Node("variable_argument_list", [p[1], p[2],p[3],p[4]])
+
+   else:
+      p[0] = Node("variable_argument_list", [p[1], p[2],p[3],p[4], p[5],p[6],p[7]])
+
+
+def p_identifiers(p):
+   ''' identifiers : identifiers KW_COMMA KW_IDENTIFIER | KW_IDENTIFIER'''
+
+
+
+
+   if(len(p) == 2):
+      p[0] = Node("identifiers", [p[1]])
+
+   else:
+      p[0] = Node("identifiers", [p[1], p[2],p[3]])
+
+
+
+
+
+
+
+
+
+
 
 
 
