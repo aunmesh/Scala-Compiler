@@ -47,13 +47,13 @@ def p_object_declaration(p):
    '''object_declaration : KW_OBJ IDENTIFIER'''
 
    p[0]  = Node("object_declaration", [p[1], p[2]])
-
+'''
 def p_class_declaration(p):
    '''class_declaration : KW_class IDENTIFIER class_body'''
 
    leaf1 = create_children("KW_class", p[1])
    p[0]  = Node("class_declaration", [leaf1, p[2], p[3]])
-
+'''
 '''BLOCK DEFINITION'''
 
 def p_block(p):
@@ -481,17 +481,130 @@ def p_identifiers(p):
    else:
       p[0] = Node("identifiers", [p[1], p[2],p[3]])
 
+def p_variable_list(p):
+   ''' variable_list : variable_dec | variable_list COMMA variable_dec'''
 
 
 
 
+   if(len(p) == 2):
+      p[0] = Node("variable_list", [p[1]])
+
+   else:
+      p[0] = Node("variable_list", [p[1], p[2],p[3]])
+
+def p_variable_dec(p):
+   ''' variable_dec : KW_IDENTIFIER type_question'''
+
+
+
+   p[0] = Node("variable_dec", [p[1],p[2]])
+
+def p_expr_question(p):
+   ''' expr_question : KW_assignment variable_declaration_initializer 
+				 | empty '''
 
 
 
 
+   if(len(p) == 2):
+      p[0] = Node("expr_question", [p[1]])
+
+   else:
+      p[0] = Node("expr_question", [p[1], p[2]])
+
+def p_variable_declarator_id(p):
+   '''variable_declarator_id : KW_IDENTIFIER KW_COLON type'''
 
 
 
+
+   p[0] = Node("variable_declarator_id", [p[1],p[2],p[3]])
+
+
+#DATA_TYPES AND VARIABLE_TYPES
+
+#theirs - ours
+#Simple Name - name
+#Name - id
+#qualified name: qualified_id
+
+def p_type(p):
+   '''type : primitive_type | reference_type '''
+
+
+
+   p[0] = Node("type", [p[1]])
+
+def p_primitive_type(p):
+   '''primitive_type : KW_INT
+						| KW_DOUBLE
+						| KW_CHAR
+						| KW_STRING
+						| KW_BOOLEAN 
+						| KW_VOID   '''
+
+
+   p[0] = Node("primitive_type", [p[1]])
+
+def p_reference_type(p):
+   '''reference_type : class_data_type | array_data_type'''
+
+
+
+   p[0] = Node("reference_type", [p[1]])
+
+def p_class_data_type(p):
+   '''class_data_type : id'''
+
+
+
+   p[0] = Node("class_data_type", [p[1]])
+
+
+def p_array_data_type(p):
+   '''array_data_type : KW_array KW_LSQB type KW_RSQB'''
+
+
+
+
+   p[0] = Node("array_data_type", [p[1], p[2],p[3],p[4]])
+
+
+# INITIALIZERS
+
+def p_array_initializer(p):
+   ''' array_initializer : KW_new KW_array KW_LSQB type KW_RSQB KW_LPAREN conditional_or_expression KW_RPAREN
+												| KW_array KW_LPAREN argument_list_opt KW_RPAREN
+												| KW_array KW_LSQB type KW_RSQB KW_LPAREN argument_list_opt KW_RPAREN
+												| multidimensional_array_initializer'''
+   if(len(p) == 2):
+      p[0] = Node("expr_question", [p[1]])
+
+   else if(len(p) == 5):
+      p[0] = Node("expr_question", [p[1], p[2],p[3],p[4]])
+   else if(len(p) == 8):
+   	  p[0] = Node("expr_question", [p[1], p[2],p[3], p[4],p[5],p[6],p[7]])
+   else:
+      p[0] = Node("array_data_type", [p[1], p[2],p[3], p[4],p[5],p[6],p[7],p[8]])
+
+def p_multidimensional_array_initializer(p):
+   ''' multidimensional_array_initializer : KW_array KW_DOT KW_ofdim KW_LSQB type KW_RSQB KW_LPAREN argument_list KW_RPAREN'''
+
+
+
+
+   p[0] = Node("multidimensional_array_initializer", [p[1], p[2],p[3], p[4],p[5],p[6],p[7],p[8],p[9]])
+def p_class_initializer(p):
+   ''' class_initializer : KW_new name KW_LPAREN argument_list_opt KW_RPAREN '''
+
+
+
+
+   p[0] = Node("class_initializer", [p[1], p[2],p[3],p[4],p[5]])
+
+
+#Statements
 
 
 
