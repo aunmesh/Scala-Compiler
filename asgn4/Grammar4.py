@@ -222,7 +222,7 @@ def p_equality_expression(p):
       p[0] = Node("equality_expression", [p[1]])
 
    else:
-      leaf2 = create_children("LF_equalityOp", p[2])
+      leaf2 = create_children("LF_EqualityOp", p[2])
       p[0] = Node("equality_expression", [p[1], leaf2, p[3]])
 
 def p_relational_expression(p):
@@ -233,11 +233,11 @@ def p_relational_expression(p):
 								 | relational_expression KW_LEQ shift_expression'''
 
    if(len(p) == 2):
-      p[0] = Node("equality_expression", [p[1]])
+      p[0] = Node("relational_expression", [p[1]])
 
    else:
-      leaf2 = create_children("LF_relationalOp", p[2])
-      p[0] = Node("equality_expression", [p[1], leaf2, p[3]])
+      leaf2 = create_children("LF_RelationalOp", p[2])
+      p[0] = Node("relational_expression", [p[1], leaf2, p[3]])
 
 
 def p_shift_expression(p):
@@ -249,7 +249,7 @@ def p_shift_expression(p):
       p[0] = Node("shift_expression", [p[1]])
 
    else:
-      leaf2 = create_children("LF_shiftOp", p[2])
+      leaf2 = create_children("LF_ShiftOp", p[2])
       p[0] = Node("shift_expression", [p[1], leaf2, p[3]])
 
 
@@ -263,7 +263,7 @@ def p_additive_expression(p):
       p[0] = Node("additive_expression", [p[1]])
 
    else:
-      leaf2 = create_children("LF_additiveOp", p[2])
+      leaf2 = create_children("LF_AdditiveOp", p[2])
       p[0] = Node("additive_expression", [p[1], leaf2, p[3]])
 
 def p_multiplicative_expression(p):
@@ -277,7 +277,7 @@ def p_multiplicative_expression(p):
       p[0] = Node("multiplicative_expression", [p[1]])
 
    else:
-      leaf2 = create_children("LF_multiplicativeOp", p[2])
+      leaf2 = create_children("LF_MultiplicativeOp", p[2])
       p[0] = Node("multiplicative_expression", [p[1], leaf2, p[3]])
 
 def p_unary_expression(p):
@@ -289,7 +289,7 @@ def p_unary_expression(p):
       p[0] = Node("unary_expression", [p[1]])
 
    else:
-      leaf1 = create_children("LF_unaryop", p[1])
+      leaf1 = create_children("LF_Unaryop", p[1])
       p[0] = Node("unary_expression", [leaf1, p[2]])
 
 
@@ -303,7 +303,7 @@ def p_unary_expression_not_plus_minus(p):
       p[0] = Node("unary_expression_not_plus_minus", [p[1]])
 
    else:
-      leaf1 = create_children("LF_unarydiffop", p[1])
+      leaf1 = create_children("LF_Unarydiffop", p[1])
       p[0] = Node("unary_expression_not_plus_minus", [leaf1, p[2]])
 
 
@@ -353,13 +353,13 @@ def p_c_literal(p):
 					| KW_false
 					| KW_null '''
 
-   leaf1 = create_children("LF_charliteral", p[1])
+   leaf1 = create_children("LF_Charliteral", p[1])
    p[0] = Node("c_literal", [leaf1])
 
 def p_int_float(p):
    '''int_float : KW_DOUBLE | KW_INT '''
 
-   leaf1 = create_children("LF_intliteral", p[1])
+   leaf1 = create_children("LF_Intliteral", p[1])
    p[0] = Node("int_float", [leaf1])
 
 #FUNCTION CALLS
@@ -390,7 +390,7 @@ def p_argument_list(p):
 def p_modifier(p):
    ''' modifier : KW_protected | KW_private '''
 
-   leaf1 = create_children("LF_modifier", p[1])
+   leaf1 = create_children("LF_Modifier", p[1])
    p[0] = Node("modifier", [leaf1])
 
 def p_modifier_question(p):
@@ -402,7 +402,7 @@ def p_modifier_question(p):
 def p_declaration_keyword(p):
    '''declaration_keyword : KW_var | KW_val '''
 
-   leaf1 = create_children("LF_declaration", p[1])
+   leaf1 = create_children("LF_Declaration", p[1])
    p[0] = Node("declaration_keyword", [leaf1])
 
 
@@ -415,7 +415,7 @@ def p_local_variable_declaration_statement(p):
 def p_terminator(p):
    '''terminator : KW_semi | KW_nl '''
 
-   leaf1 = create_children("LF_terminator", p[1])
+   leaf1 = create_children("LF_Terminator", p[1])
    p[0] = Node("terminator", [leaf1])
 
 
@@ -536,7 +536,7 @@ def p_primitive_type(p):
                   | KW_VOID   '''
 
 
-   leaf1 = create_children("LF_primitivetype", p[1])
+   leaf1 = create_children("LF_Primitivetype", p[1])
    p[0] = Node("primitive_type", [leaf1])
 
 
@@ -732,7 +732,7 @@ def p_for_loop(p):
 def p_for_untilTo(p):
    '''for_untilTo : KW_until | KW_to'''
 
-   leaf1 = create_children("LF_untito", p[1])
+   leaf1 = create_children("LF_Untito", p[1])
    p[0] = Node("for_untilTo", [p[1]])
 
 
@@ -841,14 +841,14 @@ def p_class_declaration_keyword_question(p):
 
 
 def p_type_question(p):
-   '''type_question : KW_colon type 
+   '''type_question : KW_COLON type 
             | empty'''
 
    if len(p)==2:
       p[0] = Node("type_question",[p[1]])
 
    else:
-      leaf1 = create_children("KW_colon",p[1])
+      leaf1 = create_children("KW_COLON",p[1])
       p[0] = Node("type_question",[leaf1, p[2]])
 
 
@@ -953,86 +953,49 @@ def p_empty(p):
 
 
 
-LEAF_NODES = [ 'IDENTIFIER',
-    'NEWLINE_NL',
-    'TOK_SEMI',
-    'INTEGER_LITS',
-    'F_POINT_LITS',
-    'BOOLEAN_LITS',
-    'CHAR_LITS',
-    'STR_LITS',
-    'WSPACE_LIT',
-    'TOK_LPAREN',
-    'TOK_RPAREN',
-    'TOK_LSQB',
-    'TOK_RSQB',
-    'TOK_LCUR',
-    'TOK_RCUR',
-    'SQUOTES',
-    'DQUOTES',
-    'COMMENT_LINE',
-    'COMMENT_BLOCK',
-    'TOK_MINUS',
-   'TOK_COLON',
-   'TOK_EQ',
-   'TOK_EQ_GT',
-   'TOK_LT_MINUS',
-   'TOK_LE_COLON',
-   'TOK_LT_PERCENT',
-   'TOK_GT_COLON',
-   'TOK_HASH',
-   'TOK_AT',
-   'TOK_COMMA',
-   'TOK_abstract',
-   'TOK_case',
-   'TOK_catch',
-   'TOK_class',
-   'TOK_def',
-   'TOK_do',
-   'TOK_else',
-   'TOK_extends',
-   'TOK_false',
-   'TOK_final',
-   'TOK_finally',
-   'TOK_for',
-   'TOK_forSome',
-   'TOK_if',
-   'TOK_implicit',
-   'TOK_import',
-   'TOK_lazy',
-   'TOK_match',
-   'TOK_new',
-   'TOK_null',
-   'TOK_object',
-   'TOK_override',
-   'TOK_package',
-   'TOK_private',
-   'TOK_protected',
-   'TOK_return',
-   'TOK_sealed',
-   'TOK_super',
-   'TOK_this',
-   'TOK_throw',   
-   'TOK_trait',
-   'TOK_Try',
-   'TOK_true',
-   'TOK_type',
-   'TOK_until',
-   'TOK_TO',
-   'TOK_OFDIM',
-   'TOK_val',
-   'TOK_var',
-   'TOK_while',
-   'TOK_with',
-   'TOK_yield',
-   'TOK_PLUS',
-   'TOK_STAR',
-   'TOK_DOT',
-   'TOK_UNDERSCORE',
-   'TOK_ASSIGN',
-   'TOK_AT',
-   'TOK_EXCLAIM',
-   'TOK_COMMA',
-   'TOK_HASH',
-   'TOK_SEMI',
-         ]
+Leaf_Nodes = ['KW_OBJ',
+	'LCURLY',
+	'RCURLY',
+	'KW_if',
+	'LPAREN',
+	'RPAREN',
+	'KW_else',
+	'IDENTIFIER',
+	'KW_LSQB',
+	'KW_RSQB',
+	'LF_AssignOp',
+	'KW_OR',
+	'KW_OR_BITWISE',
+	'KW_XOR',
+	'KW_AND_BITWISE',
+	'LF_EqualityOp',
+	'LF_RelationalOp',
+	'LF_ShiftOp',
+	'LF_AdditiveOp',
+	'LF_MultiplicativeOp',
+	'LF_Unaryop',
+	'LF_Unarydiffop',
+	'LF_Charliteral',
+	'LF_Intliteral',
+	'KW_comma',
+	'LF_Modifier',
+	'LF_Declaration',
+	'LF_Terminator',
+	'KW_assignment',
+	'KW_COLON',
+	'LF_Primitivetype',
+	'KW_array',
+	'KW_new',
+	'KW_DOT',
+	'KW_ofdim',
+	'KW_while',
+	'KW_for',
+	'KW_choose',
+	'LF_Untito',
+	'KW_by',
+	'KW_return',
+	'KW_CLASS',
+	'KW_override',
+	'KW_extends',
+	'KW_def'
+	]
