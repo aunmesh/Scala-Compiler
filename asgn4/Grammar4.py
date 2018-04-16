@@ -1,12 +1,15 @@
 class Node(object): 
    count = 1
 
-   def __init__(self,name,children):
+   def __init__(self, name, children, intype, value, code, addr):
       self.name = name #name of the node, non terminal
       self.children = children
       self.id=Node.count
       Node.count+=1
-
+      self.intype = intype
+      self.value = value
+      self.code = code
+      self.addr = addr 
 
 def create_children(token_name , terminal_name):
    leaf_t = Node(terminal_name,[])
@@ -18,7 +21,9 @@ def create_children(token_name , terminal_name):
 def p_compilation_unit(p):
    '''compilation_unit : class_and_obj_declarations'''
 
-   p[0]  = Node("compilationUnit", [p[1]])
+   p[0]  = Node("compilationUnit", [p[1]], None, None, p[1].code)
+
+   print(('\n').join(p[0].code))
 
 '''DECLARATIONS'''
 
@@ -44,9 +49,9 @@ def p_singleton_object(p):
    p[0]  = Node("singleton_object", [p[1], p[2]])
 
 def p_object_declaration(p):
-   '''object_declaration : KW_OBJ name'''
+   '''object_declaration : KW_obj name'''
 
-   leaf1 = create_children("KW_OBJ", p[1])
+   leaf1 = create_children("KW_obj", p[1])
    p[0]  = Node("object_declaration", [leaf1, p[2]])
 #
 #def p_class_declaration(p):
@@ -135,9 +140,10 @@ def p_id(p):
    p[0] = Node("id", [p[1]])
 
 def p_qualified_id(p):
-   '''qualified_id : name KW_DOT name '''
+   '''qualified_id : name KW_dot name '''
 
-   p[0] = Node("qualified_id", [p[1],p[2],p[3]])
+   p[0] = create_children("KW_dot", p[2])
+   p[0] = Node("qualified_id", [p[1], leaf2, p[3]])
 
 def p_name(p):
    '''name : IDENTIFIER '''
@@ -161,61 +167,71 @@ def p_dimension(p):
 
    else:
       leaf2 = create_children("KW_LSQB", p[2])
-   	  leaf4 = create_children("KW_RSQB", p[4])
+      leaf4 = create_children("KW_RSQB", p[4])
       p[0] = Node("class_and_obj_declarations", [p[1], leaf2, p[3], leaf4])
 
 
 def p_assignment_operator(p):
-   ''' assignment_operator : = | *= | /= | %= | += | -= | <<= | >>= | >>>= | &= | ^= | |= '''
+   ''' assignment_operator : KW_assignment | KW_mulassign | KW_divassign | KW_modassign | KW_addassign | KW_subassign '''#| <<= | >>= | >>>= | &= | ^= | |= '''
 
    leaf1 = create_children("LF_AssignOp", p[1])
    p[0] = Node("assignment_operator", [leaf1])
 
- def p_conditional_or_expression(p):
-   ''' conditional_or_expression : conditional_and_expression | conditional_or_expression KW_OR conditional_and_expression '''
+def p_conditional_or_expression(p):
+   ''' conditional_or_expression : conditional_and_expression | conditional_or_expression KW_or conditional_and_expression '''
 
    if(len(p) == 2):
       p[0] = Node("conditional_or_expression", [p[1]])
 
    else:
-      leaf2 = create_children("KW_OR", p[2])
+      leaf2 = create_children("KW_or", p[2])
       p[0] = Node("conditional_or_expression", [p[1], leaf2, p[3]])
 
- def p_inclusive_or_expression(p):
-   '''inclusive_or_expression : exclusive_or_expression  | inclusive_or_expression KW_OR_BITWISE exclusive_or_expression'''
+
+def p_conditional_and_expression(p):
+      '''conditional_and_expression : inclusive_or_expression
+                             | conditional_and_expression KW_and inclusive_or_expression'''
+      if len(p) == 2:
+         p[0] = Node("conditional_and_expression", [p[1]])
+      else:
+         leaf1 = create_children("KW_and", p[2])
+         p[0] = Node("conditional_and_expression", [p[1], leaf1, p[3]])
+
+def p_inclusive_or_expression(p):
+   '''inclusive_or_expression : exclusive_or_expression  | inclusive_or_expression KW_or_bitwise exclusive_or_expression'''
 
    if(len(p) == 2):
       p[0] = Node("inclusive_or_expression", [p[1]])
 
    else:
-      leaf2 = create_children("KW_OR_BITWISE", p[2])
+      leaf2 = create_children("KW_or_bitwise", p[2])
       p[0] = Node("inclusive_or_expression", [p[1], leaf2, p[3]])
 
- def p_exclusive_or_expression(p):
-   ''' exclusive_or_expression : and_expression | exclusive_or_expression KW_XOR and_expression '''
+def p_exclusive_or_expression(p):
+   ''' exclusive_or_expression : and_expression | exclusive_or_expression KW_xor and_expression '''
 
    if(len(p) == 2):
       p[0] = Node("exclusive_or_expression", [p[1]])
 
    else:
-      leaf2 = create_children("KW_XOR", p[2])
+      leaf2 = create_children("KW_xor", p[2])
       p[0] = Node("exclusive_or_expression", [p[1], leaf2, p[3]])
 
- def p_and_expression(p):
-   ''' and_expression : equality_expression | and_expression KW_AND_BITWISE equality_expression '''
+def p_and_expression(p):
+   ''' and_expression : equality_expression | and_expression KW_and_bitwise equality_expression '''
 
    if(len(p) == 2):
       p[0] = Node("and_expression", [p[1]])
 
    else:
-      leaf2 = create_children("KW_AND_BITWISE", p[2])
+      leaf2 = create_children("KW_and_bitwise", p[2])
       p[0] = Node("and_expression", [p[1], leaf2, p[3]])
 
 
 def p_equality_expression(p):
    '''equality_expression : relational_expression
-								| equality_expression KW_EQUAL relational_expression
-								| equality_expression KW_NEQUAL relational_expression'''
+								| equality_expression KW_equal relational_expression
+								| equality_expression KW_nequal relational_expression'''
 
 
    if(len(p) == 2):
@@ -227,10 +243,10 @@ def p_equality_expression(p):
 
 def p_relational_expression(p):
    '''relational_expression : shift_expression
-								 | relational_expression KW_GREATER shift_expression
-								 | relational_expression KW_LESS shift_expression
-								 | relational_expression KW_GEQ shift_expression
-								 | relational_expression KW_LEQ shift_expression'''
+								 | relational_expression KW_greater shift_expression
+								 | relational_expression KW_lesser shift_expression
+								 | relational_expression KW_geq shift_expression
+								 | relational_expression KW_leq shift_expression'''
 
    if(len(p) == 2):
       p[0] = Node("relational_expression", [p[1]])
@@ -242,8 +258,8 @@ def p_relational_expression(p):
 
 def p_shift_expression(p):
    '''shift_expression : additive_expression
-									| shift_expression KW_LSHIFT additive_expression
-									| shift_expression KW_RSHIFT additive_expression'''
+									| shift_expression KW_lshift additive_expression
+									| shift_expression KW_rshift additive_expression'''
 
    if(len(p) == 2):
       p[0] = Node("shift_expression", [p[1]])
@@ -256,8 +272,8 @@ def p_shift_expression(p):
 
 def p_additive_expression(p):
    '''additive_expression : multiplicative_expression
-								 | additive_expression KW_PLUS multiplicative_expression
-								 | additive_expression KW_MINUS multiplicative_expression'''
+								 | additive_expression KW_plus multiplicative_expression
+								 | additive_expression KW_minus multiplicative_expression'''
 
    if(len(p) == 2):
       p[0] = Node("additive_expression", [p[1]])
@@ -269,9 +285,9 @@ def p_additive_expression(p):
 def p_multiplicative_expression(p):
    '''multiplicative_expression : unary_expression
 
-									 | multiplicative_expression KW_TIMES unary_expression
-									 | multiplicative_expression KW_DIVIDE unary_expression
-									 | multiplicative_expression KW_REMAINDER unary_expression'''
+									 | multiplicative_expression KW_times unary_expression
+									 | multiplicative_expression KW_divide unary_expression
+									 | multiplicative_expression KW_modulus unary_expression'''
 
    if(len(p) == 2):
       p[0] = Node("multiplicative_expression", [p[1]])
@@ -281,8 +297,8 @@ def p_multiplicative_expression(p):
       p[0] = Node("multiplicative_expression", [p[1], leaf2, p[3]])
 
 def p_unary_expression(p):
-   '''unary_expression : PLUS unary_expression
-							| KW_MINUS unary_expression
+   '''unary_expression : KW_plus unary_expression
+							| KW_minus unary_expression
 							| unary_expression_not_plus_minus'''
 
    if(len(p) == 2):
@@ -295,8 +311,8 @@ def p_unary_expression(p):
 
 def p_unary_expression_not_plus_minus(p):
    '''unary_expression_not_plus_minus : base_variable_set
-											 | KW_TILDA unary_expression
-											 | KW_NOT unary_expression
+											 | KW_tilda unary_expression
+											 | KW_not unary_expression
 											 | cast_expression''' 
 
    if(len(p) == 2):
@@ -345,10 +361,10 @@ def p_literal(p):
 
    p[0] = Node("literal", [p[1]])
 
-
+#CHECKFORTHIS
 def p_c_literal(p):
-   '''c_literal : KW_CHAR
-					| KW_STRING
+   '''c_literal : KW_char
+					| KW_string
 					| KW_true
 					| KW_false
 					| KW_null '''
@@ -356,10 +372,12 @@ def p_c_literal(p):
    leaf1 = create_children("LF_Charliteral", p[1])
    p[0] = Node("c_literal", [leaf1])
 
+
+#CHECKFORTHIS
 def p_int_float(p):
    '''int_float : KW_DOUBLE | KW_INT '''
 
-   leaf1 = create_children("LF_Intliteral", p[1])
+   leaf1 = create_children("LF_IntFloat", p[1])
    p[0] = Node("int_float", [leaf1])
 
 #FUNCTION CALLS
@@ -507,10 +525,10 @@ def p_expr_question(p):
 
 
 def p_variable_declarator_id(p):
-   '''variable_declarator_id : KW_IDENTIFIER KW_COLON type'''
+   '''variable_declarator_id : KW_IDENTIFIER KW_colon type'''
 
    leaf1 = create_children("KW_IDENTIFIER", p[1])
-   leaf2 = create_children("KW_COLON", p[2])
+   leaf2 = create_children("KW_colon", p[2])
    p[0] = Node("variable_declarator_id", [leaf1, leaf2, p[3]])
 
 
@@ -526,7 +544,7 @@ def p_type(p):
 
    p[0] = Node("type", [p[1]])
 
-
+#CHECKFORTHIS
 def p_primitive_type(p):
    '''primitive_type : KW_INT
                   | KW_DOUBLE
@@ -571,13 +589,13 @@ def p_array_initializer(p):
    if(len(p) == 2):
       p[0] = Node("array_initializer", [p[1]])
 
-   else if(len(p) == 5):
+   elif(len(p) == 5):
       leaf1 = create_children("KW_array", p[1])
       leaf2 = create_children("KW_LPAREN", p[2])
       leaf4 = create_children("KW_RPAREN", p[4])
       p[0] = Node("array_initializer", [leaf1, leaf2, p[3], leaf4])
    
-   else if(len(p) == 8):
+   elif(len(p) == 8):
       leaf1 = create_children("KW_array", p[1])
       leaf2 = create_children("KW_LSQB", p[2])
       leaf4 = create_children("KW_RSQB", p[4])
@@ -595,10 +613,10 @@ def p_array_initializer(p):
 
 
 def p_multidimensional_array_initializer(p):
-   ''' multidimensional_array_initializer : KW_array KW_DOT KW_ofdim KW_LSQB type KW_RSQB KW_LPAREN argument_list KW_RPAREN'''
+   ''' multidimensional_array_initializer : KW_array KW_dot KW_ofdim KW_LSQB type KW_RSQB KW_LPAREN argument_list KW_RPAREN'''
 
    leaf1 = create_children("KW_array", p[1])
-   leaf2 = create_children("KW_DOT", p[2])
+   leaf2 = create_children("KW_dot", p[2])
    leaf3 = create_children("KW_ofdim", p[3])
    leaf4 = create_children("KW_LSQB", p[4])
    leaf6 = create_children("KW_RSQB", p[6])
@@ -720,7 +738,7 @@ def p_for_update(p):
 
    p[0] = Node("for_update", [p[1], p[2],p[3]])
 
-
+#CHECKFORTHIS
 def p_for_loop(p):
    ''' for_loop : KW_IDENTIFIER KW_choose expression for_untilTo expression '''
 
@@ -769,9 +787,9 @@ def p_class_declaration(p):
 
 
 def p_class_header(p):
-   '''class_header : KW_CLASS name modifier_opts class_param_clause_question class_template_question'''
+   '''class_header : KW_class name modifier_opts class_param_clause_question class_template_question'''
 
-   leaf1 = create_children("KW_CLASS", p[1])
+   leaf1 = create_children("KW_class", p[1])
    p[0] = Node("class_header", [leaf1, p[2], p[3], p[4], p[5]])
 
 
@@ -841,14 +859,14 @@ def p_class_declaration_keyword_question(p):
 
 
 def p_type_question(p):
-   '''type_question : KW_COLON type 
+   '''type_question : KW_colon type 
             | empty'''
 
    if len(p)==2:
       p[0] = Node("type_question",[p[1]])
 
    else:
-      leaf1 = create_children("KW_COLON",p[1])
+      leaf1 = create_children("KW_colon",p[1])
       p[0] = Node("type_question",[leaf1, p[2]])
 
 
@@ -953,7 +971,7 @@ def p_empty(p):
 
 
 
-Leaf_Nodes = ['KW_OBJ',
+Leaf_Nodes = ['KW_obj',
 	'LCURLY',
 	'RCURLY',
 	'KW_if',
@@ -964,10 +982,10 @@ Leaf_Nodes = ['KW_OBJ',
 	'KW_LSQB',
 	'KW_RSQB',
 	'LF_AssignOp',
-	'KW_OR',
-	'KW_OR_BITWISE',
-	'KW_XOR',
-	'KW_AND_BITWISE',
+	'KW_or',
+	'KW_or_bitwise',
+	'KW_xor',
+	'KW_and_bitwise',
 	'LF_EqualityOp',
 	'LF_RelationalOp',
 	'LF_ShiftOp',
@@ -982,11 +1000,11 @@ Leaf_Nodes = ['KW_OBJ',
 	'LF_Declaration',
 	'LF_Terminator',
 	'KW_assignment',
-	'KW_COLON',
+	'KW_colon',
 	'LF_Primitivetype',
 	'KW_array',
 	'KW_new',
-	'KW_DOT',
+	'KW_dot',
 	'KW_ofdim',
 	'KW_while',
 	'KW_for',
@@ -994,7 +1012,7 @@ Leaf_Nodes = ['KW_OBJ',
 	'LF_Untito',
 	'KW_by',
 	'KW_return',
-	'KW_CLASS',
+	'KW_class',
 	'KW_override',
 	'KW_extends',
 	'KW_def'
