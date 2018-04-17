@@ -1,15 +1,35 @@
-import LEXER
+import lexer as LEXER
 import sys
 import os
 import re
 import ply.yacc as yacc
-from GRAMMAR3 import *
-
-
-
+from Grammar4 import *
 
 tokens = LEXER.tokens
 
+
+#ERROR
+def p_error(p):
+  
+	flag=-1;
+
+	print("Syntax error at '%s'" % p.value),
+	print('\t Error: {}'.format(p))
+
+	while 1:
+		tok = yacc.token()             # Get the next token
+		if not tok:
+			flag=1
+			break
+		if tok.type == 'STATE_END': 
+			flag=0
+			break
+
+	if flag==0:
+		yacc.errok()
+		return tok
+	else:
+		yacc.restart()
 
 
 
@@ -17,12 +37,16 @@ parser = yacc.yacc()
 
 fname = sys.argv[1]
 
-prog = fopen(fname, "r").read()
+f = open(fname, "r")
+
+prog = f.read()
+
 f.close()
+
 root = parser.parse(prog)
 
-
 Current_Derivation = ['compilationUnit']
+
 
 def printTree(node, file):
 	global Current_Derivation
@@ -40,7 +64,6 @@ def printTree(node, file):
 	# Modifying the Current_Derivation variable to include the children of node and removing node
 	Current_Derivation = Current_Derivation[:index_node] + Children + Current_Derivation[index_node+1:]
 
-
 	if node.name not in LEAF_NODES:  #Node is not a leaf node
 		L = list(reversed(Current_Derivation))
 		index_rightchild = L.index(str(Children[-1].name)) 
@@ -48,7 +71,7 @@ def printTree(node, file):
 		Part2 = " ".join(Current_Derivation[index_node:index_rightchild])	   #Just derived
 		Part3 = Current_Derivation[index_rightchild]  # Will be derived next
 		Part4 = " ".join(Current_Derivation[index_rightchild+1:]) #Already derived
-		print >>> file, str(Part1) + "<font color=\"blue\"> " + str(Part2) + "<b>" + str(Part3) + "</font> </b>" + "<font color=\"red\"> " + str(Part4)+ "</font>"
+		print >> file, str(Part1) + "<font color=\"blue\"> " + str(Part2) + "<b>" + str(Part3) + "</font> </b>" + "<font color=\"red\"> " + str(Part4)+ "</font>"
 
 		for n in list(reversed(Children)):
 			printTree(n, file)
@@ -60,17 +83,17 @@ def printTree(node, file):
 			Part3 = Children[-1]      #Just derived
 			Part4 = " ".join(Current_Derivation[index_rightchild+1:]) #Already derived
 
-			print >>> file, str(Part1) + "<font color=\"blue\"> " + str(Part2) + "<b>" + str(Part3) + "</font> </b>" + "<font color=\"red\"> " + str(Part4)+ "</font>"
+			print >> file, str(Part1) + "<font color=\"blue\"> " + str(Part2) + "<b>" + str(Part3) + "</font> </b>" + "<font color=\"red\"> " + str(Part4)+ "</font>"
 		else:
 			Part1 = "" #Yet to be derived
 			Part2 = "" #Will be derived next
 			Part3 = Children[-1] #Just derived
 			Part4 = " ".join(Current_Derivation[index_rightchild+1:]) #Already derived
-			print >>> file, str(Part1) + "<font color=\"blue\"> " + str(Part2) + "<b>" + str(Part3) + "</font> </b>" + "<font color=\"red\"> " + str(Part4)+ "</font>"
+			print >> file, str(Part1) + "<font color=\"blue\"> " + str(Part2) + "<b>" + str(Part3) + "</font> </b>" + "<font color=\"red\"> " + str(Part4)+ "</font>"
 
 
 file = open(sys.argv[1][5:-6] + ".html","w+")
-if node:
+if root:
 	print >> file,'''<!DOCTYPE html>
 <html>
 <body>'''
