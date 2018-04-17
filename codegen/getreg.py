@@ -28,15 +28,16 @@ def spill(reg):
 			main.mem.append(var)
 	main.rd[reg] = []
 
-def clearmem(var):
-	if var in main.mem:
-		main.mem.remove(var)
-
 def check_reg(var,line):
 	if len(main.ad[var]) == 0:
 		return find_reg(line), -1
 	else:
 		return main.ad[var][0], 1 
+
+def memclear(var):
+	if var in main.mem:
+		main.mem.remove(var)
+
 
 def find_reg(line):
 	for reg in main.rd:

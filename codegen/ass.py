@@ -37,12 +37,6 @@ def MOVE(reg,y):                    # Load the value of variable contained in y 
 	elif (reg!= main.ad[y][0]):
 			print "\t" + "move " + reg + ", " + main.ad[y][0] 
 
-def COP(op,z,reg):                  # value(reg) = value(reg) op int(z)
-	print "\t" + "li $a0," + z
-	if(op in ['mult', 'div']):
-		print "\t" + op + " " + reg + ', $a0'
-	else:
-		print "\t" + op + " " + reg + ', ' + reg + ', $a0'
 
 def VOP(op,regz,regx):
 	if(op in ['mult', 'div']):
@@ -50,9 +44,15 @@ def VOP(op,regz,regx):
 	else:
 		print "\t" + op + " " + regx + ', ' + regx + ', ' + regz
 
+def COP(op,z,reg):                  # value(reg) = value(reg) op int(z)
+	print "\t" + "li $a0," + z
+	if(op in ['mult', 'div']):
+		print "\t" + op + " " + reg + ', $a0'
+	else:
+		print "\t" + op + " " + reg + ', ' + reg + ', $a0'
 
 def UPDATE(x,reg):
-	getreg.clearmem(x)
+	getreg.memclear(x)
 	getreg.rd_del(x)
 	getreg.rd_add(reg,x)
 
@@ -66,13 +66,13 @@ def XequalY(x,y):
 				print "\t" + "li " + reg + ", " + y
 				UPDATE(x,reg)
 	else:       
-				if y in main.ptrmap:
-					main.ptrmap[x] = main.ptrmap[y]
+				if y in main.map_ptr:
+					main.map_ptr[x] = main.map_ptr[y]
 					getreg.rd_del(x)
-					getreg.clearmem(x)
+					getreg.memclear(x)
 				else:
-					if x in main.ptrmap:
-						del main.ptrmap[x]
+					if x in main.map_ptr:
+						del main.map_ptr[x]
 					reg = getreg.get_regx(x,y,lno)
 					MOVE(reg,y)
 					UPDATE(x,reg)
@@ -175,19 +175,19 @@ for line in lines:
 		elif('&' in line):        # = x & y
 			x = line[2]
 			y = line[4]
-			main.ptrmap[x] = y
+			main.map_ptr[x] = y
 			getreg.rd_del(x)
-			getreg.clearmem(x)
+			getreg.memclear(x)
 		elif("*" in line):        # = * x y      or = x * y
 			if(line[2] == '*'):
 				x = line[3]
 				y = line[4]
-				z = main.ptrmap[x]
+				z = main.map_ptr[x]
 				XequalY(z,y)
 			else:
 				x = line[2]
 				y = line[4]
-				z = main.ptrmap[y]
+				z = main.map_ptr[y]
 				XequalY(x,z)
 
 
@@ -300,9 +300,9 @@ for line in lines:
 				print "\t" + "li $v0, 1"
 			if (x.isdigit()):
 				print "\t" + "li $a0, " + x
-			elif x in main.ptrmap:
+			elif x in main.map_ptr:
 				#print "ffoo"
-				print "\t" + "la $a0, " + main.ptrmap[x]
+				print "\t" + "la $a0, " + main.map_ptr[x]
 			else:
 				#print "foo"
 				if x not in identifiers:

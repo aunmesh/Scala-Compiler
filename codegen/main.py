@@ -11,6 +11,6 @@ ad=defaultdict(list) 				#Stores  register at 0 index, memory at 1 and stack loc
 rd=defaultdict(list)				# Access by rd[var]. This will be a list
 mem=[]
 free_reg = []
-ptrmap = {}
+map_ptr = {}
 regline={}
 testfile=""
