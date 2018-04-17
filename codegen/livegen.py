@@ -2,8 +2,8 @@ import main
 import blockgen
 
 def live_gen(n):
-	start = main.start_block[n]
-	end = main.end_block[n]
+	start = main.block_start[n]
+	end = main.block_end[n]
 
 	for i in range(start,end+1):
 		main.live.append([])
@@ -61,7 +61,7 @@ def live_gen(n):
 
 def gen_live():
 	main.live.append([])
-	blockgen.generate_block()
+	blockgen.create_block()
 
 	# print main.N_BLOCKS
 

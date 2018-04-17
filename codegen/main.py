@@ -2,9 +2,9 @@ from collections import defaultdict
 
 N_BLOCKS = 0
 N_LINES = 0
-start_block = []
-end_block = []
-get_block = []
+block_start = []
+block_end = []
+block_get = []
 lines = []
 live = []
 ad=defaultdict(list) 				#Stores  register at 0 index, memory at 1 and stack locations after this. Access by ad[var][index]

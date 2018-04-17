@@ -1,7 +1,7 @@
 import main
 import __main__
-def generate_block():
-	main.get_block.append(0)
+def create_block():
+	main.block_get.append(0)
 
 	main.lines.append([])
 	main.N_BLOCKS = 0
@@ -15,10 +15,10 @@ def generate_block():
 	for line in f:
 		main.lines.append(line.split())
 		main.N_LINES += 1
-		main.get_block.append(0)
+		main.block_get.append(0)
 		block.append(0)
 
-	main.get_block.append(0)
+	main.block_get.append(0)
 	block.append(1)
 
 	for i in range(1,main.N_LINES+1):
@@ -46,14 +46,14 @@ def generate_block():
 	# for i in range(0,main.N_LINES+2):
 		# print i, block[i]
 
-	main.start_block.append(0)
+	main.block_start.append(0)
 
 	for i in range(1,main.N_LINES+2):
 		if block[i] == 1:
-			main.end_block.append(i-1)
-			main.start_block.append(i)
+			main.block_end.append(i-1)
+			main.block_start.append(i)
 			main.N_BLOCKS += 1
 		
-		main.get_block[i] = main.N_BLOCKS
+		main.block_get[i] = main.N_BLOCKS
 
-		# print main.get_block[i]			
+		# print main.block_get[i]			

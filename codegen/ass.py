@@ -129,8 +129,8 @@ for line in lines:
 	lno = int(line[0])
 	# print lno
 	op = line[1]
-	if main.get_block[lno] != main.get_block[lno-1]:
-		print "\nBLOCK" + str(main.get_block[lno]) + ":"
+	if main.block_get[lno] != main.block_get[lno-1]:
+		print "\nBLOCK" + str(main.block_get[lno]) + ":"
 	if (op == '='):
 		if('[' not in line and '&' not in line and '*' not in line):            # x = y
 			x = line[2]
@@ -236,7 +236,7 @@ for line in lines:
 
 	elif op == "goto":
 		branch = int(line[2])
-		print "\t" + "b " + "BLOCK" + str(main.get_block[branch])
+		print "\t" + "b " + "BLOCK" + str(main.block_get[branch])
 
 	elif op == "ifgoto":
 		x = line[-2]
@@ -250,7 +250,7 @@ for line in lines:
 				print "\t" + "lw " + reg + ", " + x
 				getreg.rd_del(x)
 				getreg.rd_add(reg,x)
-			print "\t" + NAME(relop) + " " + reg + ", " + y + ", " + "BLOCK" + str(main.get_block[branch])
+			print "\t" + NAME(relop) + " " + reg + ", " + y + ", " + "BLOCK" + str(main.block_get[branch])
 		else:
 			(regx,state) = getreg.check_reg(x,lno)
 			if(state == -1):
@@ -262,7 +262,7 @@ for line in lines:
 				print "\t" + "lw " + regy + ", " + y
 				getreg.rd_del(y)
 				getreg.rd_add(regy,y)
-			print "\t" + NAME(relop) + " " + regx + ", " + regy + ", " + "BLOCK" + str(main.get_block[branch])
+			print "\t" + NAME(relop) + " " + regx + ", " + regy + ", " + "BLOCK" + str(main.block_get[branch])
 				
 	elif op == 'label':
 		x = line[2]
