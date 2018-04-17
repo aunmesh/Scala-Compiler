@@ -13,23 +13,8 @@ def p_error(p):
   
 	flag=-1;
 
-	print("Syntax error at '%s'" % p.value),
+	print("Syntax error at '%s'" % p.value)
 	print('\t Error: {}'.format(p))
-
-	while 1:
-		tok = yacc.token()             # Get the next token
-		if not tok:
-			flag=1
-			break
-		if tok.type == 'STATE_END': 
-			flag=0
-			break
-
-	if flag==0:
-		yacc.errok()
-		return tok
-	else:
-		yacc.restart()
 
 
 

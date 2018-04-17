@@ -55,7 +55,7 @@ keywords = {
     'Int' : 'KW_int',
     'Char' : 'KW_char',
     'String' : 'KW_string',
-    'Void' : 'KW_void',
+    'Unit' : 'KW_void',
 }
 
 tokens = [
@@ -201,12 +201,14 @@ def t_TOK_char(t):
     t.value = t.value[1:-1]
     return t
 
+
 def t_TOK_nl(t):
     r"\n"
     t.lexer.lineno+=1
 
 def t_TOK_semi(t):
-    r"\;"
+    r";"
+    return t
 
 def t_TOK_int(t):
     r'[-+]?\d+'
