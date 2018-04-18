@@ -46,8 +46,9 @@ def p_singleton_object(p):
 def p_object_declaration(p):
    '''object_declaration : KW_obj TOK_identifier'''
 
-   print("HERE_obj Declare")
-   p[0]  = Node("object_declaration", [p[1], p[2]])
+   leaf1 = create_children("KW_obj", p[1])
+   leaf2 = create_children("TOK_identifier", p[2])
+   p[0]  = Node("object_declaration", [leaf1, leaf2])
 #
 #def p_class_declaration(p):
 #   '''class_declaration : KW_class name class_body'''
@@ -674,9 +675,9 @@ def p_normal_statement(p):
 
 def p_expression_statement(p):
    '''expression_statement : statement_expression TOK_semi'''
-   print("Expression Statement")
-   leaf1 = create_children("TOK_semi", p[1])
-   p[0] = Node("expression_statement", [p[1],p[2]])
+
+   leaf2 = create_children("TOK_semi", p[2])
+   p[0] = Node("expression_statement", [p[1], leaf2])
 
 #REVERT ORDER OF ASSIGNMENT AND INVOCATION
 def p_statement_expression(p):
