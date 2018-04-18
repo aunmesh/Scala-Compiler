@@ -46,6 +46,7 @@ def p_singleton_object(p):
 def p_object_declaration(p):
    '''object_declaration : KW_obj TOK_identifier'''
 
+   print("HERE_obj Declare")
    p[0]  = Node("object_declaration", [p[1], p[2]])
 #
 #def p_class_declaration(p):
@@ -107,6 +108,7 @@ def p_assignment_expression(p):
 			   | conditional_or_expression
 			   | if_else_expression '''
 
+   print("HERE assignment expression")
 
    p[0] = Node("assignment_expression", [p[1]])
 
@@ -205,7 +207,7 @@ def p_conditional_and_expression(p):
 def p_inclusive_or_expression(p):
    '''inclusive_or_expression : exclusive_or_expression  
    | inclusive_or_expression TOK_or_bitwise exclusive_or_expression'''
-
+   print("HERE inclusive or")
    if(len(p) == 2):
       p[0] = Node("inclusive_or_expression", [p[1]])
 
@@ -215,7 +217,7 @@ def p_inclusive_or_expression(p):
 
 def p_exclusive_or_expression(p):
    ''' exclusive_or_expression : and_expression 
-   | exclusive_or_expression TOK_xor and_expression '''
+                                 | exclusive_or_expression TOK_xor and_expression '''
 
    if(len(p) == 2):
       p[0] = Node("exclusive_or_expression", [p[1]])
@@ -321,7 +323,7 @@ def p_unary_expression_not_plus_minus(p):
 											 | TOK_tilda unary_expression
 											 | TOK_not unary_expression
 											 | cast_expression''' 
-
+   print("HERE unary not plus")
    if(len(p) == 2):
       p[0] = Node("unary_expression_not_plus_minus", [p[1]])
 
@@ -360,8 +362,9 @@ def p_cast_expression(p):
 
 def p_primary(p):
    '''primary : literal 
-   | method_invocation'''
-
+               | method_invocation'''
+   
+   print(" PRIMARY")   
    p[0] = Node("primary", [p[1]])
 
 
@@ -394,8 +397,8 @@ def p_int_float(p):
 #FUNCTION CALLS
 
 def p_method_invocation(p):
-   '''method_invocation : id TOK_paraleft argument_list TOK_pararight '''
-
+   '''method_invocation : id TOK_paraleft argument_list_question TOK_pararight '''
+   print("HERE method invocation")
    leaf2 = create_children("TOK_paraleft", p[2])
    leaf4 = create_children("TOK_pararight", p[4])
    p[0] = Node("method_invocation", [p[1], leaf2, p[3], leaf4])
@@ -406,7 +409,7 @@ def p_method_invocation(p):
 def p_argument_list(p):
    '''argument_list : expression
                   | argument_list TOK_comma expression'''
-
+   print("HERE ARGUMENT LIST")
    if(len(p) == 2):
       p[0] = Node("argument_list", [p[1]])
 
@@ -417,7 +420,7 @@ def p_argument_list(p):
 
 def p_argument_list_question(p):
 	''' argument_list_question : argument_list 
-								| empty'''
+   | empty'''                      
 	p[0] = Node("argument_list_question", [p[1]])
 							
 
@@ -447,17 +450,9 @@ def p_declaration_keyword(p):
 
 
 def p_local_variable_declaration_statement(p):
-   '''local_variable_declaration_statement : local_variable_declaration terminator '''
-
-   p[0] = Node("local_variable_declaration_statement", [p[1],p[2]])
-
-
-def p_terminator(p):
-   '''terminator : TOK_semi 
-   | TOK_nl '''
-
-   leaf1 = create_children("LF_Terminator", p[1])
-   p[0] = Node("terminator", [leaf1])
+   '''local_variable_declaration_statement : local_variable_declaration TOK_semi '''
+   leaf2 = create_children("TOK_semi", p[2])
+   p[0] = Node("local_variable_declaration_statement", [p[1],leaf2])
 
 
 def p_local_variable_declaration(p):
@@ -548,6 +543,7 @@ def p_expr_question(p):
 def p_variable_declarator_id(p):
    '''variable_declarator_id : TOK_identifier TOK_colon type'''
 
+   print("HERE variable declarator id")
    leaf1 = create_children("TOK_identifier", p[1])
    leaf2 = create_children("TOK_colon", p[2])
    p[0] = Node("variable_declarator_id", [leaf1, leaf2, p[3]])
@@ -563,6 +559,7 @@ def p_variable_declarator_id(p):
 def p_type(p):
    '''type : primitive_type 
    | reference_type '''
+   print("HERE type")
 
    p[0] = Node("type", [p[1]])
 
@@ -584,6 +581,7 @@ def p_reference_type(p):
    '''reference_type : class_data_type 
    | array_data_type'''
 
+   print("HERE reference type")
    p[0] = Node("reference_type", [p[1]])
 
 
@@ -596,6 +594,7 @@ def p_class_data_type(p):
 def p_array_data_type(p):
    '''array_data_type : KW_array TOK_lsqb type TOK_rsqb'''
 
+   print("HERE array data type")
    leaf1 = create_children("KW_array", p[1])
    leaf2 = create_children("TOK_lsqb", p[2])
    leaf4 = create_children("TOK_rsqb", p[4])
@@ -662,7 +661,7 @@ def p_statement(p):
                      | if_then_else_statement
                      | while_statement
                      | for_statement'''
-
+   print("Statement")
    p[0] = Node("statement", [p[1]])
 
 def p_normal_statement(p):
@@ -674,14 +673,16 @@ def p_normal_statement(p):
    p[0] = Node("normal_statement", [p[1]])
 
 def p_expression_statement(p):
-   '''expression_statement : statement_expression terminator'''
-
+   '''expression_statement : statement_expression TOK_semi'''
+   print("Expression Statement")
+   leaf1 = create_children("TOK_semi", p[1])
    p[0] = Node("expression_statement", [p[1],p[2]])
 
+#REVERT ORDER OF ASSIGNMENT AND INVOCATION
 def p_statement_expression(p):
-   '''statement_expression : assignment 
-   | method_invocation'''
-
+   '''statement_expression : assignment
+                           | method_invocation '''
+   print("Statement expression")
    p[0] = Node("statement_expression", [p[1]])
 
 
@@ -732,7 +733,7 @@ def p_while_statement(p):
 
 def p_for_statement(p):
    '''for_statement : KW_for TOK_paraleft for_logic TOK_pararight statement 
-   | KW_for TOK_lcurly for_logic TOK_rcurly statement'''
+   '''
 
    leaf1 = create_children("KW_for", p[1])
    leaf2 = create_children("TOK_paraleft", p[2])
@@ -741,13 +742,14 @@ def p_for_statement(p):
 
 def p_for_logic(p):
    ''' for_logic : for_update 
-   | for_update terminator for_logic '''
+   | for_update TOK_semi for_logic '''
 
    if(len(p) == 2):
       p[0] = Node("for_logic", [p[1]])
 
    else:
-      p[0] = Node("for_logic", [p[1], p[2], p[3]])
+      leaf2 = create_children("TOK_semi", p[2])
+      p[0] = Node("for_logic", [p[1], leaf2, p[3]])
 
 
 def p_for_update(p):
@@ -785,16 +787,16 @@ def p_for_step_opts(p):
 
 
 def p_empty_statement(p):
-   '''empty_statement : terminator '''
-
-   p[0] = Node("empty_statement", [p[1]])
+   '''empty_statement : TOK_semi '''
+   leaf1 = create_children("TOK_semi", p[1])
+   p[0] = Node("empty_statement", [leaf1])
 
 
 def p_return_statement(p):
-   '''return_statement : KW_return expression_question terminator '''
-
+   '''return_statement : KW_return expression_question TOK_semi '''
+   leaf3 = create_children("TOK_semi", p[3])
    leaf1 = create_children("KW_return", p[1])
-   p[0] = Node("return_statement", [leaf1, p[2], p[3]])
+   p[0] = Node("return_statement", [leaf1, p[2], leaf3])
 
 
 # CLASS DECLARATION
@@ -920,7 +922,7 @@ def p_method_declaration(p):
 
 def p_method_header(p):
    '''method_header : KW_def fun_def'''
-
+   print("HERE method header")
    leaf1 = create_children("KW_def", p[1])
    p[0] = Node("method_header", [leaf1,p[2]])
 
@@ -929,6 +931,7 @@ def p_fun_def(p):
    '''fun_def : fun_sig type_question TOK_assignment 
                             | fun_sig type_question'''
 
+   print("HERE fun def")
    if(len(p) == 3):
       p[0] = Node("fun_def", [p[1], p[2]])
 
@@ -945,7 +948,7 @@ def p_fun_sig(p):
 
 def p_fun_param_clause(p):
    '''fun_param_clause : TOK_paraleft fun_params_question TOK_pararight  '''
-
+   print("HERE fun param clause")
    leaf1 = create_children("TOK_paraleft", p[1])
    leaf3 = create_children("TOK_pararight", p[3])
    p[0] = Node("fun_param_clause", [leaf1, p[2], leaf3])
@@ -954,7 +957,7 @@ def p_fun_param_clause(p):
 def p_fun_params_question(p):
    '''fun_params_question : fun_params 
    | empty'''
-
+   print("HERE fun param question")
    p[0] = Node("fun_params_question", [p[1]])
 
 
@@ -1016,7 +1019,7 @@ LEAF_NODES = ['KW_obj',
 	'TOK_comma',
 	'LF_Modifier',
 	'LF_Declaration',
-	'LF_Terminator',
+	'TOK_semi',
 	'TOK_assignment',
 	'TOK_colon',
 	'LF_Primitivetype',
