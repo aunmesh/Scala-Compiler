@@ -6,13 +6,15 @@ def init_reg():
 
 def rd_add(reg,var):					#only adds reg into address descr. of var and var into reg descr. of reg
 	if var not in main.rd[reg]:
+		main.ad[var].append(reg)		
 		main.rd[reg].append(var)
-		main.ad[var].append(reg)
+
 
 def rd_remove(reg,var):
 	if reg in main.ad[var]:
-		main.rd[reg].remove(var)
 		main.ad[var].remove(reg)
+		main.rd[reg].remove(var)
+
 
 def rd_del(var):						#Clears register fields of a variable
 	for reg in main.ad[var]:
