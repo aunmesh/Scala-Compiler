@@ -6,19 +6,20 @@ def init_reg():
 
 def rd_add(reg,var):					#only adds reg into address descr. of var and var into reg descr. of reg
 	if var not in main.rd[reg]:
+		main.ad[var].append(reg)		
 		main.rd[reg].append(var)
-		main.ad[var].append(reg)
+
+
+def rd_remove(reg,var):
+	if reg in main.ad[var]:
+		main.ad[var].remove(reg)
+		main.rd[reg].remove(var)
+
 
 def rd_del(var):						#Clears register fields of a variable
 	for reg in main.ad[var]:
 		main.rd[reg].remove(var)
 		main.ad[var].remove(reg)
-
-def rd_remove(reg,var):
-	if reg in main.ad[var]:
-		main.rd[reg].remove(var)
-		main.ad[var].remove(reg)
-
 
 def spill(reg):
 	for var in main.rd[reg]:
@@ -28,18 +29,20 @@ def spill(reg):
 			main.mem.append(var)
 	main.rd[reg] = []
 
-def check_reg(var,line):
-	if len(main.ad[var]) == 0:
-		return find_reg(line), -1
-	else:
-		return main.ad[var][0], 1 
+
 
 def memclear(var):
 	if var in main.mem:
 		main.mem.remove(var)
 
+def reg_check(var,line):
+	if len(main.ad[var]) == 0:
+		return reg_find(line), -1
+	else:
+		return main.ad[var][0], 1 
 
-def find_reg(line):
+
+def reg_find(line):
 	for reg in main.rd:
 		if main.regline[reg] != line and len(main.rd[reg]) == 0:
 			main.regline[reg] = line
@@ -64,7 +67,7 @@ def find_reg(line):
 	main.regline[reg] = line
 	return reg
 
-def get_regx(x, y, line):
+def regx_get(x, y, line):
 
 	if len(main.ad[y]) > 1:
 		for reg in main.ad[y]:
@@ -92,10 +95,10 @@ def get_regx(x, y, line):
 					main.regline[reg] = line
 					return reg
 
-	return find_reg(line)
+	return reg_find(line)
 
-def get_reg(x,y,z,line):
-	regx = get_regx(x, y, line)
+def reg_get(x,y,z,line):
+	regx = regx_get(x, y, line)
 
 	for reg in main.ad[z]:
 		if main.regline[reg] != line:
@@ -103,7 +106,7 @@ def get_reg(x,y,z,line):
 			main.regline[reg] = line
 			return regx, regz
 
-	regz = find_reg(line)
+	regz = reg_find(line)
 	return regx,regz
 
 def update_dead(var,line):

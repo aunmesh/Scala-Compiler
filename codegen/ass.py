@@ -62,7 +62,7 @@ def LOADADDR(y, reg):
 
 def XequalY(x,y):
 	if(y.isdigit()):
-				reg = getreg.find_reg(lno)
+				reg = getreg.reg_find(lno)
 				print "\t" + "li " + reg + ", " + y
 				UPDATE(x,reg)
 	else:       
@@ -73,7 +73,7 @@ def XequalY(x,y):
 				else:
 					if x in main.map_ptr:
 						del main.map_ptr[x]
-					reg = getreg.get_regx(x,y,lno)
+					reg = getreg.regx_get(x,y,lno)
 					MOVE(reg,y)
 					UPDATE(x,reg)
 main.testfile=sys.argv[1]
@@ -141,7 +141,7 @@ for line in lines:
 				x = line[-5]
 				y = line[-4] 
 				i = line[-2]
-				reg = getreg.get_regx(x,y, lno)
+				reg = getreg.regx_get(x,y, lno)
 				LOADADDR(y, reg)                              ##
 				if(i.isdigit()): 
 					print "\t" + "addi " + reg + ', ' + str(4*int(i))
@@ -157,7 +157,7 @@ for line in lines:
 				x = line[2]                            # x[i] = y
 				y = line[6]
 				i = line[4]
-				reg = getreg.get_regx(x,y,lno)
+				reg = getreg.regx_get(x,y,lno)
 				LOADADDR(x,reg)
 				if(i.isdigit()): 
 					print "\t" + "addi " + reg + ', ' + str(4*int(i))
@@ -197,7 +197,7 @@ for line in lines:
 			y = line[3]
 			z = line[4]
 			if(z.isdigit()):
-				reg = getreg.get_regx(x,y,lno)
+				reg = getreg.regx_get(x,y,lno)
 				MOVE(reg,y)
 				if (op in ['+','-','/','*','%','&','|','^']):
 					COP(NAME(op), z, reg)
@@ -207,7 +207,7 @@ for line in lines:
 					COP('sll', z, reg)
 				UPDATE(x,reg)
 			else:
-				(reg,regz) = getreg.get_reg(x,y,z,lno)
+				(reg,regz) = getreg.reg_get(x,y,z,lno)
 				MOVE(reg,y)
 				MOVE(regz,z)
 				if (op in ['+','-','/','*','%','&','|','^']):
@@ -227,7 +227,7 @@ for line in lines:
 	elif op == '~':
 		x = line[2]
 		y = line[3]
-		reg = getreg.get_regx(x,y,lno)
+		reg = getreg.regx_get(x,y,lno)
 		MOVE(reg,y);
 		print "\t" + "li $a0, -1"
 		print "\t" + "xor " + reg + ' , ' + reg + ", $a0"
@@ -245,19 +245,19 @@ for line in lines:
 		branch = int(line[2])
 
 		if(y.isdigit()):
-			(reg,state) = getreg.check_reg(x,lno)
+			(reg,state) = getreg.reg_check(x,lno)
 			if(state == -1):
 				print "\t" + "lw " + reg + ", " + x
 				getreg.rd_del(x)
 				getreg.rd_add(reg,x)
 			print "\t" + NAME(relop) + " " + reg + ", " + y + ", " + "BLOCK" + str(main.block_get[branch])
 		else:
-			(regx,state) = getreg.check_reg(x,lno)
+			(regx,state) = getreg.reg_check(x,lno)
 			if(state == -1):
 				print "\t" + "lw " + regx + ", " + x
 				getreg.rd_del(x)
 				getreg.rd_add(regx,x)
-			(regy,state) = getreg.check_reg(y,lno)
+			(regy,state) = getreg.reg_check(y,lno)
 			if(state == -1):
 				print "\t" + "lw " + regy + ", " + y
 				getreg.rd_del(y)
@@ -284,7 +284,7 @@ for line in lines:
  	 	print "\t" + "jal " + x
  	 	if(len(line)>3):     #value returning function
  	 		y = line[3]
- 	 		reg = getreg.find_reg(lno)
+ 	 		reg = getreg.reg_find(lno)
 			print "\t" + "addi " + reg + ", $v0, 0" 
 			UPDATE(y,reg)
 	elif op == 'print':
@@ -308,7 +308,7 @@ for line in lines:
 				if x not in identifiers:
 					print "\t" + "la $a0, " + x
 				else:
-	 				(reg,state) = getreg.check_reg(x,lno)
+	 				(reg,state) = getreg.reg_check(x,lno)
 					if(state == -1):
 						print "\t" + "lw " + reg + ", " + x
 						getreg.rd_del(x)
@@ -317,7 +317,7 @@ for line in lines:
 			print "\t" + "syscall"
 	elif ( op == 'scan'):
 		x = line[2]
-		reg = getreg.find_reg(lno)
+		reg = getreg.reg_find(lno)
 		print "\t" + "li $v0, 5\n" + "\t" + "syscall"
 		print "\t" + "move " + reg + ", $v0"
 		UPDATE(x,reg)
