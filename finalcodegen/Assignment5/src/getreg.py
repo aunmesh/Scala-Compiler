@@ -130,5 +130,6 @@ def update_dead(var,line):
 			print "\t" + "sw " + main.ad[var][0] + ", " + main.memad[var]
 			main.mem.append(var)
 		for reg in main.ad[var]:
-			main.rd[reg].remove(var)
 			main.ad[var].remove(reg)
+			main.rd[reg].remove(var)
+
