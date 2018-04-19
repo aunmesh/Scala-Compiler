@@ -33,7 +33,7 @@ def NAME(op):
 		return "blt"
 
 
-def MOVE(reg,y):                    # Load the variable value contained in y to reg
+def MOVE(reg,y):                    # Variable value contained is loaded in y to reg
 	if len(main.ad[y])==0 and y != 'return':
 		print "\t" + "lw " + reg + ", " + getmem(y)
 	elif (reg!= main.ad[y][0]):
@@ -47,7 +47,7 @@ def VOP(op,regz,regx):
 	else:
 		print "\t" + op + " " + regx + ', ' + regx + ', ' + regz
 
-def COP(op,z,reg):                  # here value(reg) = value(reg) op int(z)
+def COP(op,z,reg):                  # here this represents value(reg) = value(reg) op int(z)
 	print "\t" + "li $a0," + z
 	if(op in ['mult', 'div']):
 		print "\t" + op + " " + reg + ', $a0'
@@ -193,7 +193,7 @@ for line in lines:
 	if main.block_get[lno] != main.block_get[lno-1]:
 		print "\nBLOCK" + str(main.block_get[lno]) + ":"
 	if (op == '='):
-		if('[' not in line and '&' not in line and '*' not in line):            # x = y
+		if('[' not in line and '&' not in line and '*' not in line):            # for x = y
 			x = line[2]
 			y = line[3]
 			XequalY(x,y)
@@ -215,7 +215,7 @@ for line in lines:
 				print "\t" +"lw " + reg + ", 0(" + reg + ')'
 				UPDATE(x,reg)
 			else:
-				x = line[2]                            # x[i] = y
+				x = line[2]                            # for x[i] = y
 				y = line[6]
 				i = line[4]
 				reg = getreg.regx_get(x,y,lno)
@@ -253,7 +253,7 @@ for line in lines:
 
 
 
-	elif (op in ['+','-','*','/','%','|','^','&','<<','>>']):           # x = y op z  where x & y are variables and z can or cannot be
+	elif (op in ['+','-','*','/','%','|','^','&','<<','>>']):           # x = y op z is used where x & y are variables and z may or maynot be
 		x = line[2]
 		y = line[3]
 		z = line[4]
@@ -281,11 +281,7 @@ for line in lines:
 				print "\t" +"li " + reg +", " + str(val)
 				UPDATE(x,reg)
 		
-		#	else:
-			#if(y.isdigit()):    # + - /
-			#	tmp = y
-			#	y = z
-			#	z= temp
+
 
 		else:
 			if(z.isdigit()):
@@ -403,7 +399,7 @@ for line in lines:
 		if(len(line) > 2):                # value returning function
 			x = line[2]
 			if(x.isdigit()):
-				print "\t" + "li $v0, " + x         #might need to store it in stack
+				print "\t" + "li $v0, " + x         
 			else:
 				MOVE('$v0',x)
 		print "\t" + "lw $ra, 0($fp)"
@@ -414,7 +410,7 @@ for line in lines:
 		print "\t" + "jr $ra"
 
  	elif op == 'call':
- 	 	x = line[2]          # x contains the function name
+ 	 	x = line[2]          # function name is in x
  	 	print "\t" + "jal " + x
  	 	if(len(line)>3):     #value returning function
  	 		y = line[3]
@@ -469,5 +465,5 @@ for line in lines:
 		getreg.clear_ad()
 print "\n"	
 
-# state -1 => new register is returned && x is in memory and not register
-# state 1  => x ka register
+# state -1 => here new register is returned && x is in memory only and not in register
+# state 1  =>  register of x
