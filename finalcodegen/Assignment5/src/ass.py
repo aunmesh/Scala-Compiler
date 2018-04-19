@@ -70,7 +70,7 @@ def LOADADDR(y, reg):
 
 def XequalY(x,y):
 	if(y.isdigit()):
-				reg = getreg.find_reg(lno)
+				reg = getreg.reg_find(lno)
 				print "\t" + "li " + reg + ", " + y
 				UPDATE(x,reg)
 	else:       
@@ -85,7 +85,7 @@ def XequalY(x,y):
 					if y != 'return':
 						reg = getreg.regx_get(x,y,lno)
 					else:
-						reg = getreg.find_reg(lno)
+						reg = getreg.reg_find(lno)
 	
 					MOVE(reg,y)
 					UPDATE(x,reg)
@@ -260,7 +260,7 @@ for line in lines:
 
 		
 		if(z.isdigit() and y.isdigit()):
-				reg = getreg.find_reg(lno)
+				reg = getreg.reg_find(lno)
 				if(op == '+'):
 					val = int(y) + int(z)
 				elif(op == '-'):
@@ -285,7 +285,7 @@ for line in lines:
 
 		else:
 			if(z.isdigit()):
-				regz = getreg.find_reg(lno)
+				regz = getreg.reg_find(lno)
 				print "\t" +"li " + regz +", " + str(z)	
 				reg = getreg.regx_get(x,y,lno)
 				MOVE(reg,y)
@@ -297,7 +297,7 @@ for line in lines:
 					VOP('sll', regz, reg)
 				UPDATE(x,reg)
 			elif(y.isdigit()):
-				reg = getreg.find_reg(lno)
+				reg = getreg.reg_find(lno)
 				print "\t" +"li " + reg +", " + str(y)
 				regz = getreg.regx_get(x,z,lno)
 				MOVE(regz,z)
@@ -414,13 +414,13 @@ for line in lines:
  	 	print "\t" + "jal " + x
  	 	if(len(line)>3):     #value returning function
  	 		y = line[3]
- 	 		reg = getreg.find_reg(lno)
+ 	 		reg = getreg.reg_find(lno)
 			print "\t" + "addi " + reg + ", $v0, 0" 
 			UPDATE(y,reg)
 
 	elif ( op == 'scan'):
 		x = line[2]
-		reg = getreg.find_reg(lno)
+		reg = getreg.reg_find(lno)
 		print "\t" + "li $v0, 5\n" + "\t" + "syscall"
 		print "\t" + "move " + reg + ", $v0"
 		UPDATE(x,reg)
