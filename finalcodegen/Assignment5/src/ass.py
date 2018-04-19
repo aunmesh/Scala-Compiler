@@ -253,7 +253,7 @@ for line in lines:
 
 
 
-	elif (op in ['+','-','*','/','%','|','^','&','<<','>>']):           # x = y op z is used where x & y are variables and z may or maynot be
+	elif (op in ['+','-','/','*','%','&','|','^',">>","<<"]):           # x = y op z is used where x & y are variables and z may or maynot be
 		x = line[2]
 		y = line[3]
 		z = line[4]
