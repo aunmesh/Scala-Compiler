@@ -25,28 +25,24 @@ def generate_block():
 		line = main.lines[i]
 		line.remove(line[0])
 
-		if line[0] == 'label' or line[0] == 'param':
+		if line[0] == 'param' or line[0] == 'label':
 			block[i] = 1
 		else:
-			if line[0] == 'call' or line[0] == 'ret':
+			if line[0] == 'ret' or line[0] == 'call':
 				block[i] = 1
 				block[i+1] = 1
 			else:
-				if line[0] == 'ifgoto' or line[0] == 'goto':
+				if line[0] == 'goto' or line[0] == 'ifgoto':
 					block[i] = 1
 					block[i+1] = 1
-					#print line[1]
 					block[int(line[1])] = 1
 
-		# print i, main.lines[i]
+
 
 	j = 1
 	block[1] = 1
 
-	# print len(block),main.N_LINES
 
-	# for i in range(0,main.N_LINES+2):
-		# print i, block[i]
 
 	main.block_start.append(0)
 
@@ -58,4 +54,4 @@ def generate_block():
 		
 		main.block_get[i] = main.N_BLOCKS
 
-		# print main.block_get[i]			
+			
