@@ -1,24 +1,77 @@
+from Scope_SymTab import *
+import sys
+import logging
+
 class Node(object): 
    count = 1
 
-   def __init__(self,name,children):
+   def __init__(self, name, children, code = [], type = "Unit", size = None, value = None, place = None):
       self.name = name #name of the node, non terminal
       self.children = children
       self.id=Node.count
       Node.count+=1
+      self.type = type
+      self.value = value
+      self.code = code
+      self.size = size
+      self.place = place
 
-
-def create_children(token_name , terminal_name):
-   leaf_t = Node(terminal_name,[])
-   leaf_token = Node(token_name,[leaf_t])
+def create_children(token_name , terminal_name, type="Unit"):
+   leaf_t = Node(terminal_name,[], [], type)
+   leaf_token = Node(token_name,[leaf_t], [], type)
    return leaf_token
+
+
+def exceptionHandler(exception_type, exception, traceback):
+
+    print ("%s: %s "% (exception_type.__name__, exception))
+
+
+sys.stderr = open('errors.log', 'w')
+sys.excepthook = exceptionHandler
+Error_message = "Error in Program"
+
+CurrentScope = SymTable()
+GlobalScope = CurrentScope
+
+count_temp = 0
+count_label = 0
+
+
+def newlabel():
+   global count_label
+   label_id = "label" + str(count_label)
+   count_label += 1
+   return label_id
+
+
+def newtemp(dataType= 'Unit'):
+   global count_temp
+   symbol_id = "temp" + str(count_temp)
+   count_temp += 1
+   attr= {'Type' : dataType}
+   global CurrentScope
+   CurrentScope.add_symbol(symbol_id, attr)
+   return symbol_id
+
+
+'''def higher(type1, type2):
+   if(type1 == 'Float'):
+      return type1
+   elif (type2 == 'Float'):
+      return type2
+   else:
+      return type1'''
+
+
 
 '''PROGRAM '''
 
 def p_compilation_unit(p):
    '''compilation_unit : class_and_obj_declarations'''
-
-   p[0]  = Node("compilationUnit", [p[1]])
+   
+   p[0]  = Node("compilationUnit", [p[1]], p[1].code)
+   print(('\n').join(p[0].code))
 
 '''DECLARATIONS'''
 
@@ -27,25 +80,27 @@ def p_class_and_obj_declarations(p):
       | class_and_obj_declarations class_and_obj_declaration'''
 
    if(len(p) == 2):
-      p[0] = Node("class_and_obj_declarations", [p[1]])
+      p[0] = Node("class_and_obj_declarations", [p[1]], p[1].code)
 
    else:
-      p[0] = Node("class_and_obj_declarations", [p[1], p[2]])
+      p[0] = Node("class_and_obj_declarations", [p[1], p[2]], p[1].code + p[2].code)
 
 def p_class_and_obj_declaration(p):
    '''class_and_obj_declaration : singleton_object 
       | class_declaration '''
 
-   p[0]  = Node("class_and_obj_declaration", [p[1]])
+   p[0]  = Node("class_and_obj_declaration", [p[1]], p[1].code)
 
 def p_singleton_object(p):
    '''singleton_object : object_declaration block'''
 
-   p[0]  = Node("singleton_object", [p[1], p[2]])
+   p[0]  = Node("singleton_object", [p[1], p[2]], p[2].code)
 
 def p_object_declaration(p):
    '''object_declaration : KW_obj TOK_identifier'''
-
+   global CurrentScope
+   #CHECKFORTHIS
+   #CurrentScope.object_list.append(p[2])
    leaf1 = create_children("KW_obj", p[1])
    leaf2 = create_children("TOK_identifier", p[2])
    p[0]  = Node("object_declaration", [leaf1, leaf2])
@@ -63,23 +118,23 @@ def p_block(p):
 
    leaf1 = create_children("TOK_lcurly", p[1])
    leaf3 = create_children("TOK_rcurly", p[3])
-   p[0]  = Node("block", [leaf1, p[2], leaf3])
+   p[0]  = Node("block", [leaf1, p[2], leaf3], p[2].code)
 
 def p_block_stats_star(p):
    '''block_stats_star : block_stats 
    | empty '''
 
-   p[0]  = Node("block_stats_star", [p[1]])   
+   p[0]  = Node("block_stats_star", [p[1]], p[1].code)   
 
 def p_block_stats(p):
    '''block_stats : block_stat 
    | block_stats block_stat'''
 
    if(len(p) == 2):
-      p[0] = Node("block_stats", [p[1]])
+      p[0] = Node("block_stats", [p[1]], p[1].code)
 
    else:
-      p[0] = Node("block_stats", [p[1], p[2]])
+      p[0] = Node("block_stats", [p[1], p[2]], p[1].code + p[2].code)
 
 def p_block_stat(p):
    '''block_stat : local_variable_declaration_statement 
@@ -87,7 +142,7 @@ def p_block_stat(p):
 				| class_and_obj_declaration 
 				| method_declaration'''
 
-   p[0] = Node("block_stat", [p[1]])
+   p[0] = Node("block_stat", [p[1]], p[1].code)
 
 '''EXPRESSION'''
 
@@ -96,81 +151,104 @@ def p_expression_question(p):
    | empty '''
 
 
-   p[0] = Node("expression_question", [p[1]])
+   p[0] = Node("expression_question", [p[1]], p[1].code, p[1].type, place = p[1].place)
 
 def p_expression(p):
    '''expression : assignment_expression '''
 
 
-   p[0] = Node("expression", [p[1]])
+   p[0] = Node("expression", [p[1]], p[1].code, p[1].type, place = p[1].place )
 
 def p_assignment_expression(p):
    '''assignment_expression : assignment 
-			   | conditional_or_expression
-			   | if_else_expression '''
+                           | conditional_or_expression
+                           | method_invocation'''
 
-   print("HERE assignment expression")
 
-   p[0] = Node("assignment_expression", [p[1]])
+   p[0] = Node("assignment_expression", [p[1]], p[1].code, p[1].type, place = p[1].place)
 
-def p_if_else_expression(p):
-   ''' if_else_expression : KW_if TOK_paraleft expression TOK_pararight expression KW_else expression '''
+'''def p_if_else_expression(p):
+    if_else_expression : KW_if TOK_paraleft expression TOK_pararight expression KW_else expression 
 
    leaf1 = create_children("KW_if", p[1])
    leaf2 = create_children("TOK_paraleft", p[2])
    leaf4 = create_children("TOK_pararight", p[4])
    leaf6 = create_children("KW_else", p[6])
-   p[0] = Node("if_else_expression", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]])
+   p[0] = Node("if_else_expression", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]])'''
 
-
+#CHECKFORTHIS
 def p_assignment(p):
    ''' assignment : left_hand_side assignment_operator assignment_expression '''
 
-   p[0] = Node("assignment", [p[1],p[2],p[3]])
+   if(p[1].type != p[3].type):
+      raise Exception("Type Mismatch in Assignment in line", p.lexer.lineno)
+   if(p[2].place == "="):
+      tac1 = ['=,' + p[1].place  + ',' + p[3].place]
+      p[0] = Node("assignment", [p[1],p[2],p[3]],  code = p[1].code + p[3].code + tac1)
+   else:
+      tac1 = [p[2].place[:-1] + ',' + p[1].place + ',' + p[3].place]
+   p[0] = Node("assignment", [p[1],p[2],p[3]], code = p[1].code + p[3].code + tac1)
+
 
 def p_left_hand_side(p):
    ''' left_hand_side : id 
    | array_access '''
 
-
-   p[0] = Node("left_hand_side", [p[1]])
+   p[0] = Node("left_hand_side", [p[1]],code = p[1].code, place = p[1].place, type = p[1].type, value = p[1].value , size = p[1].value )
 
 def p_id(p):
    ''' id : name 
    | qualified_id '''
-
-   p[0] = Node("id", [p[1]])
+   
+   # No Code needed here. We only need to pass values place etc.
+   p[0] = Node("id", [p[1]], code = [], value = p[1].value, type = p[1].type, size = p[1].size , value = p[1].value, place = p[1].place)
 
 def p_qualified_id(p):
    '''qualified_id : name TOK_dot name '''
 
-   p[0] = create_children("TOK_dot", p[2])
-   p[0] = Node("qualified_id", [p[1], leaf2, p[3]])
+   leaf2 = create_children("TOK_dot", p[2])
+   
+   #NoT Implemented
+   p[0] = Node("qualified_id", [p[1], leaf2, p[3]], , type = p[3].type , size = p[3].size, value = p[1].value + '.' + p[3].value, code = [])
 
 def p_name(p):
    '''name : TOK_identifier '''
 
+   #global CurrentScope
    leaf1 = create_children("TOK_identifier", p[1])
-   p[0] = Node("name", [leaf1])
+   p[0] = Node("name", [leaf1], code = [] ,value = p[1] , type = p[1].type, size = p[1].size, place = p[1] )
 
 def p_array_access(p):
    ''' array_access : id dimension '''
 
-   p[0]  = Node("array_access", [p[1], p[2]])
+   (x, y) = CurrentScope.find_var_decl(p[1].place)
+   if(x == 0):
+      raise Exception("Undeclared Variable", p.lexer.lineno)
+   else:
+      temp_type = y.symbols[p[1].place]['Type'][:5]
+      val_type  = y.symbols[p[1].place]['Type'][6:]
+      if( temp_type != "Array"):
+         raise Exception("Variable is not of type " + str(temp_type), p.lexer.lineno)
+
+   temp = newtemp(val_type)
+   tac1 = ["=," + temp + ','  + p[1].place + ' ' +  p[2].place]   
+   p[0]  = Node("array_access", [p[1], p[2]], code = p[2].code + tac1, type = val_type, place = temp)
 
 def p_dimension(p):
-   ''' dimension : dimension TOK_lsqb expression TOK_rsqb 
-   | TOK_lsqb expression TOK_rsqb '''
+   ''' dimension : TOK_lsqb expression TOK_rsqb '''
 
-   if(len(p) == 4):		
-      leaf1 = create_children("TOK_lsqb", p[1])
-      leaf3 = create_children("TOK_rsqb", p[3])
-      p[0] = Node("class_and_obj_declarations", [leaf1,p[2],leaf3])
 
-   else:
-      leaf2 = create_children("TOK_lsqb", p[2])
-      leaf4 = create_children("TOK_rsqb", p[4])
-      p[0] = Node("class_and_obj_declarations", [p[1], leaf2, p[3], leaf4])
+   leaf1 = create_children("TOK_lsqb", p[1])
+   leaf3 = create_children("TOK_rsqb", p[3])
+   if(p[2].type != 'Int'):
+      raise Exception("Acces Element should be an integer " + str(p[1].place), p.lexer.lineno)
+
+   p[0] = Node("class_and_obj_declarations", [leaf1,p[2],leaf3], place = '[ ' + p[2].place + ' ]' , code = p[2].code )
+
+   '''else:
+               leaf2 = create_children("TOK_lsqb", p[2])
+               leaf4 = create_children("TOK_rsqb", p[4])
+               p[0] = Node("class_and_obj_declarations", [p[1], leaf2, p[3], leaf4])'''
 
 #| <<= | >>= | >>>= | &= | ^= | |= 
 def p_assignment_operator(p):
@@ -181,62 +259,87 @@ def p_assignment_operator(p):
    | TOK_addassign 
    | TOK_subassign '''
 
+
    leaf1 = create_children("LF_AssignOp", p[1])
-   p[0] = Node("assignment_operator", [leaf1])
+   p[0] = Node("assignment_operator", [leaf1], place = p[1])
 
 def p_conditional_or_expression(p):
    ''' conditional_or_expression : conditional_and_expression 
    | conditional_or_expression TOK_or conditional_and_expression '''
 
    if(len(p) == 2):
-      p[0] = Node("conditional_or_expression", [p[1]])
+      p[0] = Node("conditional_or_expression", [p[1]], code = p[1].code, type = p[1].type, place = p[1].place)
 
    else:
       leaf2 = create_children("TOK_or", p[2])
-      p[0] = Node("conditional_or_expression", [p[1], leaf2, p[3]])
+      temp = newtemp(p[1].type)
+      tac1 = ["||," + temp + ',' + p[1].place + ',' + p[3].place]
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+      else:
+         p[0] = Node("conditional_or_expression", [p[1], leaf2, p[3]], code = p[1].code + p[3].code + tac1, type = p[1].type, place = temp)
 
 
 def p_conditional_and_expression(p):
       '''conditional_and_expression : inclusive_or_expression
                              | conditional_and_expression TOK_and inclusive_or_expression'''
       if len(p) == 2:
-         p[0] = Node("conditional_and_expression", [p[1]])
+         p[0] = Node("conditional_and_expression", [p[1]], code = p[1].code, type = p[1].type, place = p[1].place)
       else:
          leaf1 = create_children("TOK_and", p[2])
-         p[0] = Node("conditional_and_expression", [p[1], leaf1, p[3]])
+         if(p[1].type != p[3].type):
+            raise Exception("Type mismatch in line ", p.lexer.lineno)
+
+         temp = newtemp(p[1].type)
+         tac1 = ['&&,' + temp + ',' + p[1].place + ',' + p[3].place]
+         p[0] = Node("conditional_and_expression", [p[1], leaf1, p[3]] , code = p[1].code + p[3].code + tac1, place = temp, type = p[1].type)
 
 def p_inclusive_or_expression(p):
    '''inclusive_or_expression : exclusive_or_expression  
    | inclusive_or_expression TOK_or_bitwise exclusive_or_expression'''
    print("HERE inclusive or")
+
    if(len(p) == 2):
-      p[0] = Node("inclusive_or_expression", [p[1]])
+      p[0] = Node("inclusive_or_expression", [p[1]], code = p[1].code , place = p[1].place , type = p[1].type)
 
    else:
       leaf2 = create_children("TOK_or_bitwise", p[2])
-      p[0] = Node("inclusive_or_expression", [p[1], leaf2, p[3]])
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+      temp = newtemp(p[1].type)
+      tac1 = ['| ,' + temp + ',' + p[1].place + ',' + p[3].place]
+      p[0] = Node("inclusive_or_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
 
 def p_exclusive_or_expression(p):
    ''' exclusive_or_expression : and_expression 
                                  | exclusive_or_expression TOK_xor and_expression '''
 
    if(len(p) == 2):
-      p[0] = Node("exclusive_or_expression", [p[1]])
+      p[0] = Node("exclusive_or_expression", [p[1]] , type = p[1].type, code = p[1].code , place = p[1].place)
 
    else:
       leaf2 = create_children("TOK_xor", p[2])
-      p[0] = Node("exclusive_or_expression", [p[1], leaf2, p[3]])
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+      temp = newtemp(p[1].type)
+      tac1 = ['^ ,' + temp + ',' + p[1].place + ',' + p[3].place]
+
+      p[0] = Node("exclusive_or_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
 
 def p_and_expression(p):
    ''' and_expression : equality_expression 
    | and_expression TOK_and_bitwise equality_expression '''
 
    if(len(p) == 2):
-      p[0] = Node("and_expression", [p[1]])
+      p[0] = Node("and_expression", [p[1]] , type = p[1].type , place = p[1].place , code = p[1].code )
 
    else:
       leaf2 = create_children("TOK_and_bitwise", p[2])
-      p[0] = Node("and_expression", [p[1], leaf2, p[3]])
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+      temp = newtemp(p[1].type)
+      tac1 = ['& ,' + temp + ',' + p[1].place + ',' + p[3].place]
+      p[0] = Node("and_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
 
 
 def p_equality_expression(p):
@@ -246,11 +349,20 @@ def p_equality_expression(p):
 
 
    if(len(p) == 2):
-      p[0] = Node("equality_expression", [p[1]])
+      p[0] = Node("equality_expression", [p[1]], code = p[1].code , type = p[1].type , place = p[1].place)
 
    else:
       leaf2 = create_children("LF_EqualityOp", p[2])
-      p[0] = Node("equality_expression", [p[1], leaf2, p[3]])
+
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+
+      temp = newtemp(p[1].type)
+
+      tac1 = [ p[2] + ' ,' + temp + ',' + p[1].place + ',' + p[3].place]
+
+      p[0] = Node("equality_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
+
 
 def p_relational_expression(p):
    '''relational_expression : shift_expression
@@ -260,11 +372,17 @@ def p_relational_expression(p):
 								 | relational_expression TOK_leq shift_expression'''
 
    if(len(p) == 2):
-      p[0] = Node("relational_expression", [p[1]])
+      p[0] = Node("relational_expression", [p[1]] , code=p[1].code, type=p[1].type, place=p[1].place)
 
    else:
       leaf2 = create_children("LF_RelationalOp", p[2])
-      p[0] = Node("relational_expression", [p[1], leaf2, p[3]])
+
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+      temp = newtemp(p[1].type)
+      tac1 = [p[2] + ' ,' + temp + ',' + p[1].place + ',' + p[3].place]
+
+      p[0] = Node("relational_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
 
 
 def p_shift_expression(p):
@@ -273,13 +391,18 @@ def p_shift_expression(p):
 									| shift_expression TOK_rshift additive_expression'''
 
    if(len(p) == 2):
-      p[0] = Node("shift_expression", [p[1]])
+      p[0] = Node("shift_expression", [p[1]], place = p[1].place, code = p[1].code, type=p[1].type)
 
    else:
       leaf2 = create_children("LF_ShiftOp", p[2])
-      p[0] = Node("shift_expression", [p[1], leaf2, p[3]])
+
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+      temp = newtemp(p[1].type)
+      tac1 = [p[2] + ' ,' + temp + ',' + p[1].place + ',' + p[3].place]
 
 
+      p[0] = Node("shift_expression", [p[1], leaf2, p[3]], place = temp, code = p[1].code + p[3].code + tac1, type = p[1].type )
 
 def p_additive_expression(p):
    '''additive_expression : multiplicative_expression
@@ -287,11 +410,17 @@ def p_additive_expression(p):
 								 | additive_expression TOK_minus multiplicative_expression'''
 
    if(len(p) == 2):
-      p[0] = Node("additive_expression", [p[1]])
+      p[0] = Node("additive_expression", [p[1]] , place = p[1].place , code = p[1].code , type = p[1].type)
 
    else:
       leaf2 = create_children("LF_AdditiveOp", p[2])
-      p[0] = Node("additive_expression", [p[1], leaf2, p[3]])
+
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+      temp = newtemp(p[1].type)
+      tac1 = [p[2] + ' ,' + temp + ',' + p[1].place + ',' + p[3].place]
+
+      p[0] = Node("additive_expression", [p[1], leaf2, p[3]], place = temp, code = p[1].code + p[3].code + tac1, type = p[1].type)
 
 def p_multiplicative_expression(p):
    '''multiplicative_expression : unary_expression
@@ -300,11 +429,18 @@ def p_multiplicative_expression(p):
 									 | multiplicative_expression TOK_modulus unary_expression'''
 
    if(len(p) == 2):
-      p[0] = Node("multiplicative_expression", [p[1]])
+      p[0] = Node("multiplicative_expression", [p[1]], place = p[1].place, type = p[1].type , code = p[1].code )
 
    else:
       leaf2 = create_children("LF_MultiplicativeOp", p[2])
-      p[0] = Node("multiplicative_expression", [p[1], leaf2, p[3]])
+
+      if(p[1].type != p[3].type):
+         raise Exception("Type mismatch in line ", p.lexer.lineno)
+      temp = newtemp(p[1].type)
+      tac1 = [p[2] + ' ,' + temp + ',' + p[1].place + ',' + p[3].place]
+
+      p[0] = Node("multiplicative_expression", [p[1], leaf2, p[3]], code = p[1].code + p[3].code + tac1 , place = temp, type = p[1].type)
+
 
 def p_unary_expression(p):
    '''unary_expression : TOK_plus unary_expression
@@ -312,79 +448,101 @@ def p_unary_expression(p):
 							| unary_expression_not_plus_minus'''
 
    if(len(p) == 2):
-      p[0] = Node("unary_expression", [p[1]])
+      p[0] = Node("unary_expression", [p[1]] , code = p[1].code , place = p[1].place , type = p[1].type)
 
    else:
       leaf1 = create_children("LF_Unaryop", p[1])
-      p[0] = Node("unary_expression", [leaf1, p[2]])
 
+      temp = newtemp(p[2].type)
+      tac1 = [p[1] + ' ,' + temp + ',' + p[1].place ]
 
+      p[0] = Node("unary_expression", [leaf1, p[2]], code = p[2].code + tac1, place = temp , type = p[2].type )
+
+#if possible implement | TOK_tilda unary_expression | cast_expression
 def p_unary_expression_not_plus_minus(p):
-   '''unary_expression_not_plus_minus : base_variable_set
-											 | TOK_tilda unary_expression
-											 | TOK_not unary_expression
-											 | cast_expression''' 
+   '''unary_expression_not_plus_minus : base_variable_set						
+											 | TOK_not unary_expression''' 
    print("HERE unary not plus")
    if(len(p) == 2):
-      p[0] = Node("unary_expression_not_plus_minus", [p[1]])
+      p[0] = Node("unary_expression_not_plus_minus", [p[1]] , place = p[1].place , code = p[1].code , type = p[1].type , value = p[1].value)
 
    else:
       leaf1 = create_children("LF_Unarydiffop", p[1])
-      p[0] = Node("unary_expression_not_plus_minus", [leaf1, p[2]])
-
+      temp = newtemp(p[2].type)
+      tac1 = ['!' + ',' + temp + ',' + p[2].place ]
+      p[0] = Node("unary_expression_not_plus_minus", [leaf1, p[2]], type = p[2].type, code = p[2].code + tac1 , place = temp)
 
 def p_base_variable_set(p):
    '''base_variable_set : variable_literal
 						 | TOK_paraleft expression TOK_pararight'''
 
    if(len(p) == 2):
-      p[0] = Node("base_variable_set", [p[1]])
+      p[0] = Node("base_variable_set", [p[1]], place=p[1].place , code = p[1].code , value = p[1].value, type = p[1].type )
 
    else:
       leaf1 = create_children("TOK_paraleft", p[1])
       leaf3 = create_children("TOK_pararight", p[3])
-      p[0] = Node("base_variable_set", [leaf1, p[2], leaf3])
+      p[0] = Node("base_variable_set", [leaf1, p[2], leaf3] , code = p[2].code , place = p[2].place , type = p[2].type)
 
 
 def p_variable_literal(p):
    '''variable_literal : left_hand_side 
    | primary'''
 
-   p[0] = Node("variable_literal", [p[1]])
+   p[0] = Node("variable_literal", [p[1]], code = p[1].code , place = p[1].place , type = p[1].type , value = p[1].value )
 
-
+'''
 def p_cast_expression(p):
-   '''cast_expression : TOK_paraleft primitive_type TOK_pararight unary_expression'''
+   cast_expression : TOK_paraleft primitive_type TOK_pararight unary_expression
 
    leaf1 = create_children("TOK_paraleft", p[1])
    leaf3 = create_children("TOK_pararight", p[3])
-   p[0] = Node("cast_expression", [leaf1, p[2], leaf3, p[4]])
 
+   p[0] = Node("cast_expression", [leaf1, p[2], leaf3, p[4]])
+'''
 
 def p_primary(p):
    '''primary : literal 
                | method_invocation'''
    
    print(" PRIMARY")   
-   p[0] = Node("primary", [p[1]])
+   p[0] = Node("primary", [p[1]] , code = p[1].code, place = p[1].place, type = p[1].type, value = p[1].value)
 
 
 def p_literal(p):
    '''literal : int_float	
    | c_literal ''' 
 
-   p[0] = Node("literal", [p[1]])
+   p[0] = Node("literal", [p[1]], code = p[1].code, place = p[1].place, type = p[1].type, value = p[1].value)
 
 #CHECKFORTHIS
-def p_c_literal(p):
-   '''c_literal : TOK_char
-					| TOK_string
+def p_c_literal1(p):
+   '''c_literal : TOK_string
 					| KW_true
 					| KW_false
 					| KW_null '''
 
+
    leaf1 = create_children("LF_Charliteral", p[1])
-   p[0] = Node("c_literal", [leaf1])
+   if(p[1] == 'True' or p[1] == 'False'):
+      temp_type = 'Boolean'
+   elif(p[1] == 'null'):
+      temp_type = 'Unit'
+   else:
+      temp_type = 'String'
+   temp = newtemp(temp_type)
+   tac1 = ['=,' +  temp + ',' + str(p[1]) ]
+   p[0] = Node("c_literal", [leaf1] , code = tac1, place = temp , type = temp_type, value = p[1])
+
+
+def p_c_literal2(p):
+   '''c_literal : TOK_char '''
+
+   leaf1 = create_children("LF_Charliteral", p[1])
+   temp = newtemp('Char')
+   tac1 = ['=,' +  temp + ',' + str(p[1]) ]
+
+   p[0] = Node("c_literal", [leaf1] , code = tac1, place = p[1] , type = 'Char', value = p[1])
 
 
 #CHECKFORTHIS
@@ -544,10 +702,19 @@ def p_expr_question(p):
 def p_variable_declarator_id(p):
    '''variable_declarator_id : TOK_identifier TOK_colon type'''
 
-   print("HERE variable declarator id")
-   leaf1 = create_children("TOK_identifier", p[1])
-   leaf2 = create_children("TOK_colon", p[2])
-   p[0] = Node("variable_declarator_id", [leaf1, leaf2, p[3]])
+   global CurrentScope
+   if(p[1] in CurrentScope.symbols.keys()):
+      raise Exception("Variable already defined " + str(p[1]))
+
+   else:
+      attr = {}
+      attr['Type'] = p[3].type
+      attr['Size'] = p[3].size
+      CurrentScope.add_symbol(p[1], attr)
+      variable = str(CurrentScope.id) + "_" + p[1]
+      leaf1 = create_children("TOK_identifier", p[1])
+      leaf2 = create_children("TOK_colon", p[2])
+      p[0] = Node("variable_declarator_id", [leaf1, leaf2, p[3]], [], p[3].type, place = variable)
 
 
 #DATA_TYPES AND VARIABLE_TYPES
@@ -663,7 +830,7 @@ def p_statement(p):
                      | while_statement
                      | for_statement'''
    print("Statement")
-   p[0] = Node("statement", [p[1]])
+   p[0] = Node("statement", [p[1]], p[1].code)
 
 def p_normal_statement(p):
    '''normal_statement : block 
@@ -671,20 +838,20 @@ def p_normal_statement(p):
                   | empty_statement
                   | return_statement'''
 
-   p[0] = Node("normal_statement", [p[1]])
+   p[0] = Node("normal_statement", [p[1]], p[1].code)
 
 def p_expression_statement(p):
    '''expression_statement : statement_expression TOK_semi'''
 
    leaf2 = create_children("TOK_semi", p[2])
-   p[0] = Node("expression_statement", [p[1], leaf2])
+   p[0] = Node("expression_statement", [p[1], leaf2], p[1].code)
 
-#REVERT ORDER OF ASSIGNMENT AND INVOCATION
+
 def p_statement_expression(p):
    '''statement_expression : assignment
                            | method_invocation '''
    print("Statement expression")
-   p[0] = Node("statement_expression", [p[1]])
+   p[0] = Node("statement_expression", [p[1]], p[1].code)
 
 
 #IF THEN STATEMENT
@@ -918,7 +1085,7 @@ def p_class_body(p):
 def p_method_declaration(p):
    '''method_declaration : method_header method_body'''
 
-   p[0] = Node("method_declaration", [p[1],p[2]])
+   p[0] = Node("method_declaration", [p[1],p[2]], p[1].code + p[2].code)
 
 
 def p_method_header(p):
@@ -976,13 +1143,13 @@ def p_fun_params(p):
 def p_fun_param(p):
    '''fun_param : variable_declarator_id expr_question'''
 
-   p[0] = Node("fun_param", [p[1],p[2]])
+   p[0] = Node("fun_param", [p[1],p[2]], type = p[1].type, place = p[1].place)
 
 def p_method_body(p):
    '''method_body : block 
    | variable_declaration_initializer''' 
 
-   p[0] = Node("method_body", [p[1]])
+   p[0] = Node("method_body", [p[1]], p[1].code)
 
 #EMPTY DEFINITION
 
