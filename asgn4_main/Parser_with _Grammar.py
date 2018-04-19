@@ -542,47 +542,84 @@ def p_c_literal2(p):
    temp = newtemp('Char')
    tac1 = ['=,' +  temp + ',' + str(p[1]) ]
 
-   p[0] = Node("c_literal", [leaf1] , code = tac1, place = p[1] , type = 'Char', value = p[1])
+   p[0] = Node("c_literal", [leaf1] , code = tac1, place = temp , type = 'Char', value = p[1])
 
 
 #CHECKFORTHIS
-def p_int_float(p):
-   '''int_float : TOK_float 
-   | TOK_int '''
+def p_int_float1(p):
+   '''int_float : TOK_float '''
 
    leaf1 = create_children("LF_IntFloat", p[1])
-   p[0] = Node("int_float", [leaf1])
+
+   temp = newtemp('Float')
+   tac1 = ['=,' +  temp + ',' + str(p[1]) ]
+
+   p[0] = Node("int_float", [leaf1] , code = tac1, place = temp, type = 'Float' , value = p[1] )
+
+def p_int_float2(p):
+   '''int_float : TOK_int '''
+
+   leaf1 = create_children("LF_IntFloat", p[1])
+
+   temp = newtemp('Int')
+   tac1 = ['=,' +  temp + ',' + str(p[1]) ]
+
+   p[0] = Node("int_float", [leaf1] , code = tac1, place = temp, type = 'Int' , value = p[1] )
 
 #FUNCTION CALLS
 
 def p_method_invocation(p):
    '''method_invocation : id TOK_paraleft argument_list_question TOK_pararight '''
-   print("HERE method invocation")
+   
+   global CurrentScope
+   retval = None
+   (x, y) = CurrentScope.find_func_decl(p[1].place)
+   if(x == 0):
+      raise Exception("Function not Declared", p.lexer.lineno)
+   elif (p[3].val != y.functions[p[1].place]["num_args"]):
+      raise Exception("Number of arguments do not match", p.lexer.lineno)
+   else:
+      function_name = str(y.id) + '_' + p[1].place
+
+
    leaf2 = create_children("TOK_paraleft", p[2])
    leaf4 = create_children("TOK_pararight", p[4])
-   p[0] = Node("method_invocation", [p[1], leaf2, p[3], leaf4])
+   code1 = []
+   for i in p[3].place:
+      code1.append(['param '  + str(i)])
+
+   code1.append(['call,' + function_name])
+   return_type = y.functions[p[1].place]['ReturnType'] 
+   if(return_type != 'Unit'):
+      retval = newtemp(return_type)
+      code1.append(['ret,' + retval])
+
+   p[0] = Node("method_invocation", [p[1], leaf2, p[3], leaf4], code = p[1].code + p[3].code + code1, place = retval, type = return_type)
 
 
-#Check this: argument_list_question is missing
+def p_argument_list_question(p):
+   ''' argument_list_question : argument_list 
+   | empty'''
+
+   if(p[1].val == None):
+      p[1].val = 0
+   if(p[1].place == None):
+      p[1].place = []                      
+   p[0] = Node("argument_list_question", [p[1]], code = p[1].code, place = p[1].place, type = p[1].type)
+
 
 def p_argument_list(p):
    '''argument_list : expression
                   | argument_list TOK_comma expression'''
-   print("HERE ARGUMENT LIST")
+   
    if(len(p) == 2):
-      p[0] = Node("argument_list", [p[1]])
+      p[0] = Node("argument_list", [p[1]], code = p[1].code, place = [p[1].place], type = [p[1].type], value = 1)
 
    else:
       leaf2 = create_children("TOK_comma", p[2])
-      p[0] = Node("argument_list", [p[1], leaf2, p[3]])
-
-
-def p_argument_list_question(p):
-	''' argument_list_question : argument_list 
-   | empty'''                      
-	p[0] = Node("argument_list_question", [p[1]])
+      p[0] = Node("argument_list", [p[1], leaf2, p[3]], code = p[1].code + p[3].code, place = p[1].place + [p[3].place], type = p[1].type + [p[3].type], value = 1 + p[1].value)
+      #Value denotes the number of arguments
 							
-
 
 '''LOCAL VARIABLE DECLARATION'''
 
