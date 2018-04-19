@@ -13,26 +13,27 @@ def NAME(op):
 		return "div"
 	elif(op == '*'):
 		return "mult"
-	elif (op == '|'):
-		return "or"
 	elif (op == '^'):
 		return "xor"
+	elif (op == '|'):
+		return "or"
 	elif (op == '&'):
 		return "and"
 	elif (op == "<="):
 		return "ble"
 	elif (op == ">="):
 		return "bge"
-	elif (op == ">"):
-		return "bgt"
-	elif (op == "<"):
-		return "blt"
 	elif (op == "=="):
 		return "beq"
 	elif (op == "!="):
 		return "bne"
+	elif (op == ">"):
+		return "bgt"
+	elif (op == "<"):
+		return "blt"
 
-def MOVE(reg,y):                    # Load the value of variable contained in y to reg
+
+def MOVE(reg,y):                    # Load the variable value contained in y to reg
 	if len(main.ad[y])==0 and y != 'return':
 		print "\t" + "lw " + reg + ", " + getmem(y)
 	elif (reg!= main.ad[y][0]):
@@ -46,7 +47,7 @@ def VOP(op,regz,regx):
 	else:
 		print "\t" + op + " " + regx + ', ' + regx + ', ' + regz
 
-def COP(op,z,reg):                  # value(reg) = value(reg) op int(z)
+def COP(op,z,reg):                  # here value(reg) = value(reg) op int(z)
 	print "\t" + "li $a0," + z
 	if(op in ['mult', 'div']):
 		print "\t" + op + " " + reg + ', $a0'
@@ -89,6 +90,10 @@ def XequalY(x,y):
 					MOVE(reg,y)
 					UPDATE(x,reg)
 
+identifiers = {}
+arrays = {}
+
+
 filename = sys.argv[1]
 main.testfile = sys.argv[1] + '.ir'
 livegen.gen_live()
@@ -96,8 +101,7 @@ getreg.init_reg()
 print "\t" + ".data"
 
 lines = open(main.testfile,"r").readlines()
-identifiers = {}
-arrays = {}
+
 
 for line in lines:
 	line = line.split()
@@ -249,7 +253,7 @@ for line in lines:
 
 
 
-	elif (op in ['+','-','/','*','%','&','|','^','>>','<<']):           # x = y op z  where x & y are variables and z can or cannot be
+	elif (op in ['+','-','*','/','%','|','^','&','<<','>>']):           # x = y op z  where x & y are variables and z can or cannot be
 		x = line[2]
 		y = line[3]
 		z = line[4]
@@ -261,18 +265,19 @@ for line in lines:
 					val = int(y) + int(z)
 				elif(op == '-'):
 					val = int(y) - int(z)
-				elif(op == '*'):
-					val = int(y) * int(z)
 				elif(op == '/'):
 					val = int(y) / int(z)
+				elif(op == '*'):
+					val = int(y) * int(z)
 				elif(op == '%'):
 					val = int(y) % int(z)
 				elif(op == '^'):
 					val = int(y) ^ int(z)
-				elif(op == '>>'):
-					val = int(y) >> int(z)
 				elif(op == '<<'):
 					val = int(y) << int(z)
+				elif(op == '>>'):
+					val = int(y) >> int(z)
+
 				print "\t" +"li " + reg +", " + str(val)
 				UPDATE(x,reg)
 		
@@ -288,7 +293,7 @@ for line in lines:
 				print "\t" +"li " + regz +", " + str(z)	
 				reg = getreg.regx_get(x,y,lno)
 				MOVE(reg,y)
-				if (op in ['+','-','/','*','%','&','|','^']):
+				if (op in ['+','-','*','/','%','|','^','&']):
 					VOP(NAME(op), regz, reg)
 				elif( op == '>>'):
 					VOP('srl', regz, reg)
@@ -300,7 +305,7 @@ for line in lines:
 				print "\t" +"li " + reg +", " + str(y)
 				regz = getreg.regx_get(x,z,lno)
 				MOVE(regz,z)
-				if (op in ['+','-','/','*','%','&','|','^']):
+				if (op in ['+','-','*','/','%','|','^','&']):
 					VOP(NAME(op), regz, reg)
 				elif( op == '>>'):
 					VOP('srl', regz, reg)
@@ -311,12 +316,13 @@ for line in lines:
 				(reg,regz) = getreg.reg_get(x,y,z,lno)
 				MOVE(reg,y)
 				MOVE(regz,z)
-				if (op in ['+','-','/','*','%','&','|','^']):
+				if (op in ['+','-','*','/','%','|','^','&']):
 					VOP(NAME(op), regz, reg)
-				elif( op == '>>'):
-					VOP('srl', regz, reg)
 				elif (op == '<<'):
 					VOP('sll', regz, reg)
+				elif( op == '>>'):
+					VOP('srl', regz, reg)
+
 				UPDATE(x,reg)
 				UPDATE(z,regz)
 			if(op == '*' or op =='/'):
@@ -334,11 +340,6 @@ for line in lines:
 		print "\t" + "xor " + reg + ' , ' + reg + ", $a0"
 		UPDATE(x,reg)
 		
-
-	elif op == "goto":
-		branch = int(line[2])
-		print "\t" + "b " + "BLOCK" + str(main.block_get[branch])
-
 	elif op == "ifgoto":
 		x = line[-2]
 		y = line[-1]
@@ -364,6 +365,22 @@ for line in lines:
 				getreg.rd_del(y)
 				getreg.rd_add(regy,y)
 			print "\t" + NAME(relop) + " " + regx + ", " + regy + ", " + "BLOCK" + str(main.block_get[branch])
+
+	elif op == "goto":
+		branch = int(line[2])
+		print "\t" + "b " + "BLOCK" + str(main.block_get[branch])
+
+
+	elif op == 'label':  #done
+		x = line[2]
+		print "\t" + x + ": "
+		print "\t" + "addi $sp, $sp, -12"
+		print "\t" + "li $a0," + str(function_list[x]['paramsize'])
+		print "\t" + "sw $a0, 8($sp)"
+ 		print "\t" + "sw $fp, 4($sp)"
+		print "\t" + "sw $ra, 0($sp)"
+		print "\t" + "addi $fp, $sp, 0 "
+		print "\t" + "addi $sp, $sp, " + str(-function_list[x]['localsize'])
 				
 	elif op == 'param' :
 		x = line[2]
@@ -377,26 +394,10 @@ for line in lines:
 			print "\t" + "sw $a0, 0($sp)"
 
 
-	elif op == 'label':  #done
-		x = line[2]
-		print "\t" + x + ": "
-		print "\t" + "addi $sp, $sp, -12"
-		print "\t" + "li $a0," + str(function_list[x]['paramsize'])
-		print "\t" + "sw $a0, 8($sp)"
- 		print "\t" + "sw $fp, 4($sp)"
-		print "\t" + "sw $ra, 0($sp)"
-		print "\t" + "addi $fp, $sp, 0 "
-		print "\t" + "addi $sp, $sp, " + str(-function_list[x]['localsize'])
 
 
- 	elif op == 'call':
- 	 	x = line[2]          # x contains the function name
- 	 	print "\t" + "jal " + x
- 	 	if(len(line)>3):     #value returning function
- 	 		y = line[3]
- 	 		reg = getreg.find_reg(lno)
-			print "\t" + "addi " + reg + ", $v0, 0" 
-			UPDATE(y,reg)
+
+
 
 	elif op == 'ret':
 		if(len(line) > 2):                # value returning function
@@ -411,6 +412,22 @@ for line in lines:
 		print "\t" + "add $sp, $fp, $a0"
 		print "\t" + "lw $fp, 4($fp)"
 		print "\t" + "jr $ra"
+
+ 	elif op == 'call':
+ 	 	x = line[2]          # x contains the function name
+ 	 	print "\t" + "jal " + x
+ 	 	if(len(line)>3):     #value returning function
+ 	 		y = line[3]
+ 	 		reg = getreg.find_reg(lno)
+			print "\t" + "addi " + reg + ", $v0, 0" 
+			UPDATE(y,reg)
+
+	elif ( op == 'scan'):
+		x = line[2]
+		reg = getreg.find_reg(lno)
+		print "\t" + "li $v0, 5\n" + "\t" + "syscall"
+		print "\t" + "move " + reg + ", $v0"
+		UPDATE(x,reg)
 
 	elif op == 'print':
 		x = line[2]
@@ -440,12 +457,7 @@ for line in lines:
 						getreg.rd_add(reg,x)
 					print "\t" + "move $a0, " + reg
 			print "\t" + "syscall"
-	elif ( op == 'scan'):
-		x = line[2]
-		reg = getreg.find_reg(lno)
-		print "\t" + "li $v0, 5\n" + "\t" + "syscall"
-		print "\t" + "move " + reg + ", $v0"
-		UPDATE(x,reg)
+
 	elif ( op == 'exit'):
 		print "\t" + "li $v0, 10\n" + "\t" + "syscall"
 	
