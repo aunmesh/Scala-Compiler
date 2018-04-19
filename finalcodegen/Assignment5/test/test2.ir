@@ -1,0 +1,22 @@
+1 label fun1
+2 = t3 0
+3 ifgoto 5 > t3 0
+4 goto 10
+5 = t1 t2
+6 = t2 t3
+7 % t4 t1 t2
+8 = t3 t4
+9 goto 3
+10 ret t3
+11 = t5 105
+12 = t6 10
+13 param t5
+14 param t6
+15 call fun1
+16 = t7 return
+17 = t8 t7
+18 / t9 t5 t8
+19 = t10 t9
+20 / t11 t6 t8
+21 = t12 t11
+22 exit 0

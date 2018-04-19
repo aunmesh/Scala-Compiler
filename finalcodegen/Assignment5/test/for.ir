@@ -1,0 +1,64 @@
+1 label main
+2 = t1 0
+3 = t2 0
+4 = t3 0
+5 = t4 0
+6 = t5 0
+7 Array t6 4004
+8 = t5 1000
+9 = t1 2
+10 goto 13
+11 + t1 t1 1
+12 goto 10
+13 ifgoto 15 <= t1 t5
+14 goto 19
+15 = t7 t6 [ t1 ]
+16 = t7 1
+17 = t6 [ t1 ] t7
+18 goto 11
+19 = t1 2
+20 goto 23
+21 + t1 t1 1
+22 goto 20
+23 ifgoto 25 <= t1 t5
+24 goto 40
+25 = t8 t6 [ t1 ]
+26 ifgoto 28 == t8 1
+27 goto 39
+28 * t9 t1 t1
+29 = t2 t9
+30 goto 33
+31 + t2 t2 t1
+32 goto 30
+33 ifgoto 35 <= t2 t5
+34 goto 39
+35 = t10 t6 [ t2 ]
+36 = t10 0
+37 = t6 [ t2 ] t10
+38 goto 31
+39 goto 21
+40 = t1 2
+41 goto 44
+42 + t1 t1 1
+43 goto 41
+44 ifgoto 46 <= t1 t5
+45 goto 54
+46 = t11 t6 [ t1 ]
+47 = t12 t6 [ t1 ]
+48 - t13 t1 1
+49 = t14 t6 [ t13 ]
+50 + t15 t12 t14
+51 = t11 t15
+52 = t6 [ t1 ] t11
+53 goto 42
+54 scan t5
+55 = t1 0
+56 ifgoto 58 <= t1 t5
+57 goto 64
+58 scan t4
+59 = t16 t6 [ t4 ]
+60 print t16
+61 print newline
+62 + t1 t1 1
+63 goto 56
+64 exit 0

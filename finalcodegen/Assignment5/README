@@ -1,0 +1,13 @@
+Instructions:
+	cd asgn3
+	make
+	bin/parser test/test<n>.scala  					// n ranges from 1 to 5. Output will be test<n>.html
+
+To clean executables:
+	make clean
+
+Format of .html:
+The text in bold is the non-terminal that will be expanded in the next step.
+The text in green is the result of the expansion of non-terminal in the previous step.
+The text in red is the part of the input program which has been parsed.
+

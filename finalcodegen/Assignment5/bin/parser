@@ -1,0 +1,6 @@
+#usr/bin/env/bash
+arg2=${1::-5}"ir"
+arg3=${1::-6}
+python src/PARSER.py ${1} > $arg2
+python src/ass.py $arg3 > $arg3".asm"
+spim -file $arg3".asm"
