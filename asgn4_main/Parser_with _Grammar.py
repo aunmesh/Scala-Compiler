@@ -86,8 +86,7 @@ def p_class_and_obj_declarations(p):
       p[0] = Node("class_and_obj_declarations", [p[1], p[2]], p[1].code + p[2].code)
 
 def p_class_and_obj_declaration(p):
-   '''class_and_obj_declaration : singleton_object 
-      | class_declaration '''
+   '''class_and_obj_declaration : singleton_object  '''
 
    p[0]  = Node("class_and_obj_declaration", [p[1]], p[1].code)
 
@@ -151,7 +150,7 @@ def p_expression_question(p):
    | empty '''
 
 
-   p[0] = Node("expression_question", [p[1]], p[1].code, p[1].type, place = p[1].place)
+   p[0] = Node("expression_question", [p[1]], code = p[1].code, type = p[1].type, place = p[1].place, value = p[1].value)
 
 def p_expression(p):
    '''expression : assignment_expression '''
@@ -586,7 +585,7 @@ def p_method_invocation(p):
    leaf4 = create_children("TOK_pararight", p[4])
    code1 = []
    for i in p[3].place:
-      code1.append(['param '  + str(i)])
+      code1.append(['param,'  + str(i)])
 
    code1.append(['call,' + function_name])
    return_type = y.functions[p[1].place]['ReturnType'] 
@@ -601,11 +600,11 @@ def p_argument_list_question(p):
    ''' argument_list_question : argument_list 
    | empty'''
 
-   if(p[1].val == None):
-      p[1].val = 0
+   if(p[1].value == None):
+      p[1].value = 0
    if(p[1].place == None):
       p[1].place = []                      
-   p[0] = Node("argument_list_question", [p[1]], code = p[1].code, place = p[1].place, type = p[1].type)
+   p[0] = Node("argument_list_question", [p[1]], code = p[1].code, place = p[1].place, type = p[1].type, value = p[1].value)
 
 
 def p_argument_list(p):
@@ -623,117 +622,51 @@ def p_argument_list(p):
 
 '''LOCAL VARIABLE DECLARATION'''
 
-def p_modifier(p):
-   ''' modifier : KW_protected 
-   | KW_private '''
-
-   leaf1 = create_children("LF_Modifier", p[1])
-   p[0] = Node("modifier", [leaf1])
-
-def p_modifier_question(p):
-   ''' modifier_question : modifier 
-   | empty '''
-
-   p[0] = Node("modifier_question", [p[1]])
-
 
 def p_declaration_keyword(p):
    '''declaration_keyword : KW_var 
    | KW_val '''
 
    leaf1 = create_children("LF_Declaration", p[1])
-   p[0] = Node("declaration_keyword", [leaf1])
+   p[0] = Node("declaration_keyword", [leaf1], place = p[1], value = p[1])
 
 
 def p_local_variable_declaration_statement(p):
    '''local_variable_declaration_statement : local_variable_declaration TOK_semi '''
    leaf2 = create_children("TOK_semi", p[2])
-   p[0] = Node("local_variable_declaration_statement", [p[1],leaf2])
+   p[0] = Node("local_variable_declaration_statement", [p[1],leaf2], type = p[1].type , code = p[1].code)
 
 
 def p_local_variable_declaration(p):
-   '''local_variable_declaration : modifier_question declaration_keyword variable_declaration_body'''
+   '''local_variable_declaration : declaration_keyword variable_declaration_body'''
 
-   p[0] = Node("local_variable_declaration", [p[1],p[2],p[3]])
+   p[0] = Node("local_variable_declaration", [p[1],p[2],p[3]], code = p[2].code, type = p[2].type)
 
 
 def p_variable_declaration_initializer(p):
    '''variable_declaration_initializer : expression
-                              | array_initializer
-                                     | class_initializer'''
+                              | array_initializer'''
 
-   p[0] = Node("variable_declaration_initializer", [p[1]])
+   p[0] = Node("variable_declaration_initializer", [p[1]], place = p[1].place , type = p[1].type, code = p[1].code)
 
+def p_variable_declaration_body(p):
+   '''variable_declaration_body : TOK_identifier type_question TOK_assignment  variable_declaration_initializer '''
 
-def p_variable_argument_list(p):
-   ''' variable_argument_list : variable_declaration_initializer
-                              | variable_argument_list TOK_comma variable_declaration_initializer'''
-
-   if(len(p) == 2):
-      p[0] = Node("variable_argument_list", [p[1]])
-
+   leaf4 = create_children("TOK_assignment", p[4])
+   leaf2 = create_children("TOK_colon", p[2])
+   global CurrentScope
+   if (p[1] in CurrentScope.symbols.keys()):
+      raise Exception("Variable already defined " + str[p[1]], p.lexer.lineno)
+   elif(p[2].type != p[4].type):
+      raise Exception("Type mismatch in line", p.lexer.lineno)
    else:
-      leaf2 = create_children("TOK_comma", p[2])
-      p[0] = Node("variable_argument_list", [p[1], leaf2, p[3]])
-
-
-def p_variable_argument_body(p):
-   '''variable_declaration_body : identifiers type_question TOK_assignment  variable_declaration_initializer 
-      | TOK_paraleft variable_list TOK_pararight TOK_assignment TOK_paraleft variable_argument_list TOK_pararight'''
-
-   if(len(p) == 5):
-      leaf3 = create_children("TOK_assignment", p[3])
-      p[0] = Node("variable_argument_list", [p[1], p[2], leaf3, p[4]])
-
-   else:
-      leaf1 = create_children("TOK_paraleft", p[1])
-      leaf3 = create_children("TOK_pararight", p[3])
-      leaf4 = create_children("TOK_assignment", p[4])
-      leaf5 = create_children("TOK_paraleft", p[5])
-      leaf7 = create_children("TOK_pararight", p[7])
-      p[0] = Node("variable_argument_list", [leaf1, p[2], leaf3, leaf4, leaf5, p[6], leaf7])
-
-
-def p_identifiers(p):
-   ''' identifiers : identifiers TOK_comma TOK_identifier 
-   | TOK_identifier'''
-
-   if(len(p) == 2):
-      leaf1 = create_children("TOK_identifier", p[1])
-      p[0] = Node("identifiers", [leaf1])
-   else:
-      leaf2 = create_children("TOK_comma", p[2])
-      leaf3 = create_children("TOK_identifier", p[3])
-      p[0] = Node("identifiers", [p[1], leaf2, leaf3])
-
-
-def p_variable_list(p):
-   ''' variable_list : variable_dec 
-   | variable_list TOK_comma variable_dec'''
-
-   if(len(p) == 2):
-      p[0] = Node("variable_list", [p[1]])
-
-   else:
-      leaf2 = create_children("TOK_comma", p[2])
-      p[0] = Node("variable_list", [p[1], leaf2, p[3]])
-
-def p_variable_dec(p):
-   ''' variable_dec : TOK_identifier type_question'''
-
-   leaf1 = create_children("TOK_identifier", p[1])
-   p[0] = Node("variable_dec", [leaf1, p[2]])
-
-def p_expr_question(p):
-   ''' expr_question : TOK_assignment variable_declaration_initializer 
-             | empty '''
-
-   if(len(p) == 2):
-      p[0] = Node("expr_question", [p[1]])
-
-   else:
-      leaf1 = create_children("TOK_assignment", p[1])
-      p[0] = Node("expr_question", [leaf1, p[2]])
+      attr = {}
+      attr['Type'] = p[2].type
+      attr['Size'] = p[2].size
+      CurrentScope.add_symbol(p[1], attr)
+      variable = str(CurrentScope.id) + '_' + p[1]
+      tac1 = ['=,' + variable + ',' + p[4].place]
+      p[0] = Node("variable_declaration_body", [p[1], leaf2, p[3], leaf4, p[5]], code = p[4].code + tac1, place = variable, type = p[2].type)
 
 
 def p_variable_declarator_id(p):
@@ -741,7 +674,7 @@ def p_variable_declarator_id(p):
 
    global CurrentScope
    if(p[1] in CurrentScope.symbols.keys()):
-      raise Exception("Variable already defined " + str(p[1]))
+      raise Exception("Variable already defined " + str(p[1]), p.lexer.lineno)
 
    else:
       attr = {}
@@ -751,7 +684,7 @@ def p_variable_declarator_id(p):
       variable = str(CurrentScope.id) + "_" + p[1]
       leaf1 = create_children("TOK_identifier", p[1])
       leaf2 = create_children("TOK_colon", p[2])
-      p[0] = Node("variable_declarator_id", [leaf1, leaf2, p[3]], [], p[3].type, place = variable)
+      p[0] = Node("variable_declarator_id", [leaf1, leaf2, p[3]], code = [], type = p[3].type, place = variable, value = 1)
 
 
 #DATA_TYPES AND VARIABLE_TYPES
@@ -764,9 +697,8 @@ def p_variable_declarator_id(p):
 def p_type(p):
    '''type : primitive_type 
    | reference_type '''
-   print("HERE type")
 
-   p[0] = Node("type", [p[1]])
+   p[0] = Node("type", [p[1]], value = p[1].value, place = p[1].place , type = p[1].type )
 
 #CHECKFORTHIS
 def p_primitive_type(p):
@@ -779,85 +711,43 @@ def p_primitive_type(p):
 
 
    leaf1 = create_children("LF_Primitivetype", p[1])
-   p[0] = Node("primitive_type", [leaf1])
+   p[0] = Node("primitive_type", [leaf1] , value = p[1], place = p[1], type = p[1])
 
 
 def p_reference_type(p):
-   '''reference_type : class_data_type 
-   | array_data_type'''
+   '''reference_type : array_data_type'''
 
-   print("HERE reference type")
-   p[0] = Node("reference_type", [p[1]])
-
-
-def p_class_data_type(p):
-   '''class_data_type : id'''
-
-   p[0] = Node("class_data_type", [p[1]])
+   p[0] = Node("reference_type", [p[1]], type = p[1].type, place = p[1].place, value = p[1].value)
 
 
 def p_array_data_type(p):
    '''array_data_type : KW_array TOK_lsqb type TOK_rsqb'''
 
-   print("HERE array data type")
+   
    leaf1 = create_children("KW_array", p[1])
    leaf2 = create_children("TOK_lsqb", p[2])
    leaf4 = create_children("TOK_rsqb", p[4])
-   p[0] = Node("array_data_type", [leaf1, leaf2, p[3], leaf4])
+   p[0] = Node("array_data_type", [leaf1, leaf2, p[3], leaf4], type = 'Array_' + p[3].type)
 
 # INITIALIZERS
 
 def p_array_initializer(p):
-   ''' array_initializer : KW_new KW_array TOK_lsqb type TOK_rsqb TOK_paraleft conditional_or_expression TOK_pararight
-                                    | KW_array TOK_paraleft argument_list_question TOK_pararight
-                                    | KW_array TOK_lsqb type TOK_rsqb TOK_paraleft argument_list_question TOK_pararight
-                                    | multidimensional_array_initializer'''
-   if(len(p) == 2):
-      p[0] = Node("array_initializer", [p[1]])
-
-   elif(len(p) == 5):
-      leaf1 = create_children("KW_array", p[1])
-      leaf2 = create_children("TOK_paraleft", p[2])
-      leaf4 = create_children("TOK_pararight", p[4])
-      p[0] = Node("array_initializer", [leaf1, leaf2, p[3], leaf4])
-   
-   elif(len(p) == 8):
-      leaf1 = create_children("KW_array", p[1])
-      leaf2 = create_children("TOK_lsqb", p[2])
-      leaf4 = create_children("TOK_rsqb", p[4])
-      leaf5 = create_children("TOK_paraleft", p[5])
-      leaf7 = create_children("TOK_pararight", p[7])
-      p[0] = Node("array_initializer", [leaf1, leaf2, p[3], leaf4, leaf5, p[6], leaf7])
-   else:
-      leaf1 = create_children("KW_new", p[1])
-      leaf2 = create_children("KW_array", p[2])
-      leaf3 = create_children("TOK_lsqb", p[3])
-      leaf5 = create_children("TOK_rsqb", p[5])
-      leaf6 = create_children("TOK_paraleft", p[6])
-      leaf8 = create_children("TOK_pararight", p[8])
-      p[0] = Node("array_initializer", [leaf1, leaf2, leaf3, p[4], leaf5, leaf6, p[7], leaf8])
+   ''' array_initializer : KW_new KW_array TOK_lsqb type TOK_rsqb TOK_paraleft TOK_int TOK_pararight'''
 
 
-def p_multidimensional_array_initializer(p):
-   ''' multidimensional_array_initializer : KW_array TOK_dot KW_ofdim TOK_lsqb type TOK_rsqb TOK_paraleft argument_list TOK_pararight'''
-
-   leaf1 = create_children("KW_array", p[1])
-   leaf2 = create_children("TOK_dot", p[2])
-   leaf3 = create_children("KW_ofdim", p[3])
-   leaf4 = create_children("TOK_lsqb", p[4])
-   leaf6 = create_children("TOK_rsqb", p[6])
-   leaf7 = create_children("TOK_paraleft", p[7])
-   leaf9 = create_children("TOK_pararight", p[9])
-   p[0] = Node("multidimensional_array_initializer", [leaf1, leaf2, leaf3, leaf4, p[5], leaf6, leaf7, p[8], leaf9])
-
-
-def p_class_initializer(p):
-   ''' class_initializer : KW_new name TOK_paraleft argument_list_question TOK_pararight '''
 
    leaf1 = create_children("KW_new", p[1])
-   leaf3 = create_children("TOK_paraleft", p[3])
-   leaf5 = create_children("TOK_pararight", p[5])
-   p[0] = Node("class_initializer", [leaf1, p[2], leaf3, p[4], leaf5])
+   leaf2 = create_children("KW_array", p[2])
+   leaf3 = create_children("TOK_lsqb", p[3])
+   leaf5 = create_children("TOK_rsqb", p[5])
+   leaf6 = create_children("TOK_paraleft", p[6])
+   leaf7 = create_children("TOK_int", p[7])
+   leaf8 = create_children("TOK_pararight", p[8])
+   type1 = 'Array_' + str(p[4])
+   temp = newtemp()
+   tac1 = ['Array,' + temp + ',' + '4*' + p[7]] 
+   p[0] = Node("array_initializer", [leaf1, leaf2, leaf3, p[4], leaf5, leaf6, leaf7, leaf8], code = tac1, type = type1, place = temp)
+
 
 #Statements
 def p_statement(p):
@@ -867,7 +757,7 @@ def p_statement(p):
                      | while_statement
                      | for_statement'''
    print("Statement")
-   p[0] = Node("statement", [p[1]], p[1].code)
+   p[0] = Node("statement", [p[1]], code = p[1].code, type = p[1].type, place = p[1].place)
 
 def p_normal_statement(p):
    '''normal_statement : block 
@@ -875,20 +765,20 @@ def p_normal_statement(p):
                   | empty_statement
                   | return_statement'''
 
-   p[0] = Node("normal_statement", [p[1]], p[1].code)
+   p[0] = Node("normal_statement", [p[1]], code = p[1].code, type = p[1].type, place = p[1].place)
 
 def p_expression_statement(p):
    '''expression_statement : statement_expression TOK_semi'''
 
    leaf2 = create_children("TOK_semi", p[2])
-   p[0] = Node("expression_statement", [p[1], leaf2], p[1].code)
+   p[0] = Node("expression_statement", [p[1], leaf2], code = p[1].code, type = p[1].type, place = p[1].place)
 
 
 def p_statement_expression(p):
    '''statement_expression : assignment
                            | method_invocation '''
-   print("Statement expression")
-   p[0] = Node("statement_expression", [p[1]], p[1].code)
+   
+   p[0] = Node("statement_expression", [p[1]], code = p[1].code, type = p[1].type, place = p[1].place)
 
 
 #IF THEN STATEMENT
@@ -898,7 +788,10 @@ def p_if_then_statement(p):
    leaf1 = create_children("KW_if", p[1])
    leaf2 = create_children("TOK_paraleft", p[2])
    leaf4 = create_children("TOK_pararight", p[4])
-   p[0] = Node("if_then_statement", [leaf1, leaf2, p[3], leaf4, p[5]])
+   elselabel = newlabel()
+   tac1 = ["ifgoto," + elselabel + ',' + '==,' + '0,' + p[3].place]
+   tac2 = ["label," + elselabel]
+   p[0] = Node("if_then_statement", [leaf1, leaf2, p[3], leaf4, p[5]], code = p[3].code + tac1 + p[5].code + tac2)
 
 def p_if_then_else_statement(p):
    '''if_then_else_statement : KW_if TOK_paraleft expression TOK_pararight if_then_else_intermediate KW_else statement'''
@@ -907,7 +800,13 @@ def p_if_then_else_statement(p):
    leaf2 = create_children("TOK_paraleft", p[2])
    leaf4 = create_children("TOK_pararight", p[4])
    leaf6 = create_children("KW_else", p[6])
-   p[0] = Node("if_then_else_statement", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]])
+   elselabel = newlabel()
+   nextlabel = newlabel()
+   tac1 = ["ifgoto," + elselabel + ',' + '==,' + '0,' + p[3].place ]
+   tac2 = ["goto," + nextlabel]
+   tac3 = ["label," + elselabel]
+   tac4 = ["label," + nextlabel]
+   p[0] = Node("if_then_else_statement", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]], code = p[3].code + tac1 + p[5].code + tac2 + tac3 + p[7].code + tac4)
 
 
 def p_if_then_else_statement_precedence(p):
@@ -917,14 +816,20 @@ def p_if_then_else_statement_precedence(p):
    leaf2 = create_children("TOK_paraleft", p[2])
    leaf4 = create_children("TOK_pararight", p[4])
    leaf6 = create_children("KW_else", p[6])
-   p[0] = Node("if_then_else_statement_precedence", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]])
+   elselabel = newlabel()
+   nextlabel = newlabel()
+   tac1 = ["ifgoto," + elselabel + ',' + '==,' + '0,' + p[3].place ]
+   tac2 = ["goto," + nextlabel]
+   tac3 = ["label," + elselabel]
+   tac4 = ["label," + nextlabel]
+   p[0] = Node("if_then_else_statement_precedence", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]], code = p[3].code + tac1 + p[5].code + tac2 + tac3 + p[7].code + tac4)
 
 
 def p_if_then_else_intermediate(p):
    '''if_then_else_intermediate : normal_statement
                                      | if_then_else_statement_precedence'''
 
-   p[0] = Node("if_then_else_intermediate", [p[1]])
+   p[0] = Node("if_then_else_intermediate", [p[1]], code = p[1].code)
 
 def p_while_statement(p):
    '''while_statement : KW_while TOK_paraleft expression TOK_pararight statement'''
@@ -932,238 +837,170 @@ def p_while_statement(p):
    leaf1 = create_children("KW_while", p[1])
    leaf2 = create_children("TOK_paraleft", p[2])   
    leaf4 = create_children("TOK_pararight", p[4])
-   p[0] = Node("while_statement", [leaf1, leaf2, p[3], leaf4, p[5]])
+   beginlabel = newlabel()
+   nextlabel = newlabel()
+   tac1 = ["label," + beginlabel]
+   tac2 = ["ifgoto," + nextlabel + "==," + '0,' + p[3].place]
+   tac3 = ["goto," + beginlabel]
+   tac4 = ["label," +  nextlabel]
+   p[0] = Node("while_statement", [leaf1, leaf2, p[3], leaf4, p[5]], code = tac1 + p[3].code + tac2 + p[5].code + tac3 + tac4)
 
 # FOR_LOOP
+#Implement Do While too
 
 def p_for_statement(p):
-   '''for_statement : KW_for TOK_paraleft for_logic TOK_pararight statement 
-   '''
-
+   '''for_statement : KW_for TOK_paraleft for_update TOK_pararight statement '''
+   
    leaf1 = create_children("KW_for", p[1])
    leaf2 = create_children("TOK_paraleft", p[2])
    leaf4 = create_children("TOK_pararight", p[4])
-   p[0] = Node("for_statement", [leaf1, leaf2, p[3], leaf4, p[5]])
-
-def p_for_logic(p):
-   ''' for_logic : for_update 
-   | for_update TOK_semi for_logic '''
-
-   if(len(p) == 2):
-      p[0] = Node("for_logic", [p[1]])
-
-   else:
-      leaf2 = create_children("TOK_semi", p[2])
-      p[0] = Node("for_logic", [p[1], leaf2, p[3]])
+   beginlabel = newlabel()
+   nextlabel = newlabel()
+   iterator = p[1].value
+   expr1 = p[3].place[1]
+   expr2 = p[3].place[2]
+   relop = p[3].place[0]
+   update = p[3].place[3]
+   tac1 = ["=," + iterator + ',' + expr1]
+   tac2 = ["label," + beginlabel]
+   tac3 = ["ifgoto," + nextlabel + ',' + relop + ',' + iterator + ',' + expr2]
+   tac4 = ["+," + iterator + ',' + iterator + ',' + update]
+   tac5 = ["goto," + beginlabel]
+   tac6 = ["label," + nextlabel]
+   p[0] = Node("for_statement", [leaf1, leaf2, p[3], leaf4, p[5]], code = p[3].code + tac1 + tac2 + tac3 + p[5].code + tac4 + tac5 + tac6)
 
 
 def p_for_update(p):
    ''' for_update : for_loop for_step_opts '''
 
-   p[0] = Node("for_update", [p[1], p[2],p[3]])
+   place1 = p[1].place
+   place1.append(p[2].place) #iterator update value
+   p[0] = Node("for_update", [p[1], p[2],p[3]], place = place1, code = p[1].code, value = p[1].value)
 
 #CHECKFORTHIS
 def p_for_loop(p):
    ''' for_loop : TOK_identifier TOK_choose expression for_untilTo expression '''
-
+   place1 = []
+   place1.append(p[4].place)
+   place1.append(p[3].place)
+   place1.append(p[5].place)
    leaf1 = create_children("TOK_identifier", p[1])
    leaf2 = create_children("TOK_choose", p[2])
-   p[0] = Node("for_loop", [leaf1, leaf2, p[3], p[4], p[5]])
+   #Iterator in value, loop condition in place
+   p[0] = Node("for_loop", [leaf1, leaf2, p[3], p[4], p[5]], value = p[1], place = place1 , code = p[3].code + p[5].code)
 
 
 def p_for_untilTo(p):
    '''for_untilTo : KW_until 
    | KW_to'''
 
-   leaf1 = create_children("LF_Untito", p[1])
-   p[0] = Node("for_untilTo", [p[1]])
+   if(p[1] == 'until'):
+      temp_string = '>='
+   else:
+      temp_string = '>'
 
+   leaf1 = create_children("LF_Untito", p[1])
+   p[0] = Node("for_untilTo", [p[1]], place = temp_string )
 
 def p_for_step_opts(p):
    ''' for_step_opts : KW_by expression 
    | empty'''
 
    if len(p)==2:
-      p[0]=Node("for_step_opts",[p[1]])
+      p[0]=Node("for_step_opts",[p[1]], place = 1)
 
    else :
       leaf1 = create_children("KW_by", p[1])
-      p[0]=Node("for_step_opts",[leaf1, p[2]])
-
+      p[0]=Node("for_step_opts",[leaf1, p[2]], place = p[2].place, code = p[2].code )
 
 def p_empty_statement(p):
    '''empty_statement : TOK_semi '''
    leaf1 = create_children("TOK_semi", p[1])
    p[0] = Node("empty_statement", [leaf1])
 
-
 def p_return_statement(p):
    '''return_statement : KW_return expression_question TOK_semi '''
+
    leaf3 = create_children("TOK_semi", p[3])
    leaf1 = create_children("KW_return", p[1])
-   p[0] = Node("return_statement", [leaf1, p[2], leaf3])
 
-
-# CLASS DECLARATION
-
-def p_class_declaration(p):
-   '''class_declaration : class_header class_body'''
-
-   p[0] = Node("class_declaration", [p[1],p[2]])
-
-def p_class_header(p):
-   '''class_header : KW_class name modifier_question class_param_clause_question class_template_question'''
-
-   leaf1 = create_children("KW_class", p[1])
-   p[0] = Node("class_header", [leaf1, p[2], p[3], p[4], p[5]])
-
-
-def p_class_param_clause_question(p):
-   '''class_param_clause_question : class_param_clause 
-                       | empty'''
-
-   p[0] = Node("class_param_clause_question", [p[1]])
-
-
-def p_class_param_clause(p):
-   '''class_param_clause : TOK_paraleft class_params_question TOK_pararight'''
-
-   leaf1 = create_children("TOK_paraleft", p[1])
-   leaf3 = create_children("TOK_pararight", p[3])
-   p[0] = Node("class_param_clause", [leaf1, p[2], leaf3])
-
-
-def p_class_params_question(p):
-   '''class_params_question : class_params
-                  | empty '''
-
-   p[0] = Node("class_params_opt", [p[1]])
-
-
-def p_class_params(p):
-   '''class_params : class_param
-               | class_params TOK_comma class_param'''
-
-   if(len(p) == 2):
-      p[0] = Node("class_params", [p[1]])
-
+   if(p[2].place == None and p[2].value == None):
+      temp_code = ['ret']
    else:
-      leaf2 = create_children("TOK_comma", p[2])
-      p[0] = Node("class_params", [p[1], leaf2, p[3]])
+      temp_code = ['ret ,' + p[2].place]
 
-
-def p_class_param(p):
-   '''class_param : class_declaration_keyword_question variable_declarator_id expr_question'''
-
-   p[0] = Node("class_param", [p[1],p[2],p[3]])
-
-
-def p_override_question(p):
-   '''override_question : override
-                | empty'''
-
-   p[0] = Node("override_question", [p[1]])
-
-
-def p_override(p):
-   '''override : KW_override'''
-
-   leaf1 = create_children("KW_override", p[1])
-   p[0] = Node("override", [leaf1])
-
-
-def p_class_declaration_keyword_question(p):
-   '''class_declaration_keyword_question : override_question modifier_question declaration_keyword 
-                            | empty '''
-
-   if(len(p) == 2):
-      p[0] = Node("class_declaration_keyword_question", [p[1]])
-
-   else:
-      p[0] = Node("class_declaration_keyword_question", [p[1], p[2],p[3]])
-
+   p[0] = Node("return_statement", [leaf1, p[2], leaf3], code = p[2].code + temp_code , place = None)
 
 def p_type_question(p):
-   '''type_question : TOK_colon type 
-            | empty'''
+   '''type_question : TOK_colon type '''
 
-   if len(p)==2:
-      p[0] = Node("type_question",[p[1]])
-
-   else:
-      leaf1 = create_children("TOK_colon",p[1])
-      p[0] = Node("type_question",[leaf1, p[2]])
-
-
-def p_class_template_question(p):
-   '''class_template_question : class_template 
-                    | empty '''
-
-   p[0] = Node("class_template_question", [p[1]])
-
-
-def p_class_template(p):
-   '''class_template : KW_extends name TOK_paraleft variable_list TOK_pararight'''
-
-   leaf1 = create_children("KW_extends", p[1])
-   leaf3 = create_children("TOK_paraleft", p[3])
-   leaf5 = create_children("TOK_pararight", p[5])
-   p[0] = Node("class_template", [leaf1, p[2], leaf3, p[4], leaf5])
-
-
-def p_class_body(p):
-   '''class_body : block ''' 
-
-   p[0] = Node("class_body", [p[1]])
-
+   leaf1 = create_children("TOK_colon",p[1])
+   p[0] = Node("type_question",[leaf1, p[2]] , value = p[2].value, place = p[2].place, type = p[2].type)
 
 # Method Declaration
 
+
+#Implement Scoping here
 def p_method_declaration(p):
    '''method_declaration : method_header method_body'''
 
    p[0] = Node("method_declaration", [p[1],p[2]], p[1].code + p[2].code)
 
 
-def p_method_header(p):
-   '''method_header : KW_def fun_def'''
-   print("HERE method header")
+#Implement Scoping here
+def p_method_header1(p):
+   '''method_header : KW_def name TOK_paraleft fun_params_question TOK_pararight type_question TOK_assignment'''
+
+   global CurrentScope
+   fun_attr = {}
+   fun_name = str(CurrentScope.id + "_" + p[2].place)
+   tac1 = ["label," + fun_name]
+   
+   fun_attr['InputType'] = p[4].type #InputType
+   fun_attr['num_args'] = p[4].value  
+   fun_attr['ReturnType'] = p[7].type
+   
+   CurrentScope.add_function(p[2].place , fun_attr)
+ 
    leaf1 = create_children("KW_def", p[1])
-   p[0] = Node("method_header", [leaf1,p[2]])
+   leaf3 = create_children("TOK_paraleft", p[3])
+   leaf5 = create_children("TOK_pararight", p[5])
+   leaf7 = create_children("TOK_assignment", p[7])
+   p[0] = Node("method_header", [leaf1,p[2],leaf3,p[4],leaf5,p[6], leaf7], code = tac1 + p[4].code ,type = p[7].type)
 
 
-def p_fun_def(p):
-   '''fun_def : fun_sig type_question TOK_assignment 
-                            | fun_sig type_question'''
+def p_method_header2(p):
+   '''method_header : KW_def name TOK_paraleft fun_params_question TOK_pararight '''
 
-   print("HERE fun def")
-   if(len(p) == 3):
-      p[0] = Node("fun_def", [p[1], p[2]])
+   global CurrentScope
+   fun_attr = {}
+   fun_name = str(CurrentScope.id + "_" + p[2].place)
+   tac1 = ["label," + fun_name]
+   
+   fun_attr['InputType'] = p[4].type #InputType
+   fun_attr['num_args'] = p[4].value  
+   fun_attr['ReturnType'] = 'Unit'
+   
+   CurrentScope.add_function(p[2].place , fun_attr)
+ 
 
-   else:
-      leaf3 = create_children("TOK_assignment", p[3])      
-      p[0] = Node("fun_def", [p[1], p[2], leaf3])
-
-
-def p_fun_sig(p):
-   '''fun_sig : name fun_param_clause'''
-
-   p[0] = Node("fun_sig", [p[1]])
-
-
-def p_fun_param_clause(p):
-   '''fun_param_clause : TOK_paraleft fun_params_question TOK_pararight  '''
-   print("HERE fun param clause")
-   leaf1 = create_children("TOK_paraleft", p[1])
-   leaf3 = create_children("TOK_pararight", p[3])
-   p[0] = Node("fun_param_clause", [leaf1, p[2], leaf3])
+   leaf1 = create_children("KW_def", p[1])
+   leaf3 = create_children("TOK_paraleft", p[3])
+   leaf5 = create_children("TOK_pararight", p[5])
+   
+   p[0] = Node("method_header", [leaf1,p[2],leaf3,p[4],leaf5], code = tac1 + p[4].code ,type = p[7].type)
 
 
 def p_fun_params_question(p):
    '''fun_params_question : fun_params 
    | empty'''
-   print("HERE fun param question")
-   p[0] = Node("fun_params_question", [p[1]])
+
+   if(p[1].value = None and p[1].place = None):
+      p[1].value = 0
+      p[1].place = []
+      p[1].type = 'Unit'
+
+   p[0] = Node("fun_params_question", [p[1]], value = p[1].value, place = p[1].place, code = p[1].code, type = p[1].type )
 
 
 def p_fun_params(p):
@@ -1171,29 +1008,30 @@ def p_fun_params(p):
    | fun_params TOK_comma fun_param'''
 
    if(len(p) == 2):
-      p[0] = Node("fun_params", [p[1]])
+      p[0] = Node("fun_params", [p[1]], place = [p[1].place], type = [p[1].type], code = p[1].code, value = p[1].value)
 
    else:
       leaf2 = create_children("TOK_comma", p[2])
-      p[0] = Node("fun_params", [p[1], leaf2, p[3]])
+      p[0] = Node("fun_params", [p[1], leaf2, p[3]], place = p[1].place + [p[3].place], type = p[1].type + [p[3].type], code = p[1].code + p[3].code, value = p[1].value + p[3].value )
 
 def p_fun_param(p):
-   '''fun_param : variable_declarator_id expr_question'''
+   '''fun_param : variable_declarator_id'''
 
-   p[0] = Node("fun_param", [p[1],p[2]], type = p[1].type, place = p[1].place)
+   p[0] = Node("fun_param", [p[1]], type = p[1].type, place = p[1].place, value = p[1].value, code = p[1].code )
 
 def p_method_body(p):
-   '''method_body : block 
-   | variable_declaration_initializer''' 
+   '''method_body : block ''' 
 
-   p[0] = Node("method_body", [p[1]], p[1].code)
+
+   p[0] = Node("method_body", [p[1]], code = p[1].code)
+
 
 #EMPTY DEFINITION
 
 def p_empty(p):
    '''empty :'''
    leaf1 = create_children("", "")
-   p[0] = Node("empty", [leaf1])
+   p[0] = Node("empty", [leaf1], value = None, place = None, code = [])
 
 
 
