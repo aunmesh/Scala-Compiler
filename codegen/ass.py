@@ -8,28 +8,28 @@ def NAME(op):
 		return "add"
 	elif(op == '-'):
 		return "sub"
-	elif(op == '*'):
-		return "mult"
 	elif (op == '/' or op == '%'):
 		return "div"
-	elif (op == '&'):
-		return "and"
-	elif (op == '|'):
-		return "or"
+	elif(op == '*'):
+		return "mult"
 	elif (op == '^'):
 		return "xor"
+	elif (op == '|'):
+		return "or"
+	elif (op == '&'):
+		return "and"
 	elif (op == "<="):
 		return "ble"
 	elif (op == ">="):
 		return "bge"
-	elif (op == ">"):
-		return "bgt"
-	elif (op == "<"):
-		return "blt"
 	elif (op == "=="):
 		return "beq"
 	elif (op == "!="):
 		return "bne"
+	elif (op == ">"):
+		return "bgt"
+	elif (op == "<"):
+		return "blt"
 
 def MOVE(reg,y):                    # Load the value of variable contained in y to reg
 	if len(main.ad[y])==0:
@@ -76,14 +76,17 @@ def XequalY(x,y):
 					reg = getreg.regx_get(x,y,lno)
 					MOVE(reg,y)
 					UPDATE(x,reg)
+
+identifiers = {}
+arrays = {}
+
 main.testfile=sys.argv[1]
 livegen.gen_live()
 getreg.init_reg()
 print "\t" + ".data"
 
 lines = open(main.testfile,"r").readlines()
-identifiers = {}
-arrays = {}
+
 
 for line in lines:
 	line = line.split()
@@ -199,7 +202,7 @@ for line in lines:
 			if(z.isdigit()):
 				reg = getreg.regx_get(x,y,lno)
 				MOVE(reg,y)
-				if (op in ['+','-','/','*','%','&','|','^']):
+				if (op in ['+','-','*','/','%','|','^','&']):
 					COP(NAME(op), z, reg)
 				elif( op == '>>'):
 					COP('srl', z, reg)
@@ -210,7 +213,7 @@ for line in lines:
 				(reg,regz) = getreg.reg_get(x,y,z,lno)
 				MOVE(reg,y)
 				MOVE(regz,z)
-				if (op in ['+','-','/','*','%','&','|','^']):
+				if (op in ['+','-','*','/','%','|','^','&']):
 					VOP(NAME(op), regz, reg)
 				elif( op == '>>'):
 					VOP('srl', regz, reg)
@@ -223,7 +226,10 @@ for line in lines:
 			elif(op =='%'):
 				print "\t" + "mfhi " + reg 
 			
-
+	elif op == "goto":
+		branch = int(line[2])
+		print "\t" + "b " + "BLOCK" + str(main.block_get[branch])
+	
 	elif op == '~':
 		x = line[2]
 		y = line[3]
@@ -234,9 +240,11 @@ for line in lines:
 		UPDATE(x,reg)
 		
 
-	elif op == "goto":
-		branch = int(line[2])
-		print "\t" + "b " + "BLOCK" + str(main.block_get[branch])
+	elif op == 'label':
+		x = line[2]
+		print "\t" + x + ": "
+		print "\t" + "addi $sp, $sp, -4"
+		print "\t" + "sw $ra, 0($sp)"	
 
 	elif op == "ifgoto":
 		x = line[-2]
@@ -264,11 +272,14 @@ for line in lines:
 				getreg.rd_add(regy,y)
 			print "\t" + NAME(relop) + " " + regx + ", " + regy + ", " + "BLOCK" + str(main.block_get[branch])
 				
-	elif op == 'label':
-		x = line[2]
-		print "\t" + x + ": "
-		print "\t" + "addi $sp, $sp, -4"
-		print "\t" + "sw $ra, 0($sp)"
+ 	elif op == 'call':
+ 	 	x = line[2]          # x contains the function name
+ 	 	print "\t" + "jal " + x
+ 	 	if(len(line)>3):     #value returning function
+ 	 		y = line[3]
+ 	 		reg = getreg.reg_find(lno)
+			print "\t" + "addi " + reg + ", $v0, 0" 
+			UPDATE(y,reg)
 	elif op == 'ret':
 		if(len(line) > 2):                # value returning function
 			x = line[2]
@@ -279,14 +290,7 @@ for line in lines:
 		print "\t" + "lw $ra, 0($sp)"
 		print "\t" + "addi $sp, $sp, 4"
 		print "\t" + "jr $ra"
- 	elif op == 'call':
- 	 	x = line[2]          # x contains the function name
- 	 	print "\t" + "jal " + x
- 	 	if(len(line)>3):     #value returning function
- 	 		y = line[3]
- 	 		reg = getreg.reg_find(lno)
-			print "\t" + "addi " + reg + ", $v0, 0" 
-			UPDATE(y,reg)
+
 	elif op == 'print':
 		x = line[2]
 		if (x == 'newline'):
