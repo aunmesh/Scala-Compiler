@@ -10,6 +10,7 @@
 10 = n t4
 11 +  t5 m n
 12 = l t5
-13 print l
-14 print newline
-15 exit 0
+13 = t6 l
+14 print t6
+15 print newline
+16 exit 0

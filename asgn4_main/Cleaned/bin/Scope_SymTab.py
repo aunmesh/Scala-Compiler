@@ -42,7 +42,7 @@ class SymTable(object):
 		flag = 0
 		
 		while(temp is not None):
-			if function in temp.function:
+			if function in temp.functions:
 				flag = 1
 				break
 			temp = temp.parent

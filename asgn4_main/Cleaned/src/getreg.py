@@ -4,16 +4,20 @@ def init_reg():
 		main.rd['$t' + str(i)] = []
 		main.regline['$t' + str(i)] = 0
 
+
+def rd_remove(reg,var):
+	if reg in main.ad[var]:
+		main.ad[var].remove(reg)
+		main.rd[reg].remove(var)
+
+
 def rd_add(reg,var):					#only adds reg into address descr. of var and var into reg descr. of reg
 	if var not in main.rd[reg]:
 		main.ad[var].append(reg)		
 		main.rd[reg].append(var)
 
 
-def rd_remove(reg,var):
-	if reg in main.ad[var]:
-		main.ad[var].remove(reg)
-		main.rd[reg].remove(var)
+
 
 
 def rd_del(var):						#Clears register fields of a variable
@@ -31,9 +35,7 @@ def spill(reg):
 
 
 
-def mem_clear(var):
-	if var in main.mem:
-		main.mem.remove(var)
+
 
 def reg_check(var,line):
 	if len(main.ad[var]) == 0:
@@ -41,6 +43,9 @@ def reg_check(var,line):
 	else:
 		return main.ad[var][0], 1 
 
+def mem_clear(var):
+	if var in main.mem:
+		main.mem.remove(var)
 
 def reg_find(line):
 	for reg in main.rd:
@@ -117,5 +122,6 @@ def update_dead(var,line):
 			print "\t" + "sw " + main.ad[var][0] + ", " + var
 			main.mem.append(var)
 		for reg in main.ad[var]:
-			main.rd[reg].remove(var)
 			main.ad[var].remove(reg)
+			main.rd[reg].remove(var)
+

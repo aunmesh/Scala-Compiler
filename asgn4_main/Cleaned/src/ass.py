@@ -14,28 +14,24 @@ def NAME(op):
 		return "mult"
 	elif (op == '^'):
 		return "xor"
-	elif (op == '|'):
-		return "or"
 	elif (op == '&'):
 		return "and"
-	elif (op == "<="):
-		return "ble"
+	elif (op == '|'):
+		return "or"
 	elif (op == ">="):
 		return "bge"
 	elif (op == "=="):
 		return "beq"
 	elif (op == "!="):
 		return "bne"
+	elif (op == "<="):
+		return "ble"
 	elif (op == ">"):
 		return "bgt"
 	elif (op == "<"):
 		return "blt"
 
-def MOVE(reg,y):                    # value of variable contained in y  is loaded to reg
-	if len(main.ad[y])==0:
-		print "\t" + "lw " + reg + ", " + y
-	elif (reg!= main.ad[y][0]):
-			print "\t" + "move " + reg + ", " + main.ad[y][0] 
+
 
 
 def VOP(op,regz,regx):
@@ -51,13 +47,18 @@ def COP(op,z,reg):                  # value(reg) = value(reg) op int(z)
 	else:
 		print "\t" + op + " " + reg + ', ' + reg + ', $a0'
 
+def MOVE(reg,y):                    # value of variable contained in y  is loaded to reg
+	if len(main.ad[y])==0:
+		print "\t" + "lw " + reg + ", " + y
+	elif (reg!= main.ad[y][0]):
+			print "\t" + "move " + reg + ", " + main.ad[y][0] 
+
 def UPDATE(x,reg):
 	getreg.mem_clear(x)
 	getreg.rd_del(x)
 	getreg.rd_add(reg,x)
 
-def LOADADDR(y, reg):
-	print "\t" + "la " + reg +", " + y
+
 
 
 def XequalY(x,y):
@@ -77,6 +78,9 @@ def XequalY(x,y):
 					MOVE(reg,y)
 					UPDATE(x,reg)
 
+def LOADADDR(y, reg):
+	print "\t" + "la " + reg +", " + y
+
 identifiers = {}
 arrays = {}
 
@@ -90,7 +94,7 @@ lines = open(main.testfile,"r").readlines()
 
 for line in lines:
 	line = line.split()
-	if line[1] in ['+','-','/','*','%','&','|','^', ">>" , "<<"]:
+	if line[1] in ['+','-','*','/','|','^', ">>","<<",'%','&']:
 		if line[2] not in identifiers:
 			identifiers[line[2]]=1
 	elif line[1]=='=':
@@ -195,25 +199,25 @@ for line in lines:
 
 
 
-	elif (op in ['+','-','/','*','%','&','|','^','>>','<<']):           # x = y op z  where x & y are variables and z is not
+	elif (op in ['+','-','*','/','|','^', ">>","<<",'%','&']):           # x = y op z  where x & y are variables and z is not
 			x = line[2]
 			y = line[3]
 			z = line[4]
 			if(z.isdigit()):
 				reg = getreg.regx_get(x,y,lno)
 				MOVE(reg,y)
-				if (op in ['+','-','*','/','%','|','^','&']):
+				if (op in ['+','-','*','/','|','^','%','&']):
 					COP(NAME(op), z, reg)
-				elif( op == '>>'):
-					COP('srl', z, reg)
 				elif (op == '<<'):
 					COP('sll', z, reg)
+				elif( op == '>>'):
+					COP('srl', z, reg)
 				UPDATE(x,reg)
 			else:
 				(reg,regz) = getreg.reg_get(x,y,z,lno)
 				MOVE(reg,y)
 				MOVE(regz,z)
-				if (op in ['+','-','*','/','%','|','^','&']):
+				if (op in ['+','-','*','/','|','^','%','&']):
 					VOP(NAME(op), regz, reg)
 				elif( op == '>>'):
 					VOP('srl', regz, reg)
@@ -239,12 +243,6 @@ for line in lines:
 		print "\t" + "xor " + reg + ' , ' + reg + ", $a0"
 		UPDATE(x,reg)
 		
-
-	elif op == 'label':
-		x = line[2]
-		print "\t" + x + ": "
-		print "\t" + "addi $sp, $sp, -4"
-		print "\t" + "sw $ra, 0($sp)"	
  	elif op == 'call':
  	 	x = line[2]          # function name contained in x
  	 	print "\t" + "jal " + x
@@ -253,6 +251,13 @@ for line in lines:
  	 		reg = getreg.reg_find(lno)
 			print "\t" + "addi " + reg + ", $v0, 0" 
 			UPDATE(y,reg)
+
+	elif op == 'label':
+		x = line[2]
+		print "\t" + x + ": "
+		print "\t" + "addi $sp, $sp, -4"
+		print "\t" + "sw $ra, 0($sp)"	
+
 
 	elif op == "ifgoto":
 		x = line[-2]
@@ -334,5 +339,5 @@ for line in lines:
 		getreg.update_dead(x,lno)
 print "\n"	
 
-# state -1 => new register is returned && x is only in memory  not register
-# state 1  => register of x
+# state 1  represents register of x
+# state -1  new register is returned && x is only in memory  not register

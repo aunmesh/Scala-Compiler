@@ -13,7 +13,7 @@ def live_gen(n):
 	if start != end:
 		word = list(main.lines[end])
 
-		if word[0] != 'call' and word[0] != 'goto' and word[0] != 'label':
+		if word[0] != 'label' and word[0] != 'call' and word[0] != 'goto':
 			if word[0] == 'ret':
 				if len(word) > 0: word.remove(word[0])
 				for x in word:
@@ -23,7 +23,7 @@ def live_gen(n):
 				if word[0] != "scan":
 					word.remove(word[0])
 					for x in word:
-						if x.isdigit() == False and x != '=' and x != '==' and x != '!=' and x != '==' and x != '>=' and x != '<=':
+						if x.isdigit() == False and x != '=' and x != '==' and x != '!='  and x != '<=' and x != '>=':
 							main.live[end].append(x)
 
 		for i in range(end-1,start,-1):
@@ -47,7 +47,7 @@ def live_gen(n):
 			if len(word) > 0: word.remove(word[0])
 			
 			for x in word:
-				if x.isdigit() == False and x != '[' and x != ']' and x != '&' and x != '*' and x not in main.live[i]:
+				if x.isdigit() == False and x != '[' and x != ']' and x != '*' and x != '&' and x not in main.live[i]:
 					main.live[i].append(x)
 
 	for i in range(start,end):
