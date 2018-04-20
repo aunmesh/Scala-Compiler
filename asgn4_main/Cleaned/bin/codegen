@@ -1,0 +1,2 @@
+#usr/bin/env/bash
+python src/ass.py ${1}
