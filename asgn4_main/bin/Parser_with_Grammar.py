@@ -250,7 +250,7 @@ def p_dimension(p):
    if(p[2].type != 'Int'):
       raise Exception("Acces Element should be an integer " + str(p[1].place), p.lexer.lineno)
 
-   p[0] = Node("class_and_obj_declarations", [leaf1,p[2],leaf3], place = '[ ' + p[2].place + ' ]' , code = p[2].code )
+   p[0] = Node("dimension", [leaf1,p[2],leaf3], place = '[ ' + p[2].place + ' ]' , code = p[2].code )
 
    '''else:
                leaf2 = create_children("TOK_lsqb", p[2])
