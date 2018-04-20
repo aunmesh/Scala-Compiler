@@ -79,6 +79,7 @@ def p_compilation_unit(p):
    '''compilation_unit : class_and_obj_declarations'''
    
    p[0]  = Node("compilationUnit", [p[1]], p[1].code)
+   print(p[0].code)
    res = filter_list(p[0].code)
    FinalResult = ('\n').join(res)
    secondpass(FinalResult)
@@ -336,7 +337,7 @@ def p_inclusive_or_expression(p):
       if(p[1].type != p[3].type):
          raise Exception("Type mismatch in line ", p.lexer.lineno)
       temp = newtemp(p[1].type)
-      tac1 = ['|,' + temp + ',' + p[1].place + ',' + p[3].place]
+      tac1 = ['| ,' + temp + ',' + p[1].place + ',' + p[3].place]
       p[0] = Node("inclusive_or_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
 
 def p_exclusive_or_expression(p):
@@ -351,7 +352,7 @@ def p_exclusive_or_expression(p):
       if(p[1].type != p[3].type):
          raise Exception("Type mismatch in line ", p.lexer.lineno)
       temp = newtemp(p[1].type)
-      tac1 = ['^,' + temp + ',' + p[1].place + ',' + p[3].place]
+      tac1 = ['^ ,' + temp + ',' + p[1].place + ',' + p[3].place]
 
       p[0] = Node("exclusive_or_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
 
@@ -387,10 +388,10 @@ def p_equality_expression(p):
          raise Exception("Type mismatch in line ", p.lexer.lineno)
 
       temp = newtemp(p[1].type)
+      tac1 = ["=,"+ temp + ',' + '0']
+      tac2 = [ p[2] + ' ,' + temp + ',' + p[1].place + ',' + p[3].place]
 
-      tac1 = [ p[2] + ' ,' + temp + ',' + p[1].place + ',' + p[3].place]
-
-      p[0] = Node("equality_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
+      p[0] = Node("equality_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1 + tac2)
 
 
 def p_relational_expression(p):
@@ -409,9 +410,10 @@ def p_relational_expression(p):
       if(p[1].type != p[3].type):
          raise Exception("Type mismatch in line ", p.lexer.lineno)
       temp = newtemp(p[1].type)
-      tac1 = [p[2] + ' ,' + temp + ',' + p[1].place + ',' + p[3].place]
+      tac1 = ["=,"+ temp + ',' + '0']
+      tac2 = [p[2] + ',' + temp + ',' + p[1].place + ',' + p[3].place]
 
-      p[0] = Node("relational_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
+      p[0] = Node("relational_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1 + tac2)
 
 
 def p_shift_expression(p):
@@ -614,9 +616,9 @@ def p_method_invocation(p):
       for i in range(0, len(p[3].type)):
          if(p[3].type[i] == 'Int'):
             #function_name = "println"
-            temp = newtemp()
-            code1.append("=," + temp + ',' + p[3].place[i])
-            code1.append("print," + temp)
+            #temp = newtemp()
+            #code1.append("=," + temp + ',' + p[3].place[i])
+            code1.append("print," + p[3].place[i])
          elif(p[3].type[i] == 'String'):
             #function_name = "println"
             #code1.append("=s," + temp + ',' + p[3].place[i])
@@ -629,8 +631,8 @@ def p_method_invocation(p):
       if (len(p[3].type) > 1):
          raise Exception("read only takes one argument", p.lexer.lineno)
       temp = newtemp()
+      code1.append("=,"+ temp + ',' + '0')
       code1.append("scan," + temp)
-      code1.append("println,newline")
       code1.append("=," + p[3].place[0] + ',' + temp)
       p[0] = Node("method_invocation", [p[1], leaf2, p[3], leaf4], code = p[1].code + p[3].code + code1, place = None, type = "Unit")
       return
@@ -816,7 +818,8 @@ def p_array_initializer(p):
    leaf8 = create_children("TOK_pararight", p[8])
    type1 = 'Array_' + str(p[4].type)
    #temp = newtemp()
-   tac1 = ['Array,', ',' + '4*' + str(p[7])] 
+   size1 = 4 * int(p[7])
+   tac1 = ['Array,', ',' + str(size1) + str(p[7])] 
    p[0] = Node("array_initializer", [leaf1, leaf2, leaf3, p[4], leaf5, leaf6, leaf7, leaf8], code = [], type = type1, place = tac1, value = 'Array')
 
 
@@ -858,11 +861,25 @@ def p_if_then_statement(p):
 
    leaf1 = create_children("KW_if", p[1])
    leaf2 = create_children("TOK_paraleft", p[2])
-   leaf4 = create_children("TOK_pararight", p[4])
+   leaf4 = create_children("TOK_pararight", p[4])   
    elselabel = newlabel()
-   tac1 = ["ifgoto," + elselabel + ',' + '==,' + '0,' + p[3].place]
+   temp_code = p[3].code[-1]
+   temp_list = temp_code.split(',')
+   if(temp_list[0] == '<='):
+      temp_list[0] = '>'
+   elif(temp_list[0] == '<'):
+      temp_list[0] = '>='
+   elif(temp_list[0] == '>='):
+      temp_list[0] = '<'
+   elif(temp_list[0] == '<='):
+      temp_list[0] = '>'
+   elif(temp_list[0] == '=='):
+      temp_list[0] = '!='
+   elif(temp_list[0] == '!='):
+      temp_list[0] = '=='
+   tac1 = ["ifgoto," + elselabel + ',' + str(temp_list[0]) + ',' + str(temp_list[2]) + ',' + str(temp_list[3])]
    tac2 = ["label," + elselabel]
-   p[0] = Node("if_then_statement", [leaf1, leaf2, p[3], leaf4, p[5]], code = p[3].code + tac1 + p[5].code + tac2)
+   p[0] = Node("if_then_statement", [leaf1, leaf2, p[3], leaf4, p[5]], code = p[3].code[:-1] + tac1 + p[5].code + tac2)
 
 def p_if_then_else_statement(p):
    '''if_then_else_statement : KW_if TOK_paraleft expression TOK_pararight if_then_else_intermediate KW_else statement'''
@@ -873,11 +890,25 @@ def p_if_then_else_statement(p):
    leaf6 = create_children("KW_else", p[6])
    elselabel = newlabel()
    nextlabel = newlabel()
-   tac1 = ["ifgoto," + elselabel + ',' + '==,' + '0,' + p[3].place ]
+   temp_code = p[3].code[-1]
+   temp_list = temp_code.split(',')
+   if(temp_list[0] == '<='):
+      temp_list[0] = '>'
+   elif(temp_list[0] == '<'):
+      temp_list[0] = '>='
+   elif(temp_list[0] == '>='):
+      temp_list[0] = '<'
+   elif(temp_list[0] == '<='):
+      temp_list[0] = '>'
+   elif(temp_list[0] == '=='):
+      temp_list[0] = '!='
+   elif(temp_list[0] == '!='):
+      temp_list[0] = '=='
+   tac1 = ["ifgoto," + elselabel + ',' + str(temp_list[0]) + ',' + str(temp_list[2]) + ',' + str(temp_list[3]) ]
    tac2 = ["goto," + nextlabel]
    tac3 = ["label," + elselabel]
    tac4 = ["label," + nextlabel]
-   p[0] = Node("if_then_else_statement", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]], code = p[3].code + tac1 + p[5].code + tac2 + tac3 + p[7].code + tac4)
+   p[0] = Node("if_then_else_statement", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]], code = p[3].code[:-1] + tac1 + p[5].code + tac2 + tac3 + p[7].code + tac4)
 
 
 def p_if_then_else_statement_precedence(p):
@@ -889,11 +920,23 @@ def p_if_then_else_statement_precedence(p):
    leaf6 = create_children("KW_else", p[6])
    elselabel = newlabel()
    nextlabel = newlabel()
-   tac1 = ["ifgoto," + elselabel + ',' + '==,' + '0,' + p[3].place ]
+   if(temp_list[0] == '<='):
+      temp_list[0] = '>'
+   elif(temp_list[0] == '<'):
+      temp_list[0] = '>='
+   elif(temp_list[0] == '>='):
+      temp_list[0] = '<'
+   elif(temp_list[0] == '<='):
+      temp_list[0] = '>'
+   elif(temp_list[0] == '=='):
+      temp_list[0] = '!='
+   elif(temp_list[0] == '!='):
+      temp_list[0] = '=='
+   tac1 = ["ifgoto," + elselabel + ',' + str(temp_list[0]) + ',' + str(temp_list[2]) + ',' + str(temp_list[3]) ]
    tac2 = ["goto," + nextlabel]
    tac3 = ["label," + elselabel]
    tac4 = ["label," + nextlabel]
-   p[0] = Node("if_then_else_statement_precedence", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]], code = p[3].code + tac1 + p[5].code + tac2 + tac3 + p[7].code + tac4)
+   p[0] = Node("if_then_else_statement_precedence", [leaf1, leaf2, p[3], leaf4, p[5], leaf6, p[7]], code = p[3].code[:-1] + tac1 + p[5].code + tac2 + tac3 + p[7].code + tac4)
 
 
 def p_if_then_else_intermediate(p):
@@ -909,12 +952,17 @@ def p_while_statement(p):
    leaf2 = create_children("TOK_paraleft", p[2])   
    leaf4 = create_children("TOK_pararight", p[4])
    beginlabel = newlabel()
+   middlelabel = newlabel()
    nextlabel = newlabel()
+   temp_code = p[3].code[-1]
+   temp_list = temp_code.split(',')
    tac1 = ["label," + beginlabel]
-   tac2 = ["ifgoto," + nextlabel + "==," + '0,' + p[3].place]
-   tac3 = ["goto," + beginlabel]
-   tac4 = ["label," +  nextlabel]
-   p[0] = Node("while_statement", [leaf1, leaf2, p[3], leaf4, p[5]], code = tac1 + p[3].code + tac2 + p[5].code + tac3 + tac4)
+   tac2 = ["ifgoto," + middlelabel + ',' +  str(temp_list[0]) + ',' + str(temp_list[2]) + ',' +  str(temp_list[3])]
+   tac3 = ["label," + middlelabel]
+   tac4 = ["goto," + nextlabel]
+   tac5 = ["label," + nextlabel]
+   tac6 = ["goto," + beginlabel]
+   p[0] = Node("while_statement", [leaf1, leaf2, p[3], leaf4, p[5]], code = p[3].code[:-1] + tac1 + tac2 + tac4 + tac3 + p[5].code + tac6 + tac5)
 
 # FOR_LOOP
 #Implement Do While too
@@ -927,11 +975,11 @@ def p_for_statement(p):
    leaf4 = create_children("TOK_pararight", p[4])
    beginlabel = newlabel()
    nextlabel = newlabel()
-   iterator = str(p[3].value)
+   iterator = p[1].value
    expr1 = p[3].place[1]
    expr2 = p[3].place[2]
    relop = p[3].place[0]
-   update = str(p[3].place[3])
+   update = p[3].place[3]
    tac1 = ["=," + iterator + ',' + expr1]
    tac2 = ["label," + beginlabel]
    tac3 = ["ifgoto," + nextlabel + ',' + relop + ',' + iterator + ',' + expr2]
@@ -946,7 +994,7 @@ def p_for_update(p):
 
    place1 = p[1].place
    place1.append(p[2].place) #iterator update value
-   p[0] = Node("for_update", [p[1], p[2]], place = place1, code = p[1].code, value = p[1].value)
+   p[0] = Node("for_update", [p[1], p[2],p[3]], place = place1, code = p[1].code, value = p[1].value)
 
 #CHECKFORTHIS
 def p_for_loop(p):
@@ -971,7 +1019,7 @@ def p_for_untilTo(p):
       temp_string = '>'
 
    leaf1 = create_children("LF_Untito", p[1])
-   p[0] = Node("for_untilTo", [leaf1], place = temp_string )
+   p[0] = Node("for_untilTo", [p[1]], place = temp_string )
 
 def p_for_step_opts(p):
    ''' for_step_opts : KW_by expression 
