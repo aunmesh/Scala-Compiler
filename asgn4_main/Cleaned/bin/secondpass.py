@@ -31,7 +31,7 @@ def secondpass(lines):
 		t = ' '.join(t)
 		ans.append(t)
 
-	f = open('/home/mppiyush/project/Scala-Compiler/asgn4_main/Cleaned/test/result.ir','w')
+	f = open('../test/result.ir','w')
 
 	for t in ans:
 
