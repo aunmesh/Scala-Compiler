@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from Scope_SymTab import *
+from secondpass import secondpass
 
 class Node(object): 
    count = 1
@@ -36,7 +37,7 @@ GlobalScope = CurrentScope
 
 count_temp = 0
 count_label = 0
-
+FinalResult = " "
 
 def newlabel():
    global count_label
@@ -47,7 +48,7 @@ def newlabel():
 
 def newtemp(dataType= 'Unit'):
    global count_temp
-   symbol_id = "temp" + str(count_temp)
+   symbol_id = "t" + str(count_temp)
    count_temp += 1
    attr= {'Type' : dataType}
    global CurrentScope
@@ -63,7 +64,14 @@ def newtemp(dataType= 'Unit'):
    else:
       return type1'''
 
-
+def filter_list(input):
+   res = []
+   for t in input:
+      if type(t) == list:
+         res.append(t[0])
+      else:
+         res.append(t)
+   return res
 
 '''PROGRAM '''
 
@@ -71,8 +79,11 @@ def p_compilation_unit(p):
    '''compilation_unit : class_and_obj_declarations'''
    
    p[0]  = Node("compilationUnit", [p[1]], p[1].code)
-   print(('\n').join(p[0].code))
-
+   print(p[0].code)
+   res = filter_list(p[0].code)
+   print(res)
+   FinalResult = ('\n').join(res)
+   secondpass(FinalResult)
 '''DECLARATIONS'''
 
 def p_class_and_obj_declarations(p):
@@ -182,25 +193,37 @@ def p_assignment(p):
    if(p[1].type != p[3].type):
       raise Exception("Type Mismatch in Assignment in line", p.lexer.lineno)
    if(p[2].place == "="):
-      tac1 = ['=,' + p[1].place  + ',' + p[3].place]
-      p[0] = Node("assignment", [p[1],p[2],p[3]],  code = p[1].code + p[3].code + tac1)
+      tac = ['=,' + p[1].place  + ',' + p[3].place]
+      p[0] = Node("assignment", [p[1],p[2],p[3]],  code = p[1].code + p[3].code + tac)
    else:
-      tac1 = [p[2].place[:-1] + ','+ p[1].place + ',' + p[1].place + ',' + p[3].place]
-   p[0] = Node("assignment", [p[1],p[2],p[3]], code = p[1].code + p[3].code + tac1)
+      if(p[1].place[-1] == ']'):
+         temp = newtemp()
+         tac1 = [p[2].place[:-1] + ',' + temp + ',' + temp + ',' + p[3].place]
+         tac2 = ['=,' + p[1].place + ',' + temp]
+         tac = tac1 + tac2
+      else:
+         tac = [p[2].place[:-1] + ','+ p[1].place + ',' + p[1].place + ',' + p[3].place]
+   p[0] = Node("assignment", [p[1],p[2],p[3]], code = p[1].code + p[3].code + tac)
 
 
-def p_left_hand_side(p):
-   ''' left_hand_side : id 
-   | array_access '''
+def p_left_hand_side1(p):
+   ''' left_hand_side : id '''
 
    global CurrentScope
    (x, y) = CurrentScope.find_var_decl(p[1].place)
    if(x == 0):
       raise Exception("Undeclared Variable " + str(p[1]), p.lexer.lineno)
    else:
-      variable = str(y.id) + "_" + p[1].place
+      #variable = str(y.id) + "_" + p[1].place
+      variable = p[1].place
       type1 = y.symbols[p[1].place]['Type']
    p[0] = Node("left_hand_side", [p[1]],code = p[1].code, place = variable, type = type1, value = p[1].value , size = p[1].value )
+
+
+def p_left_hand_side2(p):
+   '''left_hand_side : array_access'''
+   
+   p[0] = Node("left_hand_side", [p[1]],code = p[1].code, place = p[1].place, type = p[1].type, value = p[1].value , size = p[1].value )
 
 def p_id(p):
    ''' id : name 
@@ -237,9 +260,10 @@ def p_array_access(p):
       if( temp_type != "Array"):
          raise Exception("Variable is not of type " + str(temp_type), p.lexer.lineno)
 
-   temp = newtemp(val_type)
-   tac1 = ["=," + temp + ','  + p[1].place + ' ' +  p[2].place]   
-   p[0]  = Node("array_access", [p[1], p[2]], code = p[2].code + tac1, type = val_type, place = temp)
+   #temp = newtemp(val_type)
+   #tac1 = ["=," + temp + ','  + p[1].place + ' ' +  p[2].place]
+   place1 = p[1].place + ' ' +  p[2].place   
+   p[0]  = Node("array_access", [p[1], p[2]], code = p[2].code , type = val_type, place = place1)
 
 def p_dimension(p):
    ''' dimension : TOK_lsqb expression TOK_rsqb '''
@@ -533,12 +557,17 @@ def p_c_literal1(p):
    leaf1 = create_children("LF_Charliteral", p[1])
    if(p[1] == 'True' or p[1] == 'False'):
       temp_type = 'Boolean'
+      temp = newtemp()
+      tac1 = ['=,' + temp + ',' + p[1]]
    elif(p[1] == 'null'):
       temp_type = 'Unit'
+      temp = newtemp()
+      tac1 = ['=,' + temp + ',' + p[1]]
    else:
       temp_type = 'String'
-   temp = newtemp(temp_type)
-   tac1 = ['=,' +  temp + ',' + str(p[1]) ]
+      temp = newtemp(temp_type)
+      stringexp = '"' + p[1] + '"'
+      tac1 = ['=s,' +  temp + ',' +  stringexp ]
    p[0] = Node("c_literal", [leaf1] , code = tac1, place = temp , type = temp_type, value = p[1])
 
 
@@ -578,20 +607,48 @@ def p_int_float2(p):
 def p_method_invocation(p):
    '''method_invocation : id TOK_paraleft argument_list_question TOK_pararight '''
    
+   leaf2 = create_children("TOK_paraleft", p[2])
+   leaf4 = create_children("TOK_pararight", p[4])
+   code1 = []
+
+
+   if(p[1].value == "println"):
+      for i in range(0, len(p[3].type)):
+         if(p[3].type[i] == 'Int'):
+            #function_name = "println"
+            #temp = newtemp()
+            #code1.append("=," + temp + ',' + p[3].place[i])
+            code1.append("print," + p[3].place[i])
+         elif(p[3].type[i] == 'String'):
+            #function_name = "println"
+            #code1.append("=s," + temp + ',' + p[3].place[i])
+            code1.append("print," + p[3].place[i])
+      code1.append("print,newline")
+      p[0] = Node("method_invocation", [p[1], leaf2, p[3], leaf4], code = p[1].code + p[3].code + code1, place = None, type = "Unit")
+      return
+
+   if(p[1].value == "read"):
+      if (len(p[3].type) > 1):
+         raise Exception("read only takes one argument", p.lexer.lineno)
+      temp = newtemp()
+      code1.append("scan," + temp)
+      code1.append("=," + p[3].place[0] + ',' + temp)
+      p[0] = Node("method_invocation", [p[1], leaf2, p[3], leaf4], code = p[1].code + p[3].code + code1, place = None, type = "Unit")
+      return
+
    global CurrentScope
    retval = None
    (x, y) = CurrentScope.find_func_decl(p[1].place)
    if(x == 0):
       raise Exception("Function not Declared", p.lexer.lineno)
-   elif (p[3].val != y.functions[p[1].place]["num_args"]):
+   elif (p[3].value != y.functions[p[1].place]["num_args"]):
       raise Exception("Number of arguments do not match", p.lexer.lineno)
    else:
-      function_name = str(y.id) + '_' + p[1].place
+      #function_name = str(y.id) + '_' + p[1].place
+      function_name = p[1].place
 
 
-   leaf2 = create_children("TOK_paraleft", p[2])
-   leaf4 = create_children("TOK_pararight", p[4])
-   code1 = []
+   
    for i in p[3].place:
       code1.append(['param,'  + str(i)])
 
@@ -655,12 +712,12 @@ def p_variable_declaration_initializer(p):
    '''variable_declaration_initializer : expression
                               | array_initializer'''
 
-   p[0] = Node("variable_declaration_initializer", [p[1]], place = p[1].place , type = p[1].type, code = p[1].code)
+   p[0] = Node("variable_declaration_initializer", [p[1]], place = p[1].place , type = p[1].type, code = p[1].code, value = p[1].value)
 
 def p_variable_declaration_body(p):
    '''variable_declaration_body : TOK_identifier type_question TOK_assignment  variable_declaration_initializer '''
 
-   print("p[2] type := " + str(p[2].type) + " p[4] type = " + str(p[4].type))
+   
    leaf1 = create_children("TOK_identifier", p[1])
    leaf3 = create_children("TOK_assignment", p[3])
    global CurrentScope
@@ -673,8 +730,13 @@ def p_variable_declaration_body(p):
       attr['Type'] = p[2].type
       attr['Size'] = p[2].size
       CurrentScope.add_symbol(p[1], attr)
-      variable = str(CurrentScope.id) + '_' + p[1]
-      tac1 = ['=,' + variable + ',' + p[4].place]
+      #variable = str(CurrentScope.id) + '_' + p[1]
+      variable = p[1]
+      if(p[4].value == "Array"):
+         cd = p[4].place[0] + p[1] + p[4].place[1]
+         tac1 = [cd]
+      else:
+         tac1 = ['=,' + variable + ',' + p[4].place]
       p[0] = Node("variable_declaration_body", [leaf1, p[2], leaf3, p[4]], code = p[4].code + tac1, place = variable, type = p[2].type)
 
 
@@ -690,7 +752,8 @@ def p_variable_declarator_id(p):
       attr['Type'] = p[3].type
       attr['Size'] = p[3].size
       CurrentScope.add_symbol(p[1], attr)
-      variable = str(CurrentScope.id) + "_" + p[1]
+      #variable = str(CurrentScope.id) + "_" + p[1]
+      variable = p[1]
       leaf1 = create_children("TOK_identifier", p[1])
       leaf2 = create_children("TOK_colon", p[2])
       p[0] = Node("variable_declarator_id", [leaf1, leaf2, p[3]], code = [], type = p[3].type, place = variable, value = 1)
@@ -753,9 +816,9 @@ def p_array_initializer(p):
    leaf7 = create_children("TOK_int", p[7])
    leaf8 = create_children("TOK_pararight", p[8])
    type1 = 'Array_' + str(p[4].type)
-   temp = newtemp()
-   tac1 = ['Array,' + temp + ',' + '4*' + str(p[7])] 
-   p[0] = Node("array_initializer", [leaf1, leaf2, leaf3, p[4], leaf5, leaf6, leaf7, leaf8], code = tac1, type = type1, place = temp)
+   #temp = newtemp()
+   tac1 = ['Array,', ',' + '4*' + str(p[7])] 
+   p[0] = Node("array_initializer", [leaf1, leaf2, leaf3, p[4], leaf5, leaf6, leaf7, leaf8], code = [], type = type1, place = tac1, value = 'Array')
 
 
 #Statements
@@ -962,7 +1025,8 @@ def p_method_header1(p):
 
    global CurrentScope
    fun_attr = {}
-   fun_name = str(CurrentScope.id) + "_" + p[2].place
+   #fun_name = str(CurrentScope.id) + "_" + p[2].place
+   fun_name = p[2].place
    tac1 = ["label," + fun_name]
    
    fun_attr['InputType'] = p[4].type #InputType
@@ -981,10 +1045,10 @@ def p_method_header1(p):
 def p_method_header2(p):
    '''method_header : KW_def name TOK_paraleft fun_params_question TOK_pararight '''
 
-   print("Here method_header2")
    global CurrentScope
    fun_attr = {}
-   fun_name = str(CurrentScope.id) + "_" + p[2].place
+   #fun_name = str(CurrentScope.id) + "_" + p[2].place
+   fun_name = p[2].place
    tac1 = ["label," + fun_name]
    
    fun_attr['InputType'] = p[4].type #InputType
