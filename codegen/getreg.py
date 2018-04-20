@@ -31,7 +31,7 @@ def spill(reg):
 
 
 
-def memclear(var):
+def mem_clear(var):
 	if var in main.mem:
 		main.mem.remove(var)
 

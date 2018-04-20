@@ -31,7 +31,7 @@ def NAME(op):
 	elif (op == "<"):
 		return "blt"
 
-def MOVE(reg,y):                    # Load the value of variable contained in y to reg
+def MOVE(reg,y):                    # value of variable contained in y  is loaded to reg
 	if len(main.ad[y])==0:
 		print "\t" + "lw " + reg + ", " + y
 	elif (reg!= main.ad[y][0]):
@@ -52,7 +52,7 @@ def COP(op,z,reg):                  # value(reg) = value(reg) op int(z)
 		print "\t" + op + " " + reg + ', ' + reg + ', $a0'
 
 def UPDATE(x,reg):
-	getreg.memclear(x)
+	getreg.mem_clear(x)
 	getreg.rd_del(x)
 	getreg.rd_add(reg,x)
 
@@ -69,7 +69,7 @@ def XequalY(x,y):
 				if y in main.map_ptr:
 					main.map_ptr[x] = main.map_ptr[y]
 					getreg.rd_del(x)
-					getreg.memclear(x)
+					getreg.mem_clear(x)
 				else:
 					if x in main.map_ptr:
 						del main.map_ptr[x]
@@ -180,7 +180,7 @@ for line in lines:
 			y = line[4]
 			main.map_ptr[x] = y
 			getreg.rd_del(x)
-			getreg.memclear(x)
+			getreg.mem_clear(x)
 		elif("*" in line):        # = * x y      or = x * y
 			if(line[2] == '*'):
 				x = line[3]
@@ -195,7 +195,7 @@ for line in lines:
 
 
 
-	elif (op in ['+','-','/','*','%','&','|','^','>>','<<']):           # x = y op z  where x & y are variables and z can or cannot be
+	elif (op in ['+','-','/','*','%','&','|','^','>>','<<']):           # x = y op z  where x & y are variables and z is not
 			x = line[2]
 			y = line[3]
 			z = line[4]
@@ -245,6 +245,14 @@ for line in lines:
 		print "\t" + x + ": "
 		print "\t" + "addi $sp, $sp, -4"
 		print "\t" + "sw $ra, 0($sp)"	
+ 	elif op == 'call':
+ 	 	x = line[2]          # function name contained in x
+ 	 	print "\t" + "jal " + x
+ 	 	if(len(line)>3):     #value returning function
+ 	 		y = line[3]
+ 	 		reg = getreg.reg_find(lno)
+			print "\t" + "addi " + reg + ", $v0, 0" 
+			UPDATE(y,reg)
 
 	elif op == "ifgoto":
 		x = line[-2]
@@ -272,24 +280,14 @@ for line in lines:
 				getreg.rd_add(regy,y)
 			print "\t" + NAME(relop) + " " + regx + ", " + regy + ", " + "BLOCK" + str(main.block_get[branch])
 				
- 	elif op == 'call':
- 	 	x = line[2]          # x contains the function name
- 	 	print "\t" + "jal " + x
- 	 	if(len(line)>3):     #value returning function
- 	 		y = line[3]
- 	 		reg = getreg.reg_find(lno)
-			print "\t" + "addi " + reg + ", $v0, 0" 
-			UPDATE(y,reg)
-	elif op == 'ret':
-		if(len(line) > 2):                # value returning function
-			x = line[2]
-			if(x.isdigit()):
-				print "\t" + "li $v0, " + x
-			else:
-				MOVE('$v0',x)
-		print "\t" + "lw $ra, 0($sp)"
-		print "\t" + "addi $sp, $sp, 4"
-		print "\t" + "jr $ra"
+
+
+	elif ( op == 'scan'):
+		x = line[2]
+		reg = getreg.reg_find(lno)
+		print "\t" + "li $v0, 5\n" + "\t" + "syscall"
+		print "\t" + "move " + reg + ", $v0"
+		UPDATE(x,reg)
 
 	elif op == 'print':
 		x = line[2]
@@ -319,12 +317,16 @@ for line in lines:
 						getreg.rd_add(reg,x)
 					print "\t" + "move $a0, " + reg
 			print "\t" + "syscall"
-	elif ( op == 'scan'):
-		x = line[2]
-		reg = getreg.reg_find(lno)
-		print "\t" + "li $v0, 5\n" + "\t" + "syscall"
-		print "\t" + "move " + reg + ", $v0"
-		UPDATE(x,reg)
+	elif op == 'ret':
+		if(len(line) > 2):                # value returning function
+			x = line[2]
+			if(x.isdigit()):
+				print "\t" + "li $v0, " + x
+			else:
+				MOVE('$v0',x)
+		print "\t" + "lw $ra, 0($sp)"
+		print "\t" + "addi $sp, $sp, 4"
+		print "\t" + "jr $ra"
 	elif ( op == 'exit'):
 		print "\t" + "li $v0, 10\n" + "\t" + "syscall"
 	
@@ -332,5 +334,5 @@ for line in lines:
 		getreg.update_dead(x,lno)
 print "\n"	
 
-# state -1 => new register is returned && x is in memory and not register
-# state 1  => x ka register
+# state -1 => new register is returned && x is only in memory  not register
+# state 1  => register of x
