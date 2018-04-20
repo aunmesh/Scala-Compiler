@@ -177,7 +177,6 @@ def p_assignment_expression(p):
 
 '''def p_if_else_expression(p):
     if_else_expression : KW_if TOK_paraleft expression TOK_pararight expression KW_else expression 
-
    leaf1 = create_children("KW_if", p[1])
    leaf2 = create_children("TOK_paraleft", p[2])
    leaf4 = create_children("TOK_pararight", p[4])
@@ -336,7 +335,7 @@ def p_inclusive_or_expression(p):
       if(p[1].type != p[3].type):
          raise Exception("Type mismatch in line ", p.lexer.lineno)
       temp = newtemp(p[1].type)
-      tac1 = ['|,' + temp + ',' + p[1].place + ',' + p[3].place]
+      tac1 = ['| ,' + temp + ',' + p[1].place + ',' + p[3].place]
       p[0] = Node("inclusive_or_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
 
 def p_exclusive_or_expression(p):
@@ -351,7 +350,7 @@ def p_exclusive_or_expression(p):
       if(p[1].type != p[3].type):
          raise Exception("Type mismatch in line ", p.lexer.lineno)
       temp = newtemp(p[1].type)
-      tac1 = ['^,' + temp + ',' + p[1].place + ',' + p[3].place]
+      tac1 = ['^ ,' + temp + ',' + p[1].place + ',' + p[3].place]
 
       p[0] = Node("exclusive_or_expression", [p[1], leaf2, p[3]], place = temp , type = p[1].type , code = p[1].code + p[3].code + tac1)
 
@@ -523,10 +522,8 @@ def p_variable_literal(p):
 '''
 def p_cast_expression(p):
    cast_expression : TOK_paraleft primitive_type TOK_pararight unary_expression
-
    leaf1 = create_children("TOK_paraleft", p[1])
    leaf3 = create_children("TOK_pararight", p[3])
-
    p[0] = Node("cast_expression", [leaf1, p[2], leaf3, p[4]])
 '''
 
@@ -614,9 +611,9 @@ def p_method_invocation(p):
       for i in range(0, len(p[3].type)):
          if(p[3].type[i] == 'Int'):
             #function_name = "println"
-            temp = newtemp()
-            code1.append("=," + temp + ',' + p[3].place[i])
-            code1.append("print," + temp)
+            #temp = newtemp()
+            #code1.append("=," + temp + ',' + p[3].place[i])
+            code1.append("print," + p[3].place[i])
          elif(p[3].type[i] == 'String'):
             #function_name = "println"
             #code1.append("=s," + temp + ',' + p[3].place[i])
@@ -630,7 +627,6 @@ def p_method_invocation(p):
          raise Exception("read only takes one argument", p.lexer.lineno)
       temp = newtemp()
       code1.append("scan," + temp)
-      code1.append("println,newline")
       code1.append("=," + p[3].place[0] + ',' + temp)
       p[0] = Node("method_invocation", [p[1], leaf2, p[3], leaf4], code = p[1].code + p[3].code + code1, place = None, type = "Unit")
       return
@@ -927,11 +923,11 @@ def p_for_statement(p):
    leaf4 = create_children("TOK_pararight", p[4])
    beginlabel = newlabel()
    nextlabel = newlabel()
-   iterator = str(p[3].value)
+   iterator = p[1].value
    expr1 = p[3].place[1]
    expr2 = p[3].place[2]
    relop = p[3].place[0]
-   update = str(p[3].place[3])
+   update = p[3].place[3]
    tac1 = ["=," + iterator + ',' + expr1]
    tac2 = ["label," + beginlabel]
    tac3 = ["ifgoto," + nextlabel + ',' + relop + ',' + iterator + ',' + expr2]
@@ -946,7 +942,7 @@ def p_for_update(p):
 
    place1 = p[1].place
    place1.append(p[2].place) #iterator update value
-   p[0] = Node("for_update", [p[1], p[2]], place = place1, code = p[1].code, value = p[1].value)
+   p[0] = Node("for_update", [p[1], p[2],p[3]], place = place1, code = p[1].code, value = p[1].value)
 
 #CHECKFORTHIS
 def p_for_loop(p):
@@ -971,7 +967,7 @@ def p_for_untilTo(p):
       temp_string = '>'
 
    leaf1 = create_children("LF_Untito", p[1])
-   p[0] = Node("for_untilTo", [leaf1], place = temp_string )
+   p[0] = Node("for_untilTo", [p[1]], place = temp_string )
 
 def p_for_step_opts(p):
    ''' for_step_opts : KW_by expression 
@@ -1154,4 +1150,3 @@ LEAF_NODES = ['KW_obj',
    'KW_extends',
    'KW_def'
    ]
-
