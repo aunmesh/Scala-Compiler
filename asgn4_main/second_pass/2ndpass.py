@@ -27,6 +27,21 @@ for lineno , line in enumerate(result):
 		if(temp in label_line.keys()):
 			line[ind] = label_line[temp] + 1
 
+result[-1] = ["exit 0"]
+for i,t in enumerate(result,1):
+	print(t)
+	t.insert(0,str(i))
+	for i,temp in enumerate(t):
+		t[i] = str(temp)
+	t = ' '.join(t)
+	ans.append(t)
+
+f = open('result.txt','a')
+
+for t in ans:
+
+	f.write(t+"\n")
+f.close()
 '''
 	print(line)
 	line.insert(0,str(lineno+1))
